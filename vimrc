@@ -10,16 +10,16 @@ call pathogen#helptags()
 
 " Autocommands {{{1
 if has("autocmd")
-  filetype plugin indent on
-  augroup vimrcEx
-  au!
-  autocmd BufReadPost *
-    \ if line("'\"") > 1 && line("'\"") <= line("$") |
-    \   exe "normal! g`\"" |
-    \ endif
-  augroup END
+    filetype plugin indent on
+    augroup vimrcEx
+        au!
+        autocmd BufReadPost *
+                    \ if line("'\"") > 1 && line("'\"") <= line("$") |
+                    \   exe "normal! g`\"" |
+                    \ endif
+    augroup END
 else
-  set autoindent		" always set autoindenting on
+    set autoindent		" always set autoindenting on
 endif
 
 " Preferences {{{1
@@ -32,8 +32,8 @@ set hidden
 set nojoinspaces
 set nrformats=
 if has('mouse')
-  " Don't want the mouse to work in insert mode.
-  set mouse=nv
+    " Don't want the mouse to work in insert mode.
+    set mouse=nv
 endif
 
 " Tab-completion in command-line mode
@@ -51,8 +51,8 @@ set relativenumber
 set cursorline
 " When the terminal has colors, enable syntax+search highlighting
 if &t_Co > 2 || has("gui_running")
-  syntax on
-  set hlsearch
+    syntax on
+    set hlsearch
 endif
 set foldlevelstart=99
 
@@ -103,15 +103,15 @@ nnoremap viT vitVkoj
 nnoremap vaT vatV
 " Strip trailing whitespace {{{2
 function! Preserve(command)
-  " Preparation: save last search, and cursor position.
-  let _s=@/
-  let l = line(".")
-  let c = col(".")
-  " Do the business:
-  execute a:command
-  " Clean up: restore previous search history, and cursor position
-  let @/=_s
-  call cursor(l, c)
+    " Preparation: save last search, and cursor position.
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " Do the business:
+    execute a:command
+    " Clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
 endfunction
 
 nmap _$ :call Preserve("%s/\\s\\+$//e")<CR>
@@ -120,48 +120,48 @@ nmap _$ :call Preserve("%s/\\s\\+$//e")<CR>
 " http://stackoverflow.com/questions/7400743/
 cnoremap <c-x> <c-r>=<SID>PasteEscaped()<cr>
 function! s:PasteEscaped()
-  echo "\\".getcmdline()."\""
-  let char = getchar()
-  if char == "\<esc>"
-    return ''
-  else
-    let register_content = getreg(nr2char(char))
-    let escaped_register = escape(register_content, '\'.getcmdtype())
-    return substitute(escaped_register, '\n', '\\n', 'g')
-  endif
+    echo "\\".getcmdline()."\""
+    let char = getchar()
+    if char == "\<esc>"
+        return ''
+    else
+        let register_content = getreg(nr2char(char))
+        let escaped_register = escape(register_content, '\'.getcmdtype())
+        return substitute(escaped_register, '\n', '\\n', 'g')
+    endif
 endfunction
 " Custom commands {{{1
 function! Foo()
-  call system('sleep 2')
+    call system('sleep 2')
 endfunction
 " :Stab {{{2
 " Set tabstop, softtabstop and shiftwidth to the same value
 " From http://vimcasts.org/episodes/tabs-and-spaces/
 command! -nargs=* Stab call Stab()
 function! Stab()
-  let l:tabstop = 1 * input('set tabstop = softtabstop = shiftwidth = ')
-  if l:tabstop > 0
-    let &l:sts = l:tabstop
-    let &l:ts = l:tabstop
-    let &l:sw = l:tabstop
-  endif
-  call SummarizeTabs()
+    let l:tabstop = 1 * input('set tabstop = softtabstop = shiftwidth = ')
+    if l:tabstop > 0
+        let &l:sts = l:tabstop
+        let &l:ts = l:tabstop
+        let &l:sw = l:tabstop
+    endif
+    call SummarizeTabs()
 endfunction
 
 function! SummarizeTabs()
-  try
-    echohl ModeMsg
-    echon 'tabstop='.&l:ts
-    echon ' shiftwidth='.&l:sw
-    echon ' softtabstop='.&l:sts
-    if &l:et
-      echon ' expandtab'
-    else
-      echon ' noexpandtab'
-    end
-  finally
-    echohl None
-  endtry
+    try
+        echohl ModeMsg
+        echon 'tabstop='.&l:ts
+        echon ' shiftwidth='.&l:sw
+        echon ' softtabstop='.&l:sts
+        if &l:et
+            echon ' expandtab'
+        else
+            echon ' noexpandtab'
+        end
+    finally
+        echohl None
+    endtry
 endfunction
 " :CloseHiddenBuffers {{{2
 " Wipe all buffers which are not active (i.e. not visible in a window/tab)
@@ -170,22 +170,22 @@ endfunction
 "   http://stackoverflow.com/questions/1534835
 command! -nargs=* Only call CloseHiddenBuffers()
 function! CloseHiddenBuffers()
-  " figure out which buffers are visible in any tab
-  let visible = {}
-  for t in range(1, tabpagenr('$'))
-    for b in tabpagebuflist(t)
-      let visible[b] = 1
+    " figure out which buffers are visible in any tab
+    let visible = {}
+    for t in range(1, tabpagenr('$'))
+        for b in tabpagebuflist(t)
+            let visible[b] = 1
+        endfor
     endfor
-  endfor
-  " close any buffer that are loaded and not visible
-  let l:tally = 0
-  for b in range(1, bufnr('$'))
-    if bufloaded(b) && !has_key(visible, b)
-      let l:tally += 1
-      exe 'bw ' . b
-    endif
-  endfor
-  echon "Deleted " . l:tally . " buffers"
+    " close any buffer that are loaded and not visible
+    let l:tally = 0
+    for b in range(1, bufnr('$'))
+        if bufloaded(b) && !has_key(visible, b)
+            let l:tally += 1
+            exe 'bw ' . b
+        endif
+    endfor
+    echon "Deleted " . l:tally . " buffers"
 endfun
 " Plugin configuration {{{1
 " textobj-entire {{{2
@@ -201,20 +201,20 @@ let g:netrw_banner=0
 " Fugitive.vim {{{2
 if has("autocmd")
 
-  " Auto-close fugitive buffers
-  autocmd BufReadPost fugitive://* set bufhidden=delete
+    " Auto-close fugitive buffers
+    autocmd BufReadPost fugitive://* set bufhidden=delete
 
-  " Navigate up one level from fugitive trees and blobs
-  autocmd User fugitive
-    \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
-    \   nnoremap <buffer> .. :edit %:h<CR> |
-    \ endif
+    " Navigate up one level from fugitive trees and blobs
+    autocmd User fugitive
+                \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
+                \   nnoremap <buffer> .. :edit %:h<CR> |
+                \ endif
 
 endif
 
 " Add git branch to statusline.
 if exists("*fugitive#statusline")
-  set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+    set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 endif
 
 " Gundo.vim {{{2

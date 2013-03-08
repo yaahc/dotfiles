@@ -25,3 +25,9 @@
 [submodule "vim/bundle/gundo"]
 	path = vim/bundle/gundo
 	url = https://github.com/sjl/gundo.vim.git
+[submodule "vim/bundle/command-t"]
+	path = vim/bundle/command-t
+	url = https://github.com/wincent/Command-T.git
+[submodule "vim/bundle/NesC-Syntax-Highlighting"]
+	path = vim/bundle/NesC-Syntax-Highlighting
+	url = https://github.com/vim-scripts/NesC-Syntax-Highlighting.git
