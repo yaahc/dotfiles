@@ -27,6 +27,7 @@ endif
 set backspace=indent,eol,start
 set history=50
 set incsearch
+set ignorecase smartcase
 set visualbell t_vb=
 set hidden
 set nojoinspaces
@@ -35,6 +36,8 @@ if has('mouse')
     " Don't want the mouse to work in insert mode.
     set mouse=nv
 endif
+set matchtime=0 "Dont jump around highlighting braces
+set gdefault
 
 " Tab-completion in command-line mode
 set wildmode=full
