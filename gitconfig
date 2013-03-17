@@ -1,0 +1,11 @@
+[user]
+	name = John Lusby
+	email = jlusby42@gmail.com
+[core]
+	editor = vim
+[merge]
+	tool = vimdiff
+[color]
+	ui = true
+[push]
+	default = simple
