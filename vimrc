@@ -39,8 +39,14 @@ endif
 set matchtime=0 "Dont jump around highlighting braces
 
 " Tab-completion in command-line mode
-set wildmode=full
 set wildmenu
+set wildmode=longest:full
+set completeopt=longest,menu,preview
+let g:SuperTabLongestHighlight=1
+let g:SuperTabDefaultCompletionType = "<c-n>"
+" let g:SuperTabDefaultCompletionType = context
+" enable this shit if I manage to set up omnicomplete correctly
+let g:SuperTabLongestEnhanced = 1
 set wildignore=*.pdf,*.fo,*.xml
 set suffixes=.otl
 
