@@ -31,3 +31,6 @@
 [submodule "vim/bundle/NesC-Syntax-Highlighting"]
 	path = vim/bundle/NesC-Syntax-Highlighting
 	url = https://github.com/vim-scripts/NesC-Syntax-Highlighting.git
+[submodule "vim/bundle/snipmate"]
+	path = vim/bundle/snipmate
+	url = https://github.com/msanders/snipmate.vim.git

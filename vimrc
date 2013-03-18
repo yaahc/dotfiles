@@ -37,7 +37,6 @@ if has('mouse')
     set mouse=nv
 endif
 set matchtime=0 "Dont jump around highlighting braces
-set gdefault
 
 " Tab-completion in command-line mode
 set wildmode=full
