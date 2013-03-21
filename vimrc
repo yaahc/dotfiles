@@ -62,6 +62,8 @@ if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
 endif
+set background=dark
+colorscheme peachpuff
 set foldlevelstart=99
 
 " Indentation {{{2
@@ -204,8 +206,6 @@ xmap aa  <Plug>(textobj-entire-a)
 omap aa  <Plug>(textobj-entire-a)
 xmap ia  <Plug>(textobj-entire-i)
 omap ia  <Plug>(textobj-entire-i)
-" netrw.vim {{{2
-let g:netrw_banner=0
 " Fugitive.vim {{{2
 if has("autocmd")
 

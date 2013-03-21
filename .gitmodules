@@ -37,3 +37,9 @@
 [submodule "vim/bundle/supertab"]
 	path = vim/bundle/supertab
 	url = https://github.com/ervandew/supertab.git
+[submodule "vim/bundle/HiLinkTrace"]
+	path = vim/bundle/HiLinkTrace
+	url = https://github.com/gerw/vim-HiLinkTrace.git
+[submodule "vim/bundle/colorschemes"]
+	path = vim/bundle/colorschemes
+	url = https://github.com/flazz/vim-colorschemes.git
