@@ -37,6 +37,6 @@
 [submodule "vim/bundle/HiLinkTrace"]
 	path = vim/bundle/HiLinkTrace
 	url = https://github.com/gerw/vim-HiLinkTrace.git
-[submodule "vim/bundle/colorschemes"]
-	path = vim/bundle/colorschemes
-	url = https://github.com/flazz/vim-colorschemes.git
+[submodule "vim/bundle/vim-colors-solarized"]
+	path = vim/bundle/vim-colors-solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
