@@ -18,12 +18,25 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
-#ls aliases
-alias la="ls --group-directories-first -AFX"
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls -X --color=auto --group-directories-first'
+    alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
 
-alias ls="ls --color=auto"
+    export LESS="-R"
+    export GREP_OPTIONS='--color=always'
+    #alias grep='grep --color=auto'
+    #alias fgrep='fgrep --color=auto'
+    #alias egrep='egrep --color=auto'
+fi
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
 autoload -U colors && colors
-
 autoload -U promptinit
 promptinit
 
@@ -44,3 +57,12 @@ function precmd() {
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
 #use solarized ls colors
 #eval $(dircolors ~/.dir_colors)
+
+# colorful man pages
+export LESS_TERMCAP_mb=$'\E[01;31m'
+export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'
