@@ -1,8 +1,11 @@
-! terminal colors ------------------------------------------------------------
+!#include "/home/jlusby/dotfiles/colors/solarized"
 
+! terminal colors ------------------------------------------------------------
+!
 ! tangoesque scheme
-*background: #000000
-*foreground: #ffffff
+! tangoesque scheme
+*background: #1f1f1f
+*foreground: #bfbfbf
 ! Black (not tango) + DarkGrey
 *color0:  #000000
 *color8:  #555753
@@ -16,8 +19,8 @@
 *color3:  #C4A000
 *color11: #FCE94F
 ! DarkBlue + Blue
-*color4:  #3465A4
-*color12: #729FCF
+!*color4:  #3465A4
+!*color12: #729FCF
 ! DarkMagenta + Magenta
 *color5:  #75507B
 *color13: #AD7FA8
@@ -27,9 +30,11 @@
 ! LightGrey + White
 *color7:  #D3D7CF
 *color15: #EEEEEC
-
-! URXVT settings
-URxvt.depth: 32
-URxvt.background: [50]#000000
-URxvt.scrollBar: false
-URxvt.font: xft:Inconsolata:size=11
+xterm*borderWidth: 0
+xterm*termName: xterm-256color
+XTerm*locale: true
+XTerm*metaSendsEscape: true
+XTerm*saveLines: 4096
+xterm*faceName: Inconsolata:size=9
+xterm*font: fixed
+xterm*boldFont: fixed
