@@ -25,7 +25,7 @@ if [ -x /usr/bin/dircolors ]; then
     #alias vdir='vdir --color=auto'
 
     export LESS="-R"
-    export GREP_OPTIONS='--color=always'
+    export GREP_OPTIONS='--color=auto'
     #alias grep='grep --color=auto'
     #alias fgrep='fgrep --color=auto'
     #alias egrep='egrep --color=auto'
