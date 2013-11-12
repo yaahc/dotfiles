@@ -1,7 +1,7 @@
 installation
 
-    git clone git://git@github.com/jlusby/dotfiles
-    
+    git clone git@github.com:jrlusby/dotfiles.git
+   
 Where possible, Vim plugins are installed as git submodules. Check these out by
 running the commands:
 
