@@ -36,6 +36,9 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+#random Aliases
+alias pianobar='pianobar | tee ~/.piano_lines.out'
+
 autoload -U colors && colors
 autoload -U promptinit
 promptinit
@@ -59,10 +62,11 @@ function precmd() {
 #eval $(dircolors ~/.dir_colors)
 
 # colorful man pages
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_mb=$'\E[31m'
+export LESS_TERMCAP_md=$'\E[31m'
 export LESS_TERMCAP_me=$'\E[0m'
 export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_so=$'\E[1;40;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
+export LESS_TERMCAP_us=$'\E[32m'
+
