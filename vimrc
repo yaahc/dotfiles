@@ -57,7 +57,6 @@ set laststatus=2
 set listchars=tab:▸\ ,eol:¬
 set relativenumber
 set number
-set cursorline
 " When the terminal has colors, enable syntax+search highlighting
 if &t_Co > 2 || has("gui_running")
     syntax on
