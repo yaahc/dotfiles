@@ -1,3 +1,4 @@
+set t_Co=16
 set nocompatible
 let mapleader = ","
 " Load plugins that ship with Vim {{{1
