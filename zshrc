@@ -9,6 +9,9 @@ fi
 HISTFILE=~/.histfile
 HISTSIZE=2000
 SAVEHIST=2000
+bindkey "^K" history-search-backward
+bindkey "^J" history-search-forward
+bindkey '^R' history-incremental-search-backward
 bindkey -v
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
