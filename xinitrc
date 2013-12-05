@@ -10,7 +10,7 @@
 xset +fp /usr/share/fonts/local
 xset fp rehash
 
-#sh ~/.fehbg &
+sh ~/.fehbg &
 #DISPLAY=:0.0 feh --bg-scale "$(find ~/.wallpaper/*|shuf -n1)"
 #random_wallpaper & 
 xrdb ~/.Xresources
