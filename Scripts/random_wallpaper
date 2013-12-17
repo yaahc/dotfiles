@@ -1,0 +1,2 @@
+#! /bin/sh
+DISPLAY=:0 feh --bg-max "$(find ~/.wallpaper/*.*|shuf -n1)"

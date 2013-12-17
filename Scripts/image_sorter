@@ -1,0 +1,34 @@
+#! /bin/bash
+
+cleanup()
+{
+    pkill sxiv
+    return $?
+}
+
+control_c()
+{
+    echo "--cleaning up--"
+    cleanup
+    exit $?
+}
+
+trap control_c SIGINT
+
+Dirs=(. tg2 tt td gif)
+
+for i in "$@"
+do
+    sxiv "$i" &
+    sleep .45
+    bspc window -f last
+    read dest_dir
+    if [ "$dest_dir" == "w" ]; then
+        cp "$i" "$HOME/.wallpaper"
+        mv "$i" "${Dirs[1]}"
+    else
+        mv "$i" "${Dirs[$dest_dir]}"
+    fi
+    disown sxiv
+    pkill sxiv
+done
