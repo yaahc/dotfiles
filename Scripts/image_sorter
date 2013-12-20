@@ -15,7 +15,7 @@ control_c()
 
 trap control_c SIGINT
 
-Dirs=(. tg2 tt td gif)
+Dirs=(Archive tg2 tt td gif)
 
 for i in "$@"
 do
@@ -27,6 +27,7 @@ do
         cp "$i" "$HOME/.wallpaper"
         mv "$i" "${Dirs[1]}"
     else
+        #echo mv "$i" "${Dirs[$dest_dir]}"
         mv "$i" "${Dirs[$dest_dir]}"
     fi
     disown sxiv
