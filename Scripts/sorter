@@ -1,6 +1,8 @@
 #! /bin/python3
 
 import fileinput
+import argparse
 
-for line in fileinput.input():
-    print(line)
+parser = argparse.ArgumentParser(description='Manually sort files into different directories')
+parser.add_argument('-d', '--dest-directories', nargs='+', required=True, help='directories for files to be placed into while sorting')
+parser.parse_args()
