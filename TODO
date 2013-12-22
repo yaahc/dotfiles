@@ -9,3 +9,4 @@ improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
 set up trash can / file browser
 find or write a more sophisticated wallpaper managing system. Particularly, go to previous wallpaper(s), delete wallpaper and change to new one, etc.
+Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc.... someday in the distant future.
