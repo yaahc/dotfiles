@@ -6,6 +6,7 @@ from random import shuffle
 import sys
 import shutil
 import subprocess
+import os
 
 #create argument parser
 parser = argparse.ArgumentParser(description='Manually sort files into different directories')
@@ -46,7 +47,20 @@ for file in Files:
     subprocess.call(["bspc", "window", "-f", "last"]) # extremely environmentally specific
     #requests user input to choose destination for the file
     dest = input()
-    #moves the file to new location
-    shutil.move(file, args.dest_directories[int(dest)])
+    dest = dest.split(' ')
+    #moves the file to new location(s)
+    copied = True
+    for d in dest:
+        if d.isdigit():
+            try:
+                shutil.copy(file, args.dest_directories[int(d)])
+            except shutil.Error:
+                print('file named:',file,' already exists in target directory, couldnt move it')
+                copied = False
+        else:
+            print('Invalid user input')
+            copied = False
+    if copied:
+        os.remove(file)
     #kills the image viewer process holding recently sorted image. if I knew a way to pass the entire list to the image sorter and then iterate through it I totally would
     imageview.kill()
