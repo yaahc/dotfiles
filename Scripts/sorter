@@ -3,10 +3,14 @@
 import fileinput
 import argparse
 from random import shuffle
+import sys
+import shutil
+import subprocess
 
 parser = argparse.ArgumentParser(description='Manually sort files into different directories')
 
 parser.add_argument('-d', '--dest-directories', nargs='+', required=True, help='directories for files to be placed into while sorting')
+#parser.add_argument('-f', '--files', required=True, nargs='+', help='files to be sorted')
 parser.add_argument('-r', '--randomize', action='store_true', help='randomize the order in which files are presented for sorting')
 
 args = parser.parse_args()
@@ -21,5 +25,14 @@ print( Files )
     
 if args.randomize:
     shuffle(Files)
+
+sys.stdin = open('/dev/tty')
+for file in Files:
+    imageview = subprocess.Popen(["sxiv", file])
+    subprocess.call(["sleep", ".45"])
+    subprocess.call(["bspc", "window", "-f", "last"])
+    dest = input()
+    shutil.move(file, args.dest_directories[int(dest)])
+    imageview.kill()
     
 print( Files )
