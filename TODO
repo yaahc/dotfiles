@@ -8,3 +8,4 @@ Do that top attribution author comment thing on sorter
 improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
 set up trash can / file browser
+Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc.... someday in the distant future.
