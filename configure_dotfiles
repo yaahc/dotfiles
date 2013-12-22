@@ -1,0 +1,21 @@
+#! /bin/sh
+git submodule init
+git submodule update
+cd ~/
+#ln -s ~/dotfiles/bashrc ~/.bashrc
+ln -s ~/dotfiles/vimrc ~/.vimrc
+ln -s ~/dotfiles/vim ~/.vim
+ln -s ~/dotfiles/gvimrc ~/.gvimrc
+ln -s ~/dotfiles/gitignore_global ~/.gitignore_global
+ln -s ~/dotfiles/gitconfig ~/.gitconfig
+ln -s ~/dotfiles/xinitrc ~/.xinitrc
+ln -s ~/dotfiles/Xresources ~/.Xresources
+ln -s ~/dotfiles/zprofile ~/.zprofile
+ln -s ~/dotfiles/zshrc ~/.zshrc
+mkdir ~/.config
+mkdir ~/tmp
+ln -s ~/dotfiles/bspwm ~/.config/bspwm
+ln -s ~/dotfiles/sxhkd ~/.config/sxhkd
+ln -s ~/dotfiles/weechat ~/.config/weechat
+ln -s ~/dotfiles/pianobar ~/.config/pianobar
+ln -s ~/dotfiles/Scripts ~/Scripts
