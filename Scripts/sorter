@@ -18,6 +18,14 @@ parser.add_argument('-r', '--randomize', action='store_true', help='randomize th
 #run argument parsing on argv
 args = parser.parse_args()
 
+#print out the number to directory mappings
+i = 0
+for arg in args.dest_directories:
+    print(i, arg, ', ', end='')
+    i += 1
+
+print()
+
 #create empty Files list
 Files = []
 
