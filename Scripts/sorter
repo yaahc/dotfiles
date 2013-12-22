@@ -5,8 +5,10 @@ import argparse
 from random import shuffle
 
 parser = argparse.ArgumentParser(description='Manually sort files into different directories')
+
 parser.add_argument('-d', '--dest-directories', nargs='+', required=True, help='directories for files to be placed into while sorting')
 parser.add_argument('-r', '--randomize', action='store_true', help='randomize the order in which files are presented for sorting')
+
 args = parser.parse_args()
 print( args )
 
