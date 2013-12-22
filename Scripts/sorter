@@ -14,14 +14,14 @@ parser.add_argument('-d', '--dest-directories', nargs='+', required=True, help='
 parser.add_argument('-r', '--randomize', action='store_true', help='randomize the order in which files are presented for sorting')
 
 args = parser.parse_args()
-print( args )
+#print( args )
 
 Files = []
 
 for line in fileinput.input('-'):
     Files.append(line.rstrip())
 
-print( Files )
+#print( Files )
     
 if args.randomize:
     shuffle(Files)
