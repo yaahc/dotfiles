@@ -87,7 +87,10 @@ super + space
     dmenu_run
 
 super + r
-    random_wallpaper
+    wallman -r
+
+super + shift + r
+    wallman -u
 
 # make sxhkd reload its configuration files:
 super + Escape
