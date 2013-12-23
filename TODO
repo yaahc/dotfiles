@@ -1,14 +1,13 @@
 House Chores
-Finish Laundry
+Benefits stuff
 get 1 more zuccini bread and deliver to the last two neighbors
-Vacuum Room
 
 Programming TODO
-add pub key to raspberry pi
 configure ssh and duplicity/duplicaty/deja-dup backups
 find or write a more sophisticated wallpaper managing system. Particularly, go to previous wallpaper(s), delete wallpaper and change to new one, etc.
 improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
+customize bar on laptop
 set up trash can / file browser
 Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc.... someday in the distant future.
 Finish Painting Trellis
