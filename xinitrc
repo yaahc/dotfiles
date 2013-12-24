@@ -6,6 +6,13 @@
 # Executed by startx (run window managers from here)
 #
 
+if [ -d /etc/X11/xinit/xinitrc.d ]; then
+  for f in /etc/X11/xinit/xinitrc.d/*; do
+    [ -x "$f" ] && . "$f"
+  done
+  unset f
+fi
+
 # exec i3 -V >> ~/.i3/i3log 2>&1
 xset +fp /usr/share/fonts/local
 xset fp rehash
