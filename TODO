@@ -3,7 +3,7 @@ Benefits stuff
 
 Programming TODO
 customize bar on laptop
-turn list in sorter into a dictionary, allow optional index setting
+give wallman option to specify multiple wallpaper sources. Then use sorter to move all nsfw wallpapers into seperate directory and use seperate cronjobs for work hours and home hours
 configure ssh and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
