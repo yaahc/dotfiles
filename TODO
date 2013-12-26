@@ -3,7 +3,9 @@ Benefits stuff
 
 Programming TODO
 customize bar on laptop
-give wallman option to specify multiple wallpaper sources. Then use sorter to move all nsfw wallpapers into seperate directory and use seperate cronjobs for work hours and home hours
+sort wallpaper collection
+set up cronjobs for wallpapers with different sources for different times of day
+make recursive directory expansion for wallman optional, should probably give it -r and make -r(andom) the default instead of an option
 configure ssh and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
