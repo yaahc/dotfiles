@@ -1,11 +1,10 @@
 House Chores
 Benefits stuff
-get 1 more zuccini bread and deliver to the last two neighbors
 
 Programming TODO
 customize bar on laptop
+turn list in sorter into a dictionary, allow optional index setting
 configure ssh and duplicity/duplicaty/deja-dup backups
-find or write a more sophisticated wallpaper managing system. Particularly, go to previous wallpaper(s), delete wallpaper and change to new one, etc.
 improve existing filepath handling
 Figure out how to configure gtk / icon themes on laptop
 Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc.... someday in the distant future.
