@@ -1,0 +1,11 @@
+out_to_x no
+own_window no
+out_to_console yes
+background no
+update_interval 1.0
+total_run_times 0
+
+short_units yes
+
+TEXT
+S${time %a %I:%M %p}
