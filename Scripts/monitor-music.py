@@ -1,27 +1,22 @@
 #!/usr/bin/env python2.7
 """
-This is a modified version of Aaron Goss's Monitor Music program. The
-primary similarities is I did not repeat his work on parsing the output
-from pianobar, but how I display this parsed output, and how I call the
-program is different, also its set up to run and output into a fifo to
-be parsed by Lemonboy's Bar-Aint-Recursive BAR program.
-
-monitor-music.py Copyright 2011 Aaron Goss
+monitor-music.py
+Copyright 2011 Aaron Goss
 
 This file is part of Monitor Toys.
 
-Monitor Toys is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your
-option) any later version.
+Monitor Toys is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
 Monitor Toys is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along
-with Monitor Toys. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with Monitor Toys.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys, os, optparse, re
 import subprocess
