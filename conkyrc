@@ -8,4 +8,6 @@ total_run_times 0
 short_units yes
 
 TEXT
-S${time %a %I:%M %p}
+S${battery_bar} ${loadavg 1} ${time %a %I:%M %p}
+${battery_time}
+
