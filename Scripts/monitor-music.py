@@ -94,22 +94,22 @@ def testFile(file):
 
     return result not in (None, "")
 
-def printStation(file, verbose):
+def printstation(file, verbose):
     """
-    printStation()
-      - file:    path to file being written by Pianobar
+    printstation()
+      - file:    path to file being written by pianobar
       - verbose: setting to print headers
       
-      This method attempts to parse out the most recently-selected station.  This
+      this method attempts to parse out the most recently-selected station.  this
       content is buried deep within the file; this method runs "grep" on the command-line,
-      extracting all strings with "Station" in them.  The last instance of this string
-      is printed to STDOUT.
+      extracting all strings with "station" in them.  the last instance of this string
+      is printed to stdout.
     """
-    p = subprocess.Popen(["grep", "Station", file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.popen(["grep", "station", file], stdout=subprocess.pipe, stderr=subprocess.pipe)
     result = p.communicate()[0]
     output = result.split("\r")[-1]
     
-    if "Station" in output:
+    if "station" in output:
         if verbose:
             output = output.replace("|>", "")
             output = re.sub("\(.*\)", "", output)
@@ -120,7 +120,7 @@ def printStation(file, verbose):
             output = output.split("\"")[1]
             print(output)
     else:
-        print(DEFAULT_MSG)
+        print(default_msg)
             
 def printSongTitle(file, verbose, printAllInfo):
     """
