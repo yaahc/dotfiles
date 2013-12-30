@@ -33,12 +33,16 @@ import subprocess
 import os
 
 #create argument parser
-parser = argparse.ArgumentParser(description='Manually sort files into different directories')
+parser = argparse.ArgumentParser(
+        description='Manually sort files into different directories')
 
 #command line arguments section
-parser.add_argument('-d', '--dest-directories', nargs='+', required=True, help='directories for files to be placed into while sorting')
-parser.add_argument('-r', '--randomize', action='store_true', help='randomize the order in which files are presented for sorting')
-#parser.add_argument('-f', '--files', required=True, nargs='+', help='files to be sorted')
+parser.add_argument('-d', '--dest-directories', nargs='+', required=True, 
+        help='directories for files to be placed into while sorting')
+parser.add_argument('-r', '--randomize', action='store_true', 
+        help='randomize the order in which files are presented for sorting')
+#parser.add_argument('-f', '--files', required=True, nargs='+', 
+        #help='files to be sorted')
 
 #run argument parsing on argv
 args = parser.parse_args()
@@ -72,9 +76,10 @@ if args.randomize:
 sys.stdin = open('/dev/tty')
 for file in Files:
     #displays current image to be sorted
-    imageview = subprocess.Popen(["sxiv", file])      # extremely environmentally specific
-    subprocess.call(["sleep", ".45"])                 # extremely environmentally specific
-    subprocess.call(["bspc", "window", "-f", "last"]) # extremely environmentally specific
+    # extremely environmentally specific
+    imageview = subprocess.Popen(["sxiv", file])
+    subprocess.call(["sleep", ".45"])
+    subprocess.call(["bspc", "window", "-f", "last"])
     #requests user input to choose destination for the file
     dest = input()
     dest = dest.split(' ')
@@ -85,12 +90,15 @@ for file in Files:
             try:
                 shutil.copy(file, dest_dict[d])
             except shutil.Error:
-                print('file named:',file,' already exists in target directory, couldnt move it')
+                print('file named:', file,
+                        ' already exists in target directory, couldnt move it')
                 copied = False
         else:
             print('Invalid user input')
             copied = False
     if copied:
         os.remove(file)
-    #kills the image viewer process holding recently sorted image. if I knew a way to pass the entire list to the image sorter and then iterate through it I totally would
+    #kills the image viewer process holding recently sorted image. if I knew a
+    #way to pass the entire list to the image sorter and then iterate through it
+    #I totally would
     imageview.kill()
