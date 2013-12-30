@@ -1,0 +1,11 @@
+#! /bin/sh
+# exec i3 -V >> ~/.i3/i3log 2>&1
+xset +fp /usr/share/fonts/local
+xset fp rehash
+
+export BSPWM_SOCKET="/tmp/bspwm-socket"
+export PANEL_FIFO="/tmp/panel-fifo"
+export PANEL_HEIGHT=18
+
+dropboxd &
+xrdb ~/.Xresources
