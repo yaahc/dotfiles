@@ -86,6 +86,8 @@ for file in Files:
     #moves the file to new location(s)
     copied = True
     for d in dest:
+        if d.isdigit():
+            d = int(d)
         if d in dest_dict:
             try:
                 shutil.copy(file, dest_dict[d])
