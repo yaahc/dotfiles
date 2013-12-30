@@ -48,34 +48,31 @@ def testFile(file):
     return result not in (None, "")
 
 def printDefault(file):
-    print(parseSongInfo(file))
-    print(printSongTime(file, False))
-    print(printAlbum(file, False))
-    print(printArtist(file, False))
-    print(printSongTitle(file, True, True))
-    print(printstation(file, False))
+    print('{} "{}" by "{}" {}'.format(printSongTime(file, False), 
+            printSongTitle(file, False), printArtist(file, False), printLikedStatus(file)))
+    print(printSongTitle(file, False))
+    print(printLikedStatus(file))
 
 def printstation(file, verbose):
     return "Going to rewrite this one"
 
-def printSongTitle(file, verbose, printAllInfo):
-    print("Should rewrite this one")
+def printSongTitle(file, verbose):
     """
     printSongTitle()
       - file: path to file being written by Pianobar
       - verbose: setting to print headers
       
-      This method attempts to parse out the title of the most recently-played song.  This
-      content is buried deep within the content in the file.  This method runs the 'grep'
-      command on the command-line against this file, first extracting "|>" lines (which are
-      hard-coded in Pianobar to indicate song titles).  It then uses a combination of newline
-      and carriage-return parsing to extract the last instance of this string in the file.
+      This method attempts to parse out the title of the most recently-played
+      song.  This content is buried deep within the content in the file.  This
+      method runs the 'grep' command on the command-line against this file,
+      first extracting "|>" lines (which are hard-coded in Pianobar to indicate
+      song titles).  It then uses a combination of newline and carriage-return
+      parsing to extract the last instance of this string in the file.
     """
     output = parseSongInfo(file)
 
     if output is not None:
-        if not printAllInfo:
-            output = output.split("by")[0]
+        output = output.split(" by ")[0][1:-1]
         if verbose:
             output = "Now Playing: %s" % output
         return(output)
@@ -139,7 +136,8 @@ def printSongTime(file, verbose):
             fileH.seek(-12, 2)
             content = fileH.read(12).rstrip()
             if "/" in content:
-                content = "Play time remaining: %s" % content if verbose else content
+                content = "Play time remaining: %s" % content if verbose else \
+                    content
                 return content
             else:
                 print(DEFAULT_MSG)
@@ -147,6 +145,15 @@ def printSongTime(file, verbose):
             fileH.close()
     except:
         print("Unexpected error:", sys.exc_info())
+
+def printLikedStatus(file):
+    output = parseSongInfo(file)
+    if output is not None:
+        output = output.split('" ')[3]
+        return output
+    else:
+        print(DEFAULT_MSG)
+
 
 def parseSongInfo(file):
     """
@@ -170,11 +177,11 @@ def parseSongInfo(file):
                 stderr=subprocess.PIPE)
         result = str(p.communicate()[0])
         output = result.split("\r")[-1].split("\n")[-2].replace("|>", "")
-        output = re.sub("^\s*", "", output)
+        output = output.split('  ')[1]
         # Return None if the output doesn't contain "by"
         return output if "by" in output else None
 
-    except Exception:
+    except:
         print("Unexpected error:", sys.exc_info())
         return None
 
