@@ -86,11 +86,8 @@ super + Return
 super + space
     dmenu_run
 
-super + r
-    wallman -r
-
-super + shift + r
-    wallman -u
+super + {_, shift +, alt +}r
+    wallman {-r,-u, -r -s ~/Pictures/Wallpapers/nsfw_wallpapers/ ~/.wallpaper/}
 
 # make sxhkd reload its configuration files:
 super + Escape
