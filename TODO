@@ -2,9 +2,10 @@ House Chores
 Benefits stuff
 
 Programming TODO
-customize bar on laptop
+modify wallman to allow it to return current wallpaper, history, etc
+implement delete current wallpaper wallman
 make recursive directory expansion for wallman optional, should probably give it
--r and make -r(andom) the default instead of an option
+    -r and make -r(andom) the default instead of an option
 configure ssh and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling (for sorter i think)
 Figure out how to configure gtk / icon themes on laptop
@@ -13,3 +14,4 @@ Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc..
 Set up NVIDIA on laptop arch install
 Install steam / starbound on arch
 set up gpgagent
+customize bar on laptop (fancy earsplit style)
