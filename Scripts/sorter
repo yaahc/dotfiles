@@ -53,10 +53,10 @@ i = 0
 for arg in args.dest_directories:
     split_arg = arg.split('=')
     if split_arg == [arg]:
-        dest_dict[i] = arg
+        dest_dict[i] = os.path.expanduser(arg)
         i = i + 1
     else:
-        dest_dict[split_arg[0]] = split_arg[1]
+        dest_dict[split_arg[0]] = os.path.expanduser(split_arg[1])
 
 #print input -> directory mapping
 print(dest_dict)
@@ -94,7 +94,7 @@ for file in Files:
             except shutil.Error:
                 print('file named:', file,
                         ' already exists in target directory, couldnt move it')
-                copied = False
+                # copied = False
         else:
             print('Invalid user input')
             copied = False
