@@ -21,6 +21,7 @@ sh ~/.fehbg &
 #DISPLAY=:0.0 feh --bg-scale "$(find ~/.wallpaper/*|shuf -n1)"
 #random_wallpaper & 
 compton -b
+unclutter &
 
 [ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
 mkfifo "$PANEL_FIFO"
