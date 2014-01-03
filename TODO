@@ -2,10 +2,9 @@ House Chores
 Benefits stuff
 
 Programming TODO
+add filter by picture dimensions to wallman.
 modify wallman to allow it to return current wallpaper, history, etc
 implement delete current wallpaper wallman
-make recursive directory expansion for wallman optional, should probably give it
-    -r and make -r(andom) the default instead of an option
 configure ssh and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling (for sorter i think)
 Figure out how to configure gtk / icon themes on laptop
