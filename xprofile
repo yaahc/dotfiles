@@ -8,4 +8,5 @@ export PANEL_FIFO="/tmp/panel-fifo"
 export PANEL_HEIGHT=18
 
 dropboxd &
+unclutter &
 xrdb ~/.Xresources
