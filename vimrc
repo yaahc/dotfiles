@@ -40,6 +40,7 @@ if has('mouse')
     set mouse=nv
 endif
 set matchtime=0 "Dont jump around highlighting braces
+let loaded_matchparen = 1
 
 " Tab-completion in command-line mode
 set wildmenu
