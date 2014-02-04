@@ -74,7 +74,11 @@ if args.randomize:
 
 #switches input source back to terminal for user input
 sys.stdin = open('/dev/tty')
-for file in Files:
+print ( len(Files) )
+fileCount = 0
+history = []
+while fileCount < len(Files):
+    file = Files[fileCount]
     #displays current image to be sorted
     # extremely environmentally specific
     imageview = subprocess.Popen(["sxiv", file])
@@ -85,12 +89,26 @@ for file in Files:
     dest = dest.split(' ')
     #moves the file to new location(s)
     copied = True
+    if 'u' in dest:
+        lastDir = history.pop()
+        if len(lastDir) > 0:
+            #undo the last iteration
+            dirname = os.path.dirname(Files[fileCount-1])
+            basename = os.path.basename(Files[fileCount-1])
+            shutil.copy(os.path.join(lastDir[0],basename),  dirname)
+            for destination_dir in lastDir:
+                os.remove(os.path.join(destination_dir, basename))
+        fileCount -= 1
+        imageview.kill()
+        continue
+    valid_dirs = []
     for d in dest:
         if d.isdigit():
             d = int(d)
         if d in dest_dict:
             try:
                 shutil.copy(file, dest_dict[d])
+                valid_dirs.append(dest_dict[d])
             except shutil.Error:
                 print('file named:', file,
                         ' already exists in target directory, couldnt move it')
@@ -103,4 +121,6 @@ for file in Files:
     #kills the image viewer process holding recently sorted image. if I knew a
     #way to pass the entire list to the image sorter and then iterate through it
     #I totally would
+    history.append(valid_dirs)
     imageview.kill()
+    fileCount += 1
