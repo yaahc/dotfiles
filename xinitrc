@@ -17,12 +17,16 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
   unset f
 fi
 
-export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
+# export DBUS_SESSION_BUS_ADDRESS 
+# export DBUS_SESSION_BUS_PID
 
 # Start GNOME Keyring
-eval $(/usr/bin/gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+# eval $(/usr/bin/gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
 # You probably need to do this too:
-export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID GPG_AGENT_INFO SSH_AUTH_SOCK
+# export GNOME_KEYRING_CONTROL 
+# export GNOME_KEYRING_PID 
+# export GPG_AGENT_INFO 
+# export SSH_AUTH_SOCK
 
 sh ~/.fehbg &
 #DISPLAY=:0.0 feh --bg-scale "$(find ~/.wallpaper/*|shuf -n1)"
