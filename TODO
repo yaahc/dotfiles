@@ -1,16 +1,18 @@
-Movies
-Beauty and the Beast
+SG1
+Archer
+person of interest
+True Detective
 
-Programming TODO
-add filter by picture dimensions to wallman.
+
+delete all linux installations on laptop. setup lvm for remaining disk space. install debian unstable and attempt to run gnome / bspwm side by side. flawlessly :o
+Also install fedora and arch linux
+maybe slackware, probably not gentoo
+no more manjaro, also less elementary os, but more pantheon DE, possibly could try out cinnamon
 modify wallman to allow it to return current wallpaper, history, etc
-implement delete current wallpaper wallman
-configure ssh and duplicity/duplicaty/deja-dup backups
+configure and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling (for sorter i think)
-Figure out how to configure gtk / icon themes on laptop
 Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc..
     .. someday in the distant future.
 Set up NVIDIA on laptop arch install
 Install steam / starbound on arch
-set up gpgagent
 customize bar on laptop (fancy earsplit style)

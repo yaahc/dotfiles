@@ -58,7 +58,9 @@ set suffixes=.otl
 set ruler
 set showcmd
 set laststatus=2
-set listchars=tab:▸\ ,eol:¬
+set listchars=tab:▸\ ,trail:•
+set list
+",eol:¬
 set relativenumber
 set number
 " When the terminal has colors, enable syntax+search highlighting

@@ -41,6 +41,8 @@ parser.add_argument('-d', '--dest-directories', nargs='+', required=True,
         help='directories for files to be placed into while sorting')
 parser.add_argument('-r', '--randomize', action='store_true', 
         help='randomize the order in which files are presented for sorting')
+parser.add_argument('--reverse', action='store_true', 
+        help='reverse the order in which files are presented for sorting')
 #parser.add_argument('-f', '--files', required=True, nargs='+', 
         #help='files to be sorted')
 
@@ -71,6 +73,8 @@ for line in fileinput.input('-'):
 #randomizes the order in which the files are presented if -r argument is present
 if args.randomize:
     shuffle(Files)
+elif args.reverse:
+    Files.reverse()
 
 #switches input source back to terminal for user input
 sys.stdin = open('/dev/tty')
