@@ -4,10 +4,9 @@ person of interest
 True Detective
 
 
-delete all linux installations on laptop. setup lvm for remaining disk space. install debian unstable and attempt to run gnome / bspwm side by side. flawlessly :o
-Also install fedora and arch linux
-maybe slackware, probably not gentoo
-no more manjaro, also less elementary os, but more pantheon DE, possibly could try out cinnamon
+get sorter working in cinnamon
+fix the stupid pictures I accidentally just saved to wallpapers.
+set up bswpm session side by side with cinnamon session
 modify wallman to allow it to return current wallpaper, history, etc
 configure and duplicity/duplicaty/deja-dup backups
 improve existing filepath handling (for sorter i think)

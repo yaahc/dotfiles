@@ -11,6 +11,7 @@ ln -s ~/dotfiles/gitconfig ~/.gitconfig
 ln -s ~/dotfiles/xinitrc ~/.xinitrc
 ln -s ~/dotfiles/Xresources ~/.Xresources
 ln -s ~/dotfiles/zprofile ~/.zprofile
+ln -s ~/dotfiles/xprofile ~/.xprofile
 ln -s ~/dotfiles/zshrc ~/.zshrc
 mkdir ~/.config
 mkdir ~/tmp
