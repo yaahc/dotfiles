@@ -22,13 +22,13 @@ fi
 # You probably need to do this too:
 # export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID GPG_AGENT_INFO SSH_AUTH_SOCK
 
-sh ~/.fehbg &
-compton -b
+# sh ~/.fehbg &
+# compton -b
 
 xset +fp /usr/share/fonts/local
 xset fp rehash
 
-[ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
-mkfifo "$PANEL_FIFO"
-exec bspwm-session
-# exec cinnamon-session
+# [ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
+# mkfifo "$PANEL_FIFO"
+# exec bspwm-session
+exec cinnamon-session
