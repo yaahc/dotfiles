@@ -5,7 +5,7 @@ export XDG_CONFIG_HOME="$HOME/.config"
 # export BSPWM_SOCKET="/tmp/bspwm-socket"
 # export PANEL_FIFO="/tmp/panel-fifo"
 # export PANEL_HEIGHT=18
-export PATH=$HOME/Scripts:$PATH
+export PATH=$HOME/Scripts:$PATH:/opt/java/bin
 
 #eval $(/usr/bin/gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
 #export GNOME_KEYRING_CONTROL 

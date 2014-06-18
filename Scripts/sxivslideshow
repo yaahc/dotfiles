@@ -1,0 +1,2 @@
+#! /bin/zsh
+find $* -type f | shuf | ~/Github/sxiv/sxiv -ifb -S 8
