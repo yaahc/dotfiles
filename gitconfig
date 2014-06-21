@@ -15,3 +15,5 @@
 	helper = /usr/share/git/credential/gnome-keyring/git-credential-gnome-keyring
 [push]
 	default = simple
+[status]
+	displaycommentprefix = true
