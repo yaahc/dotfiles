@@ -59,7 +59,7 @@ set ruler
 set showcmd
 set laststatus=2
 set listchars=tab:▸\ ,trail:•
-set list
+set nolist
 ",eol:¬
 set relativenumber
 set number
@@ -233,3 +233,20 @@ map <Leader>u :GundoToggle<CR>
 " Space.vim {{{2
 let g:space_disable_select_mode=1
 let g:space_no_search = 1
+
+" highlight lines in Sy and vimdiff etc.)
+
+highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
+highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
+highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
+
+" commentary adjustment
+autocmd FileType c,h,cpp,hpp,cs,java setlocal commentstring=//\ %s
+
+" fixing search highlighting
+hi Search cterm=NONE ctermfg=black ctermbg=yellow
+
+map <F4> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j **/*hpp **/*cpp **/*java *def" <Bar> cw<CR>
+map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp ~/svn/**/*cpp **/*java *def" <Bar> cw<CR>
+
+set tags+=tags;/
