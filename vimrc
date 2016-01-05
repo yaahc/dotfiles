@@ -59,7 +59,7 @@ set ruler
 set showcmd
 set laststatus=2
 set listchars=tab:▸\ ,trail:•
-set list
+set nolist
 ",eol:¬
 set relativenumber
 set number
