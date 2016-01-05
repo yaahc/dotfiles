@@ -29,7 +29,6 @@ if [ -x /usr/bin/dircolors ]; then
 
     export LESS="-R"
     export GREP_OPTIONS='--color=auto'
-    #alias grep='grep --color=auto'
     #alias fgrep='fgrep --color=auto'
     #alias egrep='egrep --color=auto'
 fi
@@ -38,6 +37,12 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias grep='grep -nE'
+alias todo='todo -G +children'
+alias rbupdate="rbt post -p --server http://reviewboard.dl.net/codereview -r"
+alias rbreview="~/svn/evolution-build/scripts/rbreview.sh"
+alias open="xdg-open"
+alias slpsearch="slptool findsrvs LanehawkCamera"
 
 #random Aliases
 alias pianobar='pianobar | tee ~/.piano_lines.out'
@@ -74,6 +79,10 @@ export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[32m'
 
 export EDITOR=/usr/bin/vim
+
+export PRU_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-pru_2.1.1/
+export ARM_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/
+export SW_DIR=/home/jlusby/starterwarefree-code/
 
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then

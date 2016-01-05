@@ -5,6 +5,6 @@ export BSPWM_SOCKET="/tmp/bspwm-socket"
 export PANEL_FIFO="/tmp/panel-fifo"
 export PANEL_HEIGHT=18
 
-unclutter &
+# unclutter &
 # /usr/bin/xscreensaver -no-splash &
 xrdb ~/.Xresources
