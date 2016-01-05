@@ -23,7 +23,7 @@ compinit
 
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls -X --color=auto --group-directories-first'
+    alias ls='ls --color=auto --group-directories-first'
     alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
