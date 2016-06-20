@@ -59,7 +59,7 @@ set ruler
 set showcmd
 set laststatus=2
 set listchars=tab:▸\ ,trail:•
-set nolist
+set list
 ",eol:¬
 set relativenumber
 set number
@@ -75,6 +75,7 @@ set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set expandtab
+set cinoptions=l1
 
 " Enable persistent undo {{{2
 set undofile

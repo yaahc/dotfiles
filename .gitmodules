@@ -43,3 +43,9 @@
 [submodule "vim/bundle/vim-signify"]
 	path = vim/bundle/vim-signify
 	url = https://github.com/mhinz/vim-signify.git
+[submodule "vim/bundle/vim-commandt"]
+	path = vim/bundle/vim-commandt
+	url = https://github.com/wincent/command-t.git
+[submodule "vim/bundle/vim-youcompleteme"]
+	path = vim/bundle/vim-youcompleteme
+	url = https://github.com/Valloric/YouCompleteMe.git

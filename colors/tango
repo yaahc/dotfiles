@@ -14,7 +14,8 @@ URxvt.background: [90]#1f1f1f
 *color6:                  #06989a
 *color7:                  #d3d7cf
 *color8:                  #555753
-*color9:                  #ef2929
+/* *color9:                  #ef2929 */
+*color9:                  #cc0000
 *color10:                 #8ae234
 *color11:                 #fce94f
 *color12:                 #729fcf

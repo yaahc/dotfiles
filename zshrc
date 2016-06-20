@@ -57,12 +57,13 @@ parse_git_branch () {
 
 function precmd() {
     PROMPT="%n@%m>>"
-    TEST_BRANCHNAME_STRING=$(parse_git_branch)
-    if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
-        RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-    else
-        RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-    fi
+    # TEST_BRANCHNAME_STRING=$(parse_git_branch)
+    # if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
+    #     RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
+    # else
+    RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
+    # RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
+    # fi
 }
 
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
@@ -93,3 +94,8 @@ export SW_DIR=/home/jlusby/starterwarefree-code/
 
 # SSH_AUTH_SOCK=`ss -xl | grep -o '/run/user/1000/keyring-.*/ssh'`
 # [ -z "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK
+
+sssh(){
+    # try to connect every 0.5 secs (modulo timeouts)
+    while true; do command ssh "$@"; [ $? -eq 0 ] && break || sleep 0.5; done
+}

@@ -1,7 +1,8 @@
 audiostart_station = QuickMix
 audio_quality = high
 
-tls_fingerprint = 2D0AFDAFA16F4B5C0A43F3CB1D4752F9535507C0
+tls_fingerprint = 13CC51AC0C31CD96C55015C76914360F7AC41A00
+
 password = gogolf
 user = jlusby42@gmail.com
 
