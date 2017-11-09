@@ -1,10 +1,10 @@
 [user]
 	name = Jane Lusby
-	email = jlusby42@gmail.com
+	email = Jane.Lusby@datalogic.com
 [core]
 	editor = vim
 [merge]
-	tool = vimdiff
+	tool = meld
 [color]
 	ui = true
 [alias]
@@ -18,3 +18,8 @@
 	default = simple
 [status]
 	displaycommentprefix = true
+[branch "master"]
+    mergeoptions = --no-ff
+[branch "local-rules"]
+    mergeoptions = --no-ff
+
