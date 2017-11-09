@@ -92,7 +92,7 @@ export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-eval $(keychain --eval --quiet id_rsa id_rsa_legacy id_ed25519)
+eval $(keychain --eval --quiet id_rsa id_ed25519)
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
