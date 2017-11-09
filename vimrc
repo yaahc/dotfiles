@@ -248,13 +248,13 @@ autocmd FileType c,h,cpp,hpp,cs,java setlocal commentstring=//\ %s
 " fixing search highlighting
 hi Search cterm=NONE ctermfg=black ctermbg=yellow
 
-map <F4> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j **/*hpp **/*cpp **/*java *def" <Bar> cw<CR>
-map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp ~/svn/**/*cpp **/*java *def" <Bar> cw<CR>
+map <F4> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j **/*hpp **/*cpp **/*java *def **/*py" <Bar> cw<CR>
+map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp ~/svn/**/*cpp **/*java *def **/*py" <Bar> cw<CR>
 
 set tags+=tags;/
 
 " fzf
-map <C-p> :FZF<CR>
+map <C-p> :Files<CR>
 
 " easytags
 let g:easytags_async = 1
