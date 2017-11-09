@@ -4,5 +4,16 @@ keychain
 vim
 fzf
 ripgrep (hard because not in apt)
+compile ycm
+cd dotfiles/vim/bundle/vim-youcompleteme
+./install --clang-completer
+    - look into installing bear to get completion on gcc projects
+    - Probably give up on clang completion, I dont think it worked on my
+      datalogic projects, but tags completion does!
+cmake
+cmake3
+build-essential
+python-dev
+python3-dev
 
 set default shell
