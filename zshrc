@@ -61,7 +61,7 @@ function precmd() {
     # if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
     #     RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
     # else
-    RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
+    # RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
     # RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
     # fi
 }
@@ -85,6 +85,14 @@ export PRU_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-pru_2.1.1/
 export ARM_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/
 export SW_DIR=/home/jlusby/starterwarefree-code/
 
+export SVNUSER=jlusby
+
+export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin
+# export SHCC=$HOME/sdks/ti-processor-sdk-linux-am57xx-evm-02.00.01.07/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-
+
+export XDG_CONFIG_HOME="$HOME/.config"
+
+eval $(keychain --eval --quiet id_rsa id_rsa_legacy id_ed25519)
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -99,3 +107,19 @@ sssh(){
     # try to connect every 0.5 secs (modulo timeouts)
     while true; do command ssh "$@"; [ $? -eq 0 ] && break || sleep 0.5; done
 }
+
+trynet(){
+    # try to connect every 0.5 secs (modulo timeouts)
+    while true; do command telnet "$@"; [ $? -eq 0 ] && break || sleep 0.5; done
+}
+
+
+alias uselocal='export DEV_ILCU_ADDR="`~/seahawk/app/lanehawk/tools/XmlStatusParser/XmlStatusParser.py`"; echo "Using: $DEV_ILCU_ADDR"'
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,node_modules}/*" 2> /dev/null'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fuzzy-vim-open() vim $(fzf)
+zle -N fuzzy-vim-open
+bindkey '^P' fuzzy-vim-open
+export FZF_ALT_C_COMMAND="cd ~/; bfs -type d -nohidden | sed s/^\./~/"

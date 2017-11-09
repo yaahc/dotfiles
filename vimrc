@@ -12,6 +12,7 @@ call pathogen#helptags()
 " Autocommands {{{1
 if has("autocmd")
     filetype plugin indent on
+    au BufNewFile,BufRead *.d set filetype=sh
     augroup vimrcEx
         au!
         autocmd BufReadPost *
@@ -251,3 +252,65 @@ map <F4> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j **/*hpp **/*cp
 map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp ~/svn/**/*cpp **/*java *def" <Bar> cw<CR>
 
 set tags+=tags;/
+
+" CtrlP
+let g:ctrlp_cache_dir = $HOME . '/.cache/ctrlp'
+if executable('ag')
+    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
+map <C-t> :CtrlPTag<CR>
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/](doc|tmp|node_modules)',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ }
+
+" easytags
+let g:easytags_async = 1
+let g:easytags_dynamic_files = 2
+let g:easytags_auto_highlight = 0
+let g:easytags_events = ['BufReadPost', 'BufWritePost']
+let g:easytags_async = 1
+let g:easytags_dynamic_files = 2
+let g:easytags_resolve_links = 1
+let g:easytags_suppress_ctags_warning = 1
+
+" tagbar
+let g:tagbar_sort=0
+
+" autocmd vimenter * nested :call tagbar#autoopen()
+
+" NerdTREE
+" autocmd vimenter * if &modifiable | NERDTreeFind | wincmd p | endif
+" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+" Syntastic
+let g:syntastic_error_symbol = '✘'
+let g:syntastic_warning_symbol = "▲"
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_cpp_include_dirs = ['/home/jlusby/seahawk/app/build/include']
+let g:syntastic_cpp_check_header = 0
+let g:syntastic_cpp_checkers = ['cppcheck', 'gcc']
+let g:syntastic_aggregate_errors = 1
+
+" let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
+
+let g:ycm_show_diagnostics_ui = 0
+
+" IDE faking stuff
+function ToggleAll()
+    :NERDTreeToggle
+    :TagbarToggle
+    " :SyntasticToggle
+    wincmd p
+endfunction
+
+nmap <leader>c :call ToggleAll()<CR>
