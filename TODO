@@ -1,20 +1,8 @@
-SG1
-Archer
-person of interest
-True Detective
+Auto install these packages
+zshrc
+keychain
+vim
+fzf
+ripgrep (hard because not in apt)
 
-
-Create an android app to do range finding for oakmonts driving range greens.
-
-
-get sorter working in cinnamon
-fix the stupid pictures I accidentally just saved to wallpapers.
-set up bswpm session side by side with cinnamon session
-modify wallman to allow it to return current wallpaper, history, etc
-configure and duplicity/duplicaty/deja-dup backups
-improve existing filepath handling (for sorter i think)
-Refactor / reorganize / prettyfy vimrc and other rc files, but primarily vimrc..
-    .. someday in the distant future.
-Set up NVIDIA on laptop arch install
-Install steam / starbound on arch
-customize bar on laptop (fancy earsplit style)
+set default shell

@@ -1,7 +1,7 @@
 installation
 
     git clone git@github.com:jrlusby/dotfiles.git
-   
+
 Where possible, Vim plugins are installed as git submodules. Check these out by
 running the commands:
 
@@ -18,9 +18,9 @@ Create symlinks:
     ln -s ~/dotfiles/ctags ~/.ctags
     ln -s ~/dotfiles/inputrc ~/.inputrc
     ln -s ~/dotfiles/gitconfig ~/.gitconfig
-    
+
 I put Vim's backup and swap files in `~/tmp`, so that directory must exist. To
-be sure, run: 
+be sure, run:
 
     mkdir ~/tmp
 
@@ -43,7 +43,7 @@ This will update the `.gitmodules` file by appending something like:
     [submodule "vim/bundle/vim-javascript"]
         path = vim/bundle/vim-javascript
         url = http://github.com/pangloss/vim-javascript.git
-    
+
 As well as checkout out the git repo into the
 `vim/bundle/vim-javascript` directory. You can then commit these changes
 as follows:
