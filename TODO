@@ -3,7 +3,9 @@ zshrc
 keychain
 vim
 fzf
-ripgrep (hard because not in apt)
+rustc
+cargo
+ripgrep (hard because not in apt) (jk do it with cargo)
 compile ycm
 cd dotfiles/vim/bundle/vim-youcompleteme
 ./install --clang-completer

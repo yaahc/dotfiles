@@ -253,16 +253,8 @@ map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp 
 
 set tags+=tags;/
 
-" CtrlP
-let g:ctrlp_cache_dir = $HOME . '/.cache/ctrlp'
-if executable('ag')
-    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-endif
-map <C-t> :CtrlPTag<CR>
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/](doc|tmp|node_modules)',
-  \ 'file': '\v\.(exe|so|dll)$',
-  \ }
+" fzf
+map <C-p> :FZF<CR>
 
 " easytags
 let g:easytags_async = 1
