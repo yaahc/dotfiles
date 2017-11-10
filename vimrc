@@ -254,6 +254,11 @@ map <F5> :noautocmd execute "vimgrep /" . expand("<cword>") . "/j ~/svn/**/*hpp 
 set tags+=tags;/
 
 " fzf
+map <C-p>~ :Files ~<CR>
+map <C-p>s :Files ~/svn<CR>
+map <C-p>g :Files ~/git<CR>
+map <C-p>b :Files ~/seahawk<CR>
+
 map <C-p> :Files<CR>
 
 " easytags
