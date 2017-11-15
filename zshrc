@@ -1,8 +1,5 @@
 #! /bin/sh
 
-# export ILCU_MACS="b4:99:4c:97:73:17 5c:f8:21:3b:2d:7c b4:99:4c:fe:c9:a7 b4:99:4c:dd:84:00 b4:99:4c:1b:6e:77 b4:99:4c:92:73:48 b4:99:4c:94:b6:c3 b4:99:4c:40:97:cf b4:99:4c:90:e3:cc"
-export ILCU_MACS="b4:99:4c:d1:30:32"
-
 if [ -e "$BSPWM_TREE" ] ; then
 	bspc restore -T "$BSPWM_TREE" -H "$BSPWM_HISTORY" -S "$BSPWM_STACK"
 	rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
@@ -180,3 +177,7 @@ bindkey '^P' fzf-vim-file-widget
 
 # bindkey -s '^P' 'vim $(__fsel)\n'
 
+# export ILCU_MACS="b4:99:4c:97:73:17 5c:f8:21:3b:2d:7c b4:99:4c:fe:c9:a7 b4:99:4c:dd:84:00 b4:99:4c:1b:6e:77 b4:99:4c:92:73:48 b4:99:4c:94:b6:c3 b4:99:4c:40:97:cf b4:99:4c:90:e3:cc"
+export ILCU_MACS="b4:99:4c:d1:30:32"
+
+# export DEV_ILCU_ADDRS=$(slpresolv.sh $ILCU_MACS)
