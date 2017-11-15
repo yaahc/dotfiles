@@ -6,6 +6,13 @@ runtime macros/matchit.vim
 runtime ftplugin/man.vim
 
 " Load bundled plugins {{{1
+let g:pathogen_disabled = []
+call add(g:pathogen_disabled, 'HiLinkTrace')
+call add(g:pathogen_disabled, 'NesC-Syntax-Highlighting')
+call add(g:pathogen_disabled, 'vim-colors-solarized')
+call add(g:pathogen_disabled, 'vim-nerdtree')
+call add(g:pathogen_disabled, 'vim-tagbar')
+call add(g:pathogen_disabled, 'vim-ycm-generator')
 call pathogen#infect()
 call pathogen#helptags()
 
@@ -272,15 +279,6 @@ let g:easytags_dynamic_files = 2
 let g:easytags_resolve_links = 1
 let g:easytags_suppress_ctags_warning = 1
 
-" tagbar
-let g:tagbar_sort=0
-
-" autocmd vimenter * nested :call tagbar#autoopen()
-
-" NerdTREE
-" autocmd vimenter * if &modifiable | NERDTreeFind | wincmd p | endif
-" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
 " Syntastic
 let g:syntastic_error_symbol = '✘'
 let g:syntastic_warning_symbol = "▲"
@@ -297,18 +295,20 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_cpp_include_dirs = ['/home/jlusby/seahawk/app/build/include']
 let g:syntastic_cpp_check_header = 0
 let g:syntastic_cpp_checkers = ['cppcheck', 'gcc']
+let g:syntastic_sh_checkers = ['shellcheck', 'sh']
+let g:syntastic_zsh_checkers = ['sh/shellcheck', 'zsh']
 let g:syntastic_aggregate_errors = 1
-
-" let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
 
 let g:ycm_show_diagnostics_ui = 0
 
-" IDE faking stuff
-function ToggleAll()
-    :NERDTreeToggle
-    :TagbarToggle
-    " :SyntasticToggle
-    wincmd p
-endfunction
+" gitv
+nmap <leader>gv :Gitv --all<cr>
+nmap <leader>gV :Gitv! --all<cr>
+vmap <leader>gV :Gitv! --all<cr>
 
-nmap <leader>c :call ToggleAll()<CR>
+highlight diffAdded ctermfg=darkgreen
+highlight diffRemoved ctermfg=darkred
+
+set lazyredraw
+
+nmap <leader>t :vs#<cr>

@@ -22,7 +22,7 @@ compinit
 # End of lines added by compinstall
 
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
     alias ls='ls --color=auto --group-directories-first'
     alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
@@ -52,7 +52,7 @@ autoload -U promptinit
 promptinit
 
 parse_git_branch () {
-    git branch 2> /dev/null | grep "*" | sed -e 's/* \(.*\)/\1/g'
+    git branch 2> /dev/null | grep "\*" | sed -e 's/* \(.*\)/\1/g'
 }
 
 function precmd() {
@@ -92,7 +92,7 @@ export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-eval $(keychain --eval --quiet id_rsa id_ed25519)
+eval "$(keychain --eval --quiet id_rsa id_ed25519)"
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -105,12 +105,24 @@ eval $(keychain --eval --quiet id_rsa id_ed25519)
 
 sssh(){
     # try to connect every 0.5 secs (modulo timeouts)
-    while true; do command ssh "$@"; [ $? -eq 0 ] && break || sleep 0.5; done
+    while true; do
+        if command ssh "$@"; then
+            break
+        else
+            sleep 0.5;
+        fi
+    done
 }
 
 trynet(){
     # try to connect every 0.5 secs (modulo timeouts)
-    while true; do command telnet "$@"; [ $? -eq 0 ] && break || sleep 0.5; done
+    while true; do
+        if command telnet "$@"; then
+            break
+        else
+            sleep 0.5;
+        fi
+    done
 }
 
 
@@ -120,5 +132,41 @@ alias uselocal='export DEV_ILCU_ADDR="`~/seahawk/app/lanehawk/tools/XmlStatusPar
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,node_modules}/*" 2> /dev/null'
 # export FZF_DEFAULT_COMMAND='rg --files -g "!{.git,node_modules}/*" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="cd ~/; bfs -type d -nohidden | sed \"s~^\.~$HOME~\""
+export FZF_CTRL_T_OPTS="--select-1 --exit-0"
+export FZF_ALT_C_COMMAND="cat ~/.bfs.cache"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+
+alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
+
+fzf-vim-file-widget() {
+    # set -o xtrace
+
+    # fuzzy search for file to edit
+    edit_file="$(__fsel)"
+
+    # if theres nothing clear the display and redisplay the terminal
+    # immediately
+    if [ ! -n "$edit_file" ]; then
+        zle redisplay
+        # I dont really know what return values from widgets matter for but
+        # hey! ill return 1 randomly when I ctrl-c the fzf search
+        return 1
+    fi
+
+    # shellcheck disable=SC2034
+    BUFFER="vim $edit_file"
+    local ret=$?
+    # redraw the display to show what command is about to run
+    zle redisplay
+    # no idea what this does yet
+    typeset -f zle-line-init >/dev/null && zle zle-line-init
+    # run the command
+    zle accept-line
+    return $ret
+}
+zle     -N   fzf-vim-file-widget
+bindkey '^P' fzf-vim-file-widget
+
+
+# bindkey -s '^P' 'vim $(__fsel)\n'
 
