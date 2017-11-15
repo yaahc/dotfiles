@@ -56,6 +56,7 @@ That did the trick.
 ## TODO ##
 
 Auto install these packages
+```
 zshrc
 keychain
 vim
@@ -76,5 +77,6 @@ python-dev
 python3-dev
 python-numpy
 golang-go
+```
 
-set default shell
+set default shell to zsh
