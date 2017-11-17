@@ -9,6 +9,7 @@ fi
 HISTFILE=~/.histfile
 HISTSIZE=2000
 SAVEHIST=2000
+setopt hist_ignore_all_dups
 bindkey -v
 #bindkey "^K" history-search-backward
 #bindkey "^J" history-search-forward

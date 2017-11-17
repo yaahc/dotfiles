@@ -294,12 +294,16 @@ let g:syntastic_check_on_wq = 0
 
 let g:syntastic_cpp_include_dirs = ['/home/jlusby/seahawk/app/build/include']
 let g:syntastic_cpp_check_header = 0
-let g:syntastic_cpp_checkers = ['cppcheck', 'gcc']
-let g:syntastic_sh_checkers = ['shellcheck', 'sh']
-let g:syntastic_zsh_checkers = ['sh/shellcheck', 'zsh']
+let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
+let g:syntastic_python_checkers = ['python', 'prospector']
+let g:syntastic_python_prospector_args = "--strictness veryhigh"
+let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
+let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
 let g:syntastic_aggregate_errors = 1
 
 let g:ycm_show_diagnostics_ui = 0
+
+nmap <leader>c :SyntasticReset<cr>
 
 " gitv
 nmap <leader>gv :Gitv --all<cr>
@@ -312,3 +316,9 @@ highlight diffRemoved ctermfg=darkred
 set lazyredraw
 
 nmap <leader>t :vs#<cr>
+
+" tabs
+nnoremap <C-Left> :tabprevious<CR>
+nnoremap <C-Right> :tabnext<CR>
+nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
