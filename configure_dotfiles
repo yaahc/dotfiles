@@ -1,39 +1,65 @@
 #! /bin/bash
 
+
+# set -o xtrace
+set -e
+
+MY_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+OLD_FILES="$HOME/oldfiles"
+
+
 linkfile()
 {
-    if [ -e $2 ]; then
-        mv $2 ~/oldfiles
+    SRCFILE="$MY_DIR/$1"
+    if [ "x" = "x$2" ]; then
+        DESTFILE=".$1"
+    else
+        DESTFILE="$2"
     fi
-    ln -s $1 $2
+
+    if [ -L "$HOME/$DESTFILE" ]; then
+        echo "$DESTFILE symlink exists. Good!"
+        return 0
+    elif [ -e "$HOME/$DESTFILE" ]; then
+        if [ ! -e "$OLD_FILES/$DESTFILE" ]; then
+            echo "Moving existing file too $OLD_FILES"
+            mv -n "$HOME/$DESTFILE" "$OLD_FILES"
+        else
+            echo "ERROR: Failed to copy, file likely already exists in destination"
+            exit 1
+        fi
+    fi
+
+    ln -s "$SRCFILE" "$HOME/$DESTFILE"
 }
 
-if [ ! -d ~/oldfiles ]; then
-    mkdir -p ~/oldfiles
-else
-    echo "Setup script has already been run, aborting."
-    exit 1
-fi
+
+# MAIN
+cd "$MY_DIR"
+
+mkdir -p "$OLD_FILES"
+mkdir -p ~/.config
+mkdir -p ~/tmp
 
 git submodule init
 git submodule update
-cd ~/
-#ln -s ~/dotfiles/bashrc ~/.bashrc
-linkfile ~/dotfiles/vimrc ~/.vimrc
-linkfile ~/dotfiles/vim ~/.vim
-linkfile ~/dotfiles/gvimrc ~/.gvimrc
-linkfile ~/dotfiles/gitignore_global ~/.gitignore_global
-linkfile ~/dotfiles/gitconfig ~/.gitconfig
-linkfile ~/dotfiles/xinitrc ~/.xinitrc
-linkfile ~/dotfiles/Xresources ~/.Xresources
-linkfile ~/dotfiles/zprofile ~/.zprofile
-linkfile ~/dotfiles/xprofile ~/.xprofile
-linkfile ~/dotfiles/zshrc ~/.zshrc
-mkdir -p ~/.config
-mkdir -p ~/tmp
-linkfile ~/dotfiles/bspwm ~/.config/bspwm
-linkfile ~/dotfiles/sxhkd ~/.config/sxhkd
-linkfile ~/dotfiles/weechat ~/.config/weechat
-linkfile ~/dotfiles/pianobar ~/.config/pianobar
-linkfile ~/dotfiles/Scripts ~/Scripts
+
+linkfile bashrc
+linkfile vimrc
+linkfile vim
+linkfile gvimrc
+linkfile gitignore_global
+linkfile gitconfig
+linkfile xinitrc
+linkfile Xresources
+linkfile zprofile
+linkfile xprofile
+linkfile zshrc
+linkfile bspwm .config/bspwm
+linkfile sxhkd .config/sxhkd
+linkfile weechat .config/weechat
+linkfile pianobar .config/pianobar
+linkfile Scripts
+linkfile tmux.conf
+
 exit 0

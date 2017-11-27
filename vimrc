@@ -1,6 +1,5 @@
 set t_Co=16
 set nocompatible
-let mapleader = ","
 " Load plugins that ship with Vim {{{1
 runtime macros/matchit.vim
 runtime ftplugin/man.vim
@@ -41,6 +40,8 @@ set visualbell t_vb=
 set hidden
 set nojoinspaces
 set nrformats=
+set splitright
+
 highlight OverLength ctermbg=red ctermfg=white guibg=#592929
 " match OverLength /\%81v.\+/
 if has('mouse')
@@ -95,29 +96,21 @@ endif
 set nobackup
 set noswapfile
 " }}}
+
 " Mappings {{{1
-" Quick toggles {{{2
-nmap <silent> <leader>l :set list!<CR>
-nmap <silent> <leader>n :silent :nohlsearch<CR>
+
 " Commands to quickly set >1 option in one go {{{2
 command! -nargs=* Wrap set wrap linebreak nolist
 command! -nargs=* Maxsize set columns=1000 lines=1000
-" Window switching {{{2
-nnoremap <C-k> <C-W>k
-nnoremap <C-j> <C-W>j
-nnoremap <C-h> <C-W>h
-nnoremap <C-l> <C-W>l
+" " Window switching {{{2
+" nnoremap <C-k> <C-W>k
+" nnoremap <C-j> <C-W>j
+" nnoremap <C-h> <C-W>h
+" nnoremap <C-l> <C-W>l
 " File opening {{{2
 " Shortcuts for opening file in same directory as current file
 cnoremap <expr> %%  getcmdtype() == ':' ? escape(expand('%:h'), ' \').'/' : '%%'
 
-map <leader>ew :e %%
-map <leader>es :sp %%
-map <leader>ev :vsp %%
-map <leader>et :tabe %%
-
-" Prompt to open file with same name, different extension
-map <leader>er :e <C-R>=expand("%:r")."."<CR>
 " Fix the & command in normal+visual modes {{{2
 nnoremap & :&&<Enter>
 xnoremap & :&&<Enter>
@@ -236,9 +229,6 @@ endif
 " Add git branch to statusline.
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 
-" Gundo.vim {{{2
-map <Leader>u :GundoToggle<CR>
-
 " Space.vim {{{2
 let g:space_disable_select_mode=1
 let g:space_no_search = 1
@@ -259,7 +249,6 @@ set tags+=tags;/
 
 " ripgrep
 set grepprg=rg\ --vimgrep
-map <Leader>* :Rg<CR>
 
 " fzf
 map <C-p>~ :Files ~<CR>
@@ -295,30 +284,60 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_cpp_include_dirs = ['/home/jlusby/seahawk/app/build/include']
 let g:syntastic_cpp_check_header = 0
 let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-let g:syntastic_python_checkers = ['python', 'prospector']
-let g:syntastic_python_prospector_args = "--strictness veryhigh"
+let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
+" let g:syntastic_python_prospector_args = "--strictness veryhigh"
 let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
 let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
-let g:syntastic_aggregate_errors = 1
+" let g:syntastic_aggregate_errors = 1
 
 let g:ycm_show_diagnostics_ui = 0
 
-nmap <leader>c :SyntasticReset<cr>
-
 " gitv
-nmap <leader>gv :Gitv --all<cr>
-nmap <leader>gV :Gitv! --all<cr>
-vmap <leader>gV :Gitv! --all<cr>
 
 highlight diffAdded ctermfg=darkgreen
 highlight diffRemoved ctermfg=darkred
 
 set lazyredraw
 
-nmap <leader>t :vs#<cr>
 
 " tabs
 nnoremap <C-Left> :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
 nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
 nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
+
+" leader mappings
+let mapleader = " "
+
+" Ripgrep search word under cursor
+nmap <leader>* :Rg<CR>
+
+" gitv
+nmap <leader>gv :Gitv --all<cr>
+nmap <leader>gV :Gitv! --all<cr>
+vmap <leader>gV :Gitv! --all<cr>
+
+" Syntastic
+nmap <leader>c :SyntasticReset<cr>
+nmap <leader>h :lclose<cr>
+
+" misc
+" vs last edited buffer
+nmap <leader>v :vs#<cr>
+nmap <leader>t :tabe#<cr>
+
+" Turn off list chars, aka trailing spaces and visible tabs
+nmap <silent> <leader>l :set list!<CR>
+" Turn off search highlighting
+nmap <silent> <leader>n :silent :nohlsearch<CR>
+
+nmap <leader>ew :e %%
+nmap <leader>es :sp %%
+nmap <leader>ev :vsp %%
+nmap <leader>et :tabe %%
+
+" Prompt to open file with same name, different extension
+nmap <leader>er :e <C-R>=expand("%:r")."."<CR>
+
+" Gundo.vim {{{2
+nmap <leader>u :GundoToggle<CR>

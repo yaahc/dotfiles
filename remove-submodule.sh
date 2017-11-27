@@ -1,5 +1,9 @@
 #! /bin/bash
 
+# specify the full path, aka
+# vim/bundle/vim-avim
+# needs to be relative to the path of execution
+
 SUBMODULE=$1
 
 if [ "x" == "x$SUBMODULE" ]; then
