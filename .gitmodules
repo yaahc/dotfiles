@@ -73,3 +73,12 @@
 [submodule "vim/bundle/vim-tmux-navigator"]
 	path = vim/bundle/vim-tmux-navigator
 	url = https://github.com/christoomey/vim-tmux-navigator.git
+[submodule "packages/tmux"]
+	path = packages/tmux
+	url = https://github.com/tmux/tmux.git
+[submodule "vim/bundle/vim-autopep8"]
+	path = vim/bundle/vim-autopep8
+	url = https://github.com/tell-k/vim-autopep8.git
+[submodule "vim/bundle/vim-pydocstring"]
+	path = vim/bundle/vim-pydocstring
+	url = https://github.com/heavenshell/vim-pydocstring.git

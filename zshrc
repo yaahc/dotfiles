@@ -10,6 +10,12 @@ HISTFILE=~/.histfile
 HISTSIZE=2000
 SAVEHIST=2000
 setopt hist_ignore_all_dups
+setopt inc_append_history
+setopt share_history
+
+# 10ms for key sequences
+KEYTIMEOUT=1
+
 bindkey -v
 #bindkey "^K" history-search-backward
 #bindkey "^J" history-search-forward

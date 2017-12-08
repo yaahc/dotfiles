@@ -77,6 +77,9 @@ python-dev
 python3-dev
 python-numpy
 golang-go
+tmuxinator from github
+automake
+tmux from git repo
 ```
 
 set default shell to zsh

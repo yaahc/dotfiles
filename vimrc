@@ -60,6 +60,13 @@ endif
 set matchtime=0 "Dont jump around highlighting braces
 let loaded_matchparen = 1
 
+" Prevent the cursor from droping back one character after exiting insert mode
+" as possible
+let CursorColumnI = 0 "the cursor column position in INSERT
+autocmd InsertEnter * let CursorColumnI = col('.')
+autocmd CursorMovedI * let CursorColumnI = col('.')
+autocmd InsertLeave * if col('.') != CursorColumnI | call cursor(0, col('.')+1) | endif
+
 " Tab-completion in command-line mode
 set wildmenu
 set wildmode=longest:full
@@ -308,6 +315,9 @@ highlight diffRemoved ctermfg=darkred
 
 set lazyredraw
 
+" Autopep8
+let g:autopep8_max_line_length=79
+let g:autopep8_aggressive=2
 
 " tabs
 nnoremap <C-Left> :tabprevious<CR>
@@ -315,6 +325,7 @@ nnoremap <C-Right> :tabnext<CR>
 nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
 nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
 
+" To show all commands that start with leader type :map <leader>
 " leader mappings
 let mapleader = " "
 
@@ -350,3 +361,6 @@ nmap <leader>er :e <C-R>=expand("%:r")."."<CR>
 
 " Gundo.vim {{{2
 nmap <leader>u :GundoToggle<CR>
+
+" Pydocstring
+nmap <silent> <leader>D <Plug>(pydocstring)
