@@ -1,5 +1,23 @@
 #! /bin/sh
 
+# Vim configuration
+export VISUAL=/usr/bin/vim
+
+if [ "$(basename $VISUAL)" = "nvim" ]; then
+    # disabled because I am trying to get out of the habit of typing vi, don't
+    # want to have to change the tmux config to differentiate between vi vim
+    # nvim
+    # alias vi=nvim
+    alias vim=nvim
+    export VIMCONFIG=~/.vim
+    export VIMDATA=~/.vim
+else
+    # always default to vimlike configuration
+    export VIMCONFIG=~/.vim
+    export VIMDATA=~/.vim
+fi
+
+
 if [ -e "$BSPWM_TREE" ] ; then
 	bspc restore -T "$BSPWM_TREE" -H "$BSPWM_HISTORY" -S "$BSPWM_STACK"
 	rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
@@ -62,16 +80,16 @@ parse_git_branch () {
     git branch 2> /dev/null | grep "\*" | sed -e 's/* \(.*\)/\1/g'
 }
 
-function precmd() {
-    PROMPT="%n@%m>>"
-    # TEST_BRANCHNAME_STRING=$(parse_git_branch)
-    # if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
-    #     RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-    # else
-    # RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
-    # RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-    # fi
-}
+PROMPT="%n@%m>>"
+# function precmd() {
+#     # TEST_BRANCHNAME_STRING=$(parse_git_branch)
+#     # if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
+#     #     RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
+#     # else
+#     # RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
+#     # RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
+#     # fi
+# }
 
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
 #use solarized ls colors
@@ -86,8 +104,6 @@ export LESS_TERMCAP_so=$'\E[1;40;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[32m'
 
-export EDITOR=/usr/bin/vim
-
 export PRU_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-pru_2.1.1/
 export ARM_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/
 export SW_DIR=/home/jlusby/starterwarefree-code/
@@ -99,7 +115,7 @@ export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-eval "$(keychain --eval --quiet id_rsa id_ed25519 id_rsa_legacy)"
+eval "$(keychain --eval --quiet id_rsa id_ed25519)"
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -140,7 +156,7 @@ export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,
 # export FZF_DEFAULT_COMMAND='rg --files -g "!{.git,node_modules}/*" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--select-1 --exit-0"
-export FZF_ALT_C_COMMAND="cat ~/.bfs.cache"
+export FZF_ALT_C_COMMAND="if [ -e $HOME/.bfs.cache ]; then cat $HOME/.bfs.cache; else bfs . -type d -nohidden; fi"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'

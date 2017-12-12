@@ -80,6 +80,9 @@ golang-go
 tmuxinator from github
 automake
 tmux from git repo
+python-pip
+install vim8 and neovim
+setup neovim configuration
 ```
 
 set default shell to zsh
