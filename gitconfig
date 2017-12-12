@@ -18,8 +18,3 @@
 	default = simple
 [status]
 	displaycommentprefix = true
-[branch "master"]
-    mergeoptions = --no-ff
-[branch "local-rules"]
-    mergeoptions = --no-ff
-

@@ -50,6 +50,7 @@ alias rbupdate="rbt post -p --server http://reviewboard.dl.net/codereview -r"
 alias rbreview="~/svn/evolution-build/scripts/rbreview.sh"
 alias open="xdg-open"
 alias slpsearch="slptool findsrvs LanehawkCamera"
+alias slpcat="cat ~/tmp/slpcamera; cat ~/tmp/slpserver"
 
 #random Aliases
 alias pianobar='pianobar | tee ~/.piano_lines.out'
@@ -178,6 +179,11 @@ bindkey '^P' fzf-vim-file-widget
 # bindkey -s '^P' 'vim $(__fsel)\n'
 
 # export ILCU_MACS="b4:99:4c:97:73:17 5c:f8:21:3b:2d:7c b4:99:4c:fe:c9:a7 b4:99:4c:dd:84:00 b4:99:4c:1b:6e:77 b4:99:4c:92:73:48 b4:99:4c:94:b6:c3 b4:99:4c:40:97:cf b4:99:4c:90:e3:cc"
-export ILCU_MACS="b4:99:4c:d1:30:32"
+# export ILCU_MACS="00:18:67:bb:ff:ff"
+export ILCU_MACS="$(cat ~/tmp/ilcu-dev-addr)"
 
-# export DEV_ILCU_ADDRS=$(slpresolv.sh $ILCU_MACS)
+# Disable Ctrl-S (XOFF) keystroke, causes terminal to freeze and stop accepting
+# input in tmux (probably in other situations)
+stty -ixon
+
+if [ "$TMUX" = "" ]; then tmux attach -t Dev; fi
