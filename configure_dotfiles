@@ -59,7 +59,10 @@ linkfile bspwm .config/bspwm
 linkfile sxhkd .config/sxhkd
 linkfile weechat .config/weechat
 linkfile pianobar .config/pianobar
-linkfile Scripts
+linkfile nvim .config/nvim
+linkfile Scripts Scripts
 linkfile tmux.conf
+
+. $MY_DIR/install-packages.sh
 
 exit 0

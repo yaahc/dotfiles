@@ -364,3 +364,6 @@ nmap <leader>u :GundoToggle<CR>
 
 " Pydocstring
 nmap <silent> <leader>D <Plug>(pydocstring)
+
+" clang formatting
+noremap <leader>k :pyf /usr/local/Cellar/clang-format/2017-11-14/share/clang/clang-format.py
