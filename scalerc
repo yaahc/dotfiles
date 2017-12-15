@@ -1,0 +1,15 @@
+#! /bin/sh
+
+init-mezzanine() (
+    buildID="$1";
+    testbeds="$2";
+    if [ "x$buildID" = "x" ] || [ "x$testbeds" = "x" ]; then
+        echo "Error: missing arguments"
+        echo "Expected: \"buildID\" \"testbeds\""
+        return 1
+    fi
+    cd "/builds/automated/$buildID/src/daemons/scqad/" &&
+        $(make -s echo_targetdir)/scqadleader -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
+    return $?
+)
+

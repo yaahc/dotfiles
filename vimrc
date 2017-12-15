@@ -4,16 +4,32 @@ set nocompatible
 runtime macros/matchit.vim
 runtime ftplugin/man.vim
 
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Load Plugins
+call plug#begin('~/.vim/plugged')
+Plug 'tpope/vim-fugitive'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'tpope/vim-surround' " adds keybinds to manipulate paired surrounding characters like ()
+Plug 'tpope/vim-repeat' " lets a lot of plugins repeat with ., the above for example
+call plug#end()
+
 " Load bundled plugins {{{1
-let g:pathogen_disabled = []
-call add(g:pathogen_disabled, 'HiLinkTrace')
-call add(g:pathogen_disabled, 'NesC-Syntax-Highlighting')
-call add(g:pathogen_disabled, 'vim-colors-solarized')
-call add(g:pathogen_disabled, 'vim-nerdtree')
-call add(g:pathogen_disabled, 'vim-tagbar')
-call add(g:pathogen_disabled, 'vim-ycm-generator')
-call pathogen#infect()
-call pathogen#helptags()
+" let g:pathogen_disabled = []
+" call add(g:pathogen_disabled, 'HiLinkTrace')
+" call add(g:pathogen_disabled, 'NesC-Syntax-Highlighting')
+" call add(g:pathogen_disabled, 'vim-colors-solarized')
+" call add(g:pathogen_disabled, 'vim-nerdtree')
+" " call add(g:pathogen_disabled, 'vim-tagbar')
+" call add(g:pathogen_disabled, 'vim-ycm-generator')
+" call add(g:pathogen_disabled, 'vim-syntastic')
+" call add(g:pathogen_disabled, 'vim-youcompleteme')
+" call pathogen#infect()
+" call pathogen#helptags()
 
 " Autocommands {{{1
 if has("autocmd")

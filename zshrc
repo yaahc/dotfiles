@@ -5,6 +5,8 @@ if [ -e "$BSPWM_TREE" ] ; then
     rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
 fi
 
+export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
+
 export VISUAL=nvim
 if [ "$VISUAL" = "nvim" ]; then
     alias vim=nvim
@@ -38,10 +40,11 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
+export LC_ALL="C"
 if [ -x /usr/bin/dircolors ]; then
     # GNU cli color config
     if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
-    alias ls='ls --color=auto --group-directories-first'
+    alias ls='ls --color=auto'
     alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -50,6 +53,9 @@ if [ -x /usr/bin/dircolors ]; then
     #alias fgrep='fgrep --color=auto'
     #alias egrep='egrep --color=auto'
 else
+    alias ls="/usr/local/bin/gls --color -h --group-directories-first -l"
+    export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+    export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
     # gonna just take a shot in the dark and assume its mac
     export CLICOLOR=YES
     export LSCOLORS=exfxcxdxbxegedabagacad
@@ -82,18 +88,18 @@ else
 fi
 
 # some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias grep='grep -nE'
-alias todo='todo -G +children'
+alias ll="ls -alF"
+alias la="ls -A"
+alias l="ls -CF"
+alias grep="grep -nE"
+alias todo="todo -G +children"
 alias rbupdate="rbt post -p --server http://reviewboard.dl.net/codereview -r"
 alias rbreview="~/svn/evolution-build/scripts/rbreview.sh"
 alias open="xdg-open"
 alias slpsearch="slptool findsrvs LanehawkCamera"
 
 #random Aliases
-alias pianobar='pianobar | tee ~/.piano_lines.out'
+alias pianobar="pianobar | tee ~/.piano_lines.out"
 
 autoload -U colors && colors
 autoload -U promptinit
@@ -135,7 +141,6 @@ export SW_DIR=/home/jlusby/starterwarefree-code/
 
 export SVNUSER=jlusby
 
-export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
 # export SHCC=$HOME/sdks/ti-processor-sdk-linux-am57xx-evm-02.00.01.07/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-
 
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -181,7 +186,7 @@ export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,
 # export FZF_DEFAULT_COMMAND='rg --files -g "!{.git,node_modules}/*" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--select-1 --exit-0"
-export FZF_ALT_C_COMMAND="if [ -e ~/.bfs.cache ]; then cat ~/.bfs.cache; else bfs ~/ -type d -nohidden; fi"
+export FZF_ALT_C_COMMAND="if [ -e ~/.bfs.cache ]; then cat ~/.bfs.cache; else bfs . -type d -nohidden; fi"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
@@ -223,3 +228,5 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 if [ "$TERM" != "screen" ]; then
     tmux attach -t Dev
 fi
+
+. "$HOME/dotfiles/scalerc"

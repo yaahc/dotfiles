@@ -41,25 +41,27 @@ mkdir -p "$OLD_FILES"
 mkdir -p ~/.config
 mkdir -p ~/tmp
 
+linkfile gitconfig
+linkfile git_template
+linkfile gitignore_global
+
 git submodule init
 git submodule update
 
+linkfile zshrc
 linkfile bashrc
-linkfile vimrc
 linkfile vim
+linkfile vimrc
 linkfile gvimrc
-linkfile gitignore_global
-linkfile gitconfig
+linkfile nvim .config/nvim
 linkfile xinitrc
 linkfile Xresources
 linkfile zprofile
 linkfile xprofile
-linkfile zshrc
 linkfile bspwm .config/bspwm
 linkfile sxhkd .config/sxhkd
 linkfile weechat .config/weechat
 linkfile pianobar .config/pianobar
-linkfile nvim .config/nvim
 linkfile Scripts Scripts
 linkfile tmux.conf
 
