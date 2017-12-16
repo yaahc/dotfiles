@@ -7,15 +7,18 @@ fi
 
 export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
 
-export VISUAL=nvim
+export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
+if [ -z "$VISUAL" ]; then
+    export VISUAL=nvim
+fi
 if [ "$VISUAL" = "nvim" ]; then
-    alias vim=nvim
     export VIMCONFIG=~/.config/nvim
     export VIMDATA=~/.local/share/nvim
 else
     export VIMCONFIG=~/.vim
     export VIMDATA=~/.vim
 fi
+alias vim=$VISUAL
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -53,7 +56,7 @@ if [ -x /usr/bin/dircolors ]; then
     #alias fgrep='fgrep --color=auto'
     #alias egrep='egrep --color=auto'
 else
-    alias ls="/usr/local/bin/gls --color -h --group-directories-first -l"
+    alias ls="/usr/local/bin/gls --color -h --group-directories-first"
     export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
     export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
     # gonna just take a shot in the dark and assume its mac
@@ -225,8 +228,8 @@ bindkey '^P' fzf-vim-file-widget
 
 fpath=(/usr/local/share/zsh-completions $fpath)
 
-if [ "$TERM" != "screen" ]; then
-    tmux attach -t Dev
-fi
+# if [ "$TERM" != "screen" ]; then
+#     tmux attach -t Dev
+# fi
 
 . "$HOME/dotfiles/scalerc"

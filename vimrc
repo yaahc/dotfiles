@@ -4,47 +4,7 @@ set nocompatible
 runtime macros/matchit.vim
 runtime ftplugin/man.vim
 
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-" Load Plugins
-call plug#begin('~/.vim/plugged')
-Plug 'tpope/vim-fugitive'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'tpope/vim-surround' " adds keybinds to manipulate paired surrounding characters like ()
-Plug 'tpope/vim-repeat' " lets a lot of plugins repeat with ., the above for example
-call plug#end()
-
-" Load bundled plugins {{{1
-" let g:pathogen_disabled = []
-" call add(g:pathogen_disabled, 'HiLinkTrace')
-" call add(g:pathogen_disabled, 'NesC-Syntax-Highlighting')
-" call add(g:pathogen_disabled, 'vim-colors-solarized')
-" call add(g:pathogen_disabled, 'vim-nerdtree')
-" " call add(g:pathogen_disabled, 'vim-tagbar')
-" call add(g:pathogen_disabled, 'vim-ycm-generator')
-" call add(g:pathogen_disabled, 'vim-syntastic')
-" call add(g:pathogen_disabled, 'vim-youcompleteme')
-" call pathogen#infect()
-" call pathogen#helptags()
-
-" Autocommands {{{1
-if has("autocmd")
-    filetype plugin indent on
-    au BufNewFile,BufRead *.d set filetype=sh
-    augroup vimrcEx
-        au!
-        autocmd BufReadPost *
-                    \ if line("'\"") > 1 && line("'\"") <= line("$") |
-                    \   exe "normal! g`\"" |
-                    \ endif
-    augroup END
-else
-    set autoindent		" always set autoindenting on
-endif
+set tags=./tags;
 
 " Allow for tmux borked ctrl arrow keys
 if &term =~ '^screen'
@@ -55,8 +15,6 @@ if &term =~ '^screen'
     execute "set <xLeft>=\e[1;*D"
 endif
 
-" Preferences {{{1
-" Behaviour {{{2
 set backspace=indent,eol,start
 set history=50
 set incsearch
@@ -76,24 +34,10 @@ endif
 set matchtime=0 "Dont jump around highlighting braces
 let loaded_matchparen = 1
 
-" Prevent the cursor from droping back one character after exiting insert mode
-" as possible
-let CursorColumnI = 0 "the cursor column position in INSERT
-autocmd InsertEnter * let CursorColumnI = col('.')
-autocmd CursorMovedI * let CursorColumnI = col('.')
-autocmd InsertLeave * if col('.') != CursorColumnI | call cursor(0, col('.')+1) | endif
-
 " Tab-completion in command-line mode
 set wildmenu
 set wildmode=longest:full
 set completeopt=longest,menu,preview
-let g:SuperTabLongestHighlight=1
-let g:SuperTabDefaultCompletionType = "<c-n>"
-" let g:SuperTabDefaultCompletionType = context
-" enable this shit if I manage to set up omnicomplete correctly
-let g:SuperTabLongestEnhanced = 1
-set wildignore=*.pdf,*.fo,*.o,*.jpeg,*.jpg,*.png
-set suffixes=.otl
 
 " Appearance {{{2
 set ruler
@@ -109,7 +53,12 @@ if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
 endif
+
+" folding
 set foldlevelstart=99
+set foldmethod=syntax
+set foldcolumn=1
+nnoremap , za
 
 " Indentation {{{2
 set tabstop=4
@@ -124,32 +73,292 @@ set undodir=~/tmp/vim/undo
 if !isdirectory(expand(&undodir))
     call mkdir(expand(&undodir), "p")
 endif
-" Disable swapfile and backup {{{2
+
 set nobackup
 set noswapfile
-" }}}
 
-" Mappings {{{1
+" let you return calls from terminals in nvim back to nvim rather
+" than openning a nestd instance of nvim
+if has("nvim")
+    " let $VISUAL = 'nvr -cc split --remote-wait'
+    let $VISUAL = 'nvr --remote-wait'
+endif
 
-" Commands to quickly set >1 option in one go {{{2
-command! -nargs=* Wrap set wrap linebreak nolist
-command! -nargs=* Maxsize set columns=1000 lines=1000
-" " Window switching {{{2
-" nnoremap <C-k> <C-W>k
-" nnoremap <C-j> <C-W>j
-" nnoremap <C-h> <C-W>h
-" nnoremap <C-l> <C-W>l
-" File opening {{{2
-" Shortcuts for opening file in same directory as current file
-cnoremap <expr> %%  getcmdtype() == ':' ? escape(expand('%:h'), ' \').'/' : '%%'
+
+" To show all commands that start with leader type :map <leader>
+" leader mappings
+let mapleader = " "
+
+" vim plug
+nnoremap <leader>I :source %<CR>:PlugInstall<CR>
+
+" :terminal easy escape
+tnoremap jj <C-\><C-n>
+
+" tabs & buffers
+nnoremap <C-Up> :tabprevious<CR>
+nnoremap <C-Down> :tabnext<CR>
+nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
+nnoremap <C-Left> :bprevious<CR>
+nnoremap <C-Right> :bnext<CR>
+
+" Prompt to open file with same name, different extension
+nmap <leader>a :e <C-R>=expand("%:r")."."<CR>
+
+" Turn off list chars, aka trailing spaces and visible tabs
+nmap <silent> <leader>l :set list!<CR>
+" Turn off search highlighting
+nmap <silent> <leader>n :silent :nohlsearch<CR>
+
+" misc
+" keybinds to open last buffer
+nmap <leader>v :vs#<cr>
+nmap <leader>t :tabe#<cr>
 
 " Fix the & command in normal+visual modes {{{2
 nnoremap & :&&<Enter>
 xnoremap & :&&<Enter>
+
+
 " Crude visualmode-only mappings for block level XML tags {{{2
 nnoremap viT vitVkoj
 nnoremap vaT vatV
-" Strip trailing whitespace {{{2
+
+
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" highlight lines in Sy and vimdiff etc.)
+highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
+highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
+highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
+
+" fixing search highlighting
+hi Search cterm=NONE ctermfg=black ctermbg=yellow
+
+" Load Plugins
+call plug#begin('~/.vim/plugged')
+" Basic common sense config
+Plug 'tpope/vim-sensible'
+
+
+" adds keybinds to manipulate paired surrounding characters like ()
+Plug 'tpope/vim-surround'
+
+
+" lets a lot of plugins repeat with ., the above for example
+Plug 'tpope/vim-repeat'
+
+
+" motion based block commenting plugin
+Plug 'tpope/vim-commentary'
+if has("autocmd")
+    " commentary adjustment
+    autocmd FileType c,h,cpp,hpp,cs,java setlocal commentstring=//\ %s
+endif
+
+ " easy navigation keybinds
+Plug 'tpope/vim-unimpaired'
+
+
+" Git interface I massively underuse, mostly only use Gblame, GStatus is super
+" epic and i know i should use it
+Plug 'tpope/vim-fugitive'
+
+
+" Projectionist plugin to let me jump around code, not really in use yet
+Plug 'tpope/vim-projectionist'
+
+
+" Fuzzy searching
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'kien/ctrlp.vim'
+Plug 'jremmen/vim-ripgrep'
+" ripgrep and ctrlp and fzf
+if executable('rg')
+  set grepprg=rg\ --vimgrep
+  let g:ctrlp_user_command = 'rg %s --files --no-ignore --hidden --follow --color=never --glob ""'
+  let g:ctrlp_use_caching = 0
+    " Ripgrep search word under cursor
+    nmap <leader>* :Rg<CR>
+endif
+set wildignore=*.pdf,*.fo,*.o,*.jpeg,*.jpg,*.png
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
+set wildignore+=*/.git/*,*/tmp/*,*.swp,tags
+set suffixes=.otl
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlPMixed'
+
+" map <C-p> :Files<CR>
+" map <leader>~ :Files ~<CR>
+" map <leader>g :Files ~/git<CR>
+
+
+" Code Formatting Plugins
+Plug 'tell-k/vim-autopep8'
+let g:autopep8_max_line_length=79
+let g:autopep8_aggressive=2
+
+
+Plug 'rhysd/vim-clang-format'
+
+
+" Super useful, lets you navigate between tmux panes and vim panes with the
+" same keybinds (ctrl +hjkl) who cares what type of pane it is!!!
+Plug 'christoomey/vim-tmux-navigator'
+
+
+Plug 'tmux-plugins/vim-tmux-focus-events'
+
+
+Plug 'roxma/vim-tmux-clipboard'
+
+
+" Tmux zoom emulating plugin TOOD needs work to get it playing nicely with
+" NERDTree though in reality its NERDTrees fault, either use vim-session in
+" vim-zoom or rework vim-zoom to just spawn a new tab and kill it instead of
+" using sessions (though i expect that sessions are the right tool for this
+" problem)
+Plug 'dhruvasagar/vim-zoom'
+nmap <leader>z <Plug>(zoom-toggle)
+
+
+" VCS agnostic sign gutter plugin
+Plug 'mhinz/vim-signify'
+
+
+Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+let g:airline#extensions#tabline#enabled = 1
+
+
+Plug 'octol/vim-cpp-enhanced-highlight'
+
+
+" NERD tree will be loaded on the first invocation of NERDTreeToggle command
+Plug 'scrooloose/nerdtree'
+Plug 'xuyuanp/nerdtree-git-plugin'
+nnoremap <leader>N :NERDTreeToggle<CR>
+" if has("autocmd") autocmd vimenter * NERDTree | wincmd p
+"     autocmd StdinReadPre * let s:std_in=1
+"     autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+"     autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" endif
+
+
+Plug 'xolox/vim-easytags'
+Plug 'xolox/vim-misc'
+let g:easytags_async = 1
+let g:easytags_dynamic_files = 1
+let g:easytags_auto_highlight = 0
+let g:easytags_events = ['BufReadPost', 'BufWritePost']
+let g:easytags_resolve_links = 1
+let g:easytags_suppress_ctags_warning = 1
+
+
+Plug 'majutsushi/tagbar'
+nnoremap <silent> <leader>b :TagbarToggle<CR>
+
+
+Plug 'zhou13/vim-easyescape'
+" easy escape
+let g:easyescape_chars = { "j": 2 }
+let g:easyescape_timeout = 150
+cnoremap jj <ESC>
+
+
+" Completion Plugin
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'zchee/deoplete-jedi'
+" Use deoplete.
+let g:deoplete#enable_at_startup = 1
+if !exists('g:deoplete#omni#input_patterns')
+  let g:deoplete#omni#input_patterns = {}
+endif
+" let g:deoplete#disable_auto_complete = 1
+if has("autocmd")
+    autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+endif
+" deoplete tab-complete
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+
+
+" gitv
+" highlight diffAdded ctermfg=darkgreen
+" highlight diffRemoved ctermfg=darkred
+" set lazyredraw
+" nmap <leader>gv :Gitv --all<cr>
+" nmap <leader>gV :Gitv! --all<cr>
+" vmap <leader>gV :Gitv! --all<cr>
+
+
+" " Gundo.vim {{{2
+" nmap <leader>u :GundoToggle<CR>
+
+
+" " Pydocstring
+" nmap <silent> <leader>D <Plug>(pydocstring)
+
+
+" neovim/vim8 async linter
+Plug 'neomake/neomake'
+let g:neomake_cpp_enabled_makers = ['cppcheck', ]
+" Plug 'vim-syntastic/syntastic'
+" let g:syntastic_error_symbol = '✘'
+" let g:syntastic_warning_symbol = "▲"
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 0
+" let g:syntastic_check_on_wq = 0
+" let g:syntastic_cpp_check_header = 0
+" let g:syntastic_cpp_checkers = ['cppcheck']
+" let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
+" " let g:syntastic_python_prospector_args = "--strictness veryhigh"
+" let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
+" let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
+" " " let g:syntastic_aggregate_errors = 1
+" nmap <leader>c :SyntasticReset<cr>
+" nmap <leader>h :lclose<cr>
+
+
+call plug#end()
+
+
+" Fugitive post load
+if has("autocmd")
+    " Auto-close fugitive buffers
+    autocmd BufReadPost fugitive://* set bufhidden=delete
+    " Navigate up one level from fugitive trees and blobs
+    autocmd User fugitive
+                \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
+                \   nnoremap <buffer> .. :edit %:h<CR> |
+                \ endif
+endif
+
+" Neomake Post Plug
+call neomake#configure#automake('nwr', 1000)
+
+
+" Custom commands
+" Strip trailing whitespace
 function! Preserve(command)
     " Preparation: save last search, and cursor position.
     let _s=@/
@@ -161,9 +370,9 @@ function! Preserve(command)
     let @/=_s
     call cursor(l, c)
 endfunction
-
 nmap _$ :call Preserve("%s/\\s\\+$//e")<CR>
-" Escape and paste a register {{{2
+
+" Escape and paste a register
 " <c-x>{char} - paste register into search field, escaping sensitive chars
 " http://stackoverflow.com/questions/7400743/
 cnoremap <c-x> <c-r>=<SID>PasteEscaped()<cr>
@@ -178,208 +387,27 @@ function! s:PasteEscaped()
         return substitute(escaped_register, '\n', '\\n', 'g')
     endif
 endfunction
-" Custom commands {{{1
-function! Foo()
-    call system('sleep 2')
-endfunction
-" :Stab {{{2
-" Set tabstop, softtabstop and shiftwidth to the same value
-" From http://vimcasts.org/episodes/tabs-and-spaces/
-command! -nargs=* Stab call Stab()
-function! Stab()
-    let l:tabstop = 1 * input('set tabstop = softtabstop = shiftwidth = ')
-    if l:tabstop > 0
-        let &l:sts = l:tabstop
-        let &l:ts = l:tabstop
-        let &l:sw = l:tabstop
-    endif
-    call SummarizeTabs()
-endfunction
 
-function! SummarizeTabs()
-    try
-        echohl ModeMsg
-        echon 'tabstop='.&l:ts
-        echon ' shiftwidth='.&l:sw
-        echon ' softtabstop='.&l:sts
-        if &l:et
-            echon ' expandtab'
-        else
-            echon ' noexpandtab'
-        end
-    finally
-        echohl None
-    endtry
-endfunction
-" :CloseHiddenBuffers {{{2
-" Wipe all buffers which are not active (i.e. not visible in a window/tab)
-" Using elements from each of these:
-"   http://stackoverflow.com/questions/2974192
-"   http://stackoverflow.com/questions/1534835
-command! -nargs=* Only call CloseHiddenBuffers()
-function! CloseHiddenBuffers()
-    " figure out which buffers are visible in any tab
-    let visible = {}
-    for t in range(1, tabpagenr('$'))
-        for b in tabpagebuflist(t)
-            let visible[b] = 1
-        endfor
-    endfor
-    " close any buffer that are loaded and not visible
-    let l:tally = 0
-    for b in range(1, bufnr('$'))
-        if bufloaded(b) && !has_key(visible, b)
-            let l:tally += 1
-            exe 'bw ' . b
-        endif
-    endfor
-    echon "Deleted " . l:tally . " buffers"
-endfun
-" Plugin configuration {{{1
-" textobj-entire {{{2
-" textobj-entire defines: ie/ae maps
-" Instead, use:           ia/aa
-let g:textobj_entire_no_default_key_mappings = 1
-xmap aa  <Plug>(textobj-entire-a)
-omap aa  <Plug>(textobj-entire-a)
-xmap ia  <Plug>(textobj-entire-i)
-omap ia  <Plug>(textobj-entire-i)
-" Fugitive.vim {{{2
+
+" Autocommands
 if has("autocmd")
+    filetype plugin indent on
+    au BufNewFile,BufRead *.d set filetype=sh
+    augroup vimrcEx
+        au!
+        autocmd BufReadPost *
+                    \ if line("'\"") > 1 && line("'\"") <= line("$") |
+                    \   exe "normal! g`\"" |
+                    \ endif
+    augroup END
 
-    " Auto-close fugitive buffers
-    autocmd BufReadPost fugitive://* set bufhidden=delete
-
-    " Navigate up one level from fugitive trees and blobs
-    autocmd User fugitive
-                \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
-                \   nnoremap <buffer> .. :edit %:h<CR> |
-                \ endif
-
+    " Prevent the cursor from droping back one character after exiting insert mode
+    " as possible
+    let CursorColumnI = 0 "the cursor column position in INSERT
+    autocmd InsertEnter * let CursorColumnI = col('.')
+    autocmd CursorMovedI * let CursorColumnI = col('.')
+    autocmd InsertLeave * if col('.') != CursorColumnI | call cursor(0, col('.')+1) | endif
+    autocmd BufDelete * call airline#extensions#tabline#buflist#invalidate()
+else
+    set autoindent		" always set autoindenting on
 endif
-
-" Add git branch to statusline.
-set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
-
-" Space.vim {{{2
-let g:space_disable_select_mode=1
-let g:space_no_search = 1
-
-" highlight lines in Sy and vimdiff etc.)
-
-highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
-highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
-highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
-
-" commentary adjustment
-autocmd FileType c,h,cpp,hpp,cs,java setlocal commentstring=//\ %s
-
-" fixing search highlighting
-hi Search cterm=NONE ctermfg=black ctermbg=yellow
-
-set tags+=tags;/
-
-" ripgrep
-set grepprg=rg\ --vimgrep
-
-" fzf
-map <C-p>~ :Files ~<CR>
-map <C-p>s :Files ~/svn<CR>
-map <C-p>g :Files ~/git<CR>
-map <C-p>b :Files ~/seahawk<CR>
-
-map <C-p> :Files<CR>
-
-" easytags
-let g:easytags_async = 1
-let g:easytags_dynamic_files = 2
-let g:easytags_auto_highlight = 0
-let g:easytags_events = ['BufReadPost', 'BufWritePost']
-let g:easytags_async = 1
-let g:easytags_dynamic_files = 2
-let g:easytags_resolve_links = 1
-let g:easytags_suppress_ctags_warning = 1
-
-" Syntastic
-let g:syntastic_error_symbol = '✘'
-let g:syntastic_warning_symbol = "▲"
-
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
-
-let g:syntastic_cpp_include_dirs = ['/home/jlusby/seahawk/app/build/include']
-let g:syntastic_cpp_check_header = 0
-let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
-" let g:syntastic_python_prospector_args = "--strictness veryhigh"
-let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
-let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
-" let g:syntastic_aggregate_errors = 1
-
-let g:ycm_show_diagnostics_ui = 0
-
-" gitv
-
-highlight diffAdded ctermfg=darkgreen
-highlight diffRemoved ctermfg=darkred
-
-set lazyredraw
-
-" Autopep8
-let g:autopep8_max_line_length=79
-let g:autopep8_aggressive=2
-
-" tabs
-nnoremap <C-Left> :tabprevious<CR>
-nnoremap <C-Right> :tabnext<CR>
-nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
-nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
-
-" To show all commands that start with leader type :map <leader>
-" leader mappings
-let mapleader = " "
-
-" Ripgrep search word under cursor
-nmap <leader>* :Rg<CR>
-
-" gitv
-nmap <leader>gv :Gitv --all<cr>
-nmap <leader>gV :Gitv! --all<cr>
-vmap <leader>gV :Gitv! --all<cr>
-
-" Syntastic
-nmap <leader>c :SyntasticReset<cr>
-nmap <leader>h :lclose<cr>
-
-" misc
-" vs last edited buffer
-nmap <leader>v :vs#<cr>
-nmap <leader>t :tabe#<cr>
-
-" Turn off list chars, aka trailing spaces and visible tabs
-nmap <silent> <leader>l :set list!<CR>
-" Turn off search highlighting
-nmap <silent> <leader>n :silent :nohlsearch<CR>
-
-nmap <leader>ew :e %%
-nmap <leader>es :sp %%
-nmap <leader>ev :vsp %%
-nmap <leader>et :tabe %%
-
-" Prompt to open file with same name, different extension
-nmap <leader>er :e <C-R>=expand("%:r")."."<CR>
-
-" Gundo.vim {{{2
-nmap <leader>u :GundoToggle<CR>
-
-" Pydocstring
-nmap <silent> <leader>D <Plug>(pydocstring)
-
-" clang formatting
-noremap <leader>k :pyf /usr/local/Cellar/clang-format/2017-11-14/share/clang/clang-format.py

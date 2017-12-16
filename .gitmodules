@@ -1,3 +1,3 @@
-[submodule "vim/bundle/supertab"]
-	path = vim/bundle/supertab
-	url = https://github.com/ervandew/supertab.git
+[submodule "packages/fonts"]
+	path = packages/fonts
+	url = https://github.com/powerline/fonts.git
