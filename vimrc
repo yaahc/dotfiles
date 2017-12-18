@@ -99,8 +99,10 @@ nnoremap <leader>l :lopen<CR>
 nnoremap <leader>I :source %<CR>:PlugInstall<CR>
 
 " :terminal easy escape
-tnoremap jj <C-\><C-n>
-nnoremap <leader>t :vs term://zsh<CR>
+if has('nvim')
+    tnoremap jj <C-\><C-n>
+    nnoremap <leader>t :vs term://zsh<CR>
+endif
 
 " tabs & buffers
 nnoremap <C-Up> :tabprevious<CR>
@@ -288,34 +290,6 @@ Plug 'majutsushi/tagbar'
 nnoremap <silent> <leader>B :TagbarToggle<CR>
 
 
-Plug 'zhou13/vim-easyescape'
-" easy escape
-let g:easyescape_chars = { "j": 2 }
-let g:easyescape_timeout = 150
-cnoremap jj <ESC>
-
-
-" Completion Plugin
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-Plug 'zchee/deoplete-jedi'
-" Use deoplete.
-let g:deoplete#enable_at_startup = 1
-if !exists('g:deoplete#omni#input_patterns')
-  let g:deoplete#omni#input_patterns = {}
-endif
-" let g:deoplete#disable_auto_complete = 1
-if has("autocmd")
-    autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-endif
-" deoplete tab-complete
-inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-
 " gitv
 " highlight diffAdded ctermfg=darkgreen
 " highlight diffRemoved ctermfg=darkred
@@ -353,6 +327,35 @@ let g:neomake_cpp_enabled_makers = ['cppcheck', ]
 " nmap <leader>c :SyntasticReset<cr>
 " nmap <leader>h :lclose<cr>
 
+if has('python3')
+    " Completion Plugin
+    if has('nvim')
+      Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    else
+      Plug 'Shougo/deoplete.nvim'
+      Plug 'roxma/nvim-yarp'
+      Plug 'roxma/vim-hug-neovim-rpc'
+    endif
+    Plug 'zchee/deoplete-jedi'
+    " Use deoplete.
+    let g:deoplete#enable_at_startup = 1
+    if !exists('g:deoplete#omni#input_patterns')
+      let g:deoplete#omni#input_patterns = {}
+    endif
+    " let g:deoplete#disable_auto_complete = 1
+    if has("autocmd")
+        autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+    endif
+    " deoplete tab-complete
+    inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+
+
+    Plug 'zhou13/vim-easyescape'
+    " easy escape
+    let g:easyescape_chars = { "j": 2 }
+    let g:easyescape_timeout = 150
+    cnoremap jj <ESC>
+endif
 
 call plug#end()
 
