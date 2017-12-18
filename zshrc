@@ -9,27 +9,31 @@ export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
 
 export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
 if [ -z "$VISUAL" ]; then
-    export VISUAL=nvim
+    VISUAL=nvim
 fi
+
 if [ "$VISUAL" = "nvim" ]; then
+    if [ -e /tmp/nvimsocket ]; then
+        export VISUAL='nvr -cc vsplit -s'
+    fi
     export VIMCONFIG=~/.config/nvim
     export VIMDATA=~/.local/share/nvim
 else
     export VIMCONFIG=~/.vim
     export VIMDATA=~/.vim
 fi
-alias vim=$VISUAL
+alias vim="$VISUAL"
 
 # Lines configured by zsh-newuser-install
-HISTFILE=~/.histfile
-HISTSIZE=2000
-SAVEHIST=2000
+export HISTFILE=~/.history
+export HISTSIZE=10000
+export SAVEHIST=10000
 setopt hist_ignore_all_dups
 setopt inc_append_history
 setopt share_history
 
 # 10ms for key sequences
-KEYTIMEOUT=1
+export KEYTIMEOUT=1
 
 bindkey -v
 #bindkey "^K" history-search-backward
@@ -59,47 +63,10 @@ else
     alias ls="/usr/local/bin/gls --color -h --group-directories-first"
     export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
     export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
-    # gonna just take a shot in the dark and assume its mac
-    export CLICOLOR=YES
-    export LSCOLORS=exfxcxdxbxegedabagacad
-    # define colors
-    C_DEFAULT="\[\033[m\]"
-    C_WHITE="\[\033[1m\]"
-    C_BLACK="\[\033[30m\]"
-    C_RED="\[\033[31m\]"
-    C_GREEN="\[\033[32m\]"
-    C_YELLOW="\[\033[33m\]"
-    C_BLUE="\[\033[34m\]"
-    C_PURPLE="\[\033[35m\]"
-    C_CYAN="\[\033[36m\]"
-    C_LIGHTGRAY="\[\033[37m\]"
-    C_DARKGRAY="\[\033[1;30m\]"
-    C_LIGHTRED="\[\033[1;31m\]"
-    C_LIGHTGREEN="\[\033[1;32m\]"
-    C_LIGHTYELLOW="\[\033[1;33m\]"
-    C_LIGHTBLUE="\[\033[1;34m\]"
-    C_LIGHTPURPLE="\[\033[1;35m\]"
-    C_LIGHTCYAN="\[\033[1;36m\]"
-    C_BG_BLACK="\[\033[40m\]"
-    C_BG_RED="\[\033[41m\]"
-    C_BG_GREEN="\[\033[42m\]"
-    C_BG_YELLOW="\[\033[43m\]"
-    C_BG_BLUE="\[\033[44m\]"
-    C_BG_PURPLE="\[\033[45m\]"
-    C_BG_CYAN="\[\033[46m\]"
-    C_BG_LIGHTGRAY="\[\033[47m\]"
 fi
 
 # some more ls aliases
-alias ll="ls -alF"
-alias la="ls -A"
-alias l="ls -CF"
-alias grep="grep -nE"
-alias todo="todo -G +children"
-alias rbupdate="rbt post -p --server http://reviewboard.dl.net/codereview -r"
-alias rbreview="~/svn/evolution-build/scripts/rbreview.sh"
 alias open="xdg-open"
-alias slpsearch="slptool findsrvs LanehawkCamera"
 
 #random Aliases
 alias pianobar="pianobar | tee ~/.piano_lines.out"
@@ -108,19 +75,8 @@ autoload -U colors && colors
 autoload -U promptinit
 promptinit
 
-parse_git_branch () {
-    git branch 2> /dev/null | grep "\*" | sed -e 's/* \(.*\)/\1/g'
-}
-
 function precmd() {
-PROMPT="%n@%m>>"
-# TEST_BRANCHNAME_STRING=$(parse_git_branch)
-# if [ -n "$TEST_BRANCHNAME_STRING" ] ; then
-#     RPROMPT="[%{$fg_no_bold[cyan]%}$TEST_BRANCHNAME_STRING%{$reset_color%}][%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-# else
-# RPROMPT="[%30<...<%{$fg_no_bold[green]%}%~%{$reset_color%}%<<]"
-# RPROMPT="[%{$fg_no_bold[green]%}%~%{$reset_color%}]"
-# fi
+    PROMPT="%n@%m>>"
 }
 
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
@@ -148,7 +104,7 @@ export SVNUSER=jlusby
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa)"
+eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -185,10 +141,10 @@ trynet(){
 alias uselocal='export DEV_ILCU_ADDR="`~/seahawk/app/lanehawk/tools/XmlStatusParser/XmlStatusParser.py`"; echo "Using: $DEV_ILCU_ADDR"'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,node_modules}/*" 2> /dev/null'
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden -g "!{.git,node_modules}/*" 2> /dev/null'
 # export FZF_DEFAULT_COMMAND='rg --files -g "!{.git,node_modules}/*" 2> /dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_CTRL_T_OPTS="--select-1 --exit-0"
+export FZF_CTRL_T_OPTS="--select-1 --exit-0 --reverse"
 export FZF_ALT_C_COMMAND="if [ -e ~/.bfs.cache ]; then cat ~/.bfs.cache; else bfs . -type d -nohidden; fi"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-init-mezzanine() (
+init_mezzanine() (
     buildID="$1";
     testbeds="$2";
     if [ "x$buildID" = "x" ] || [ "x$testbeds" = "x" ]; then
@@ -9,7 +9,12 @@ init-mezzanine() (
         return 1
     fi
     cd "/builds/automated/$buildID/src/daemons/scqad/" &&
-        $(make -s echo_targetdir)/scqadleader -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
+        "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
     return $?
 )
 
+build_on_vm()
+(
+    rsync -avzh -e ssh --exclude='.git/' --exclude='*.swp' ~/git/scale-product/* buildvm:/local/scale-product && \
+        ssh buildvm "./Scripts/build.sh && make runtest"
+)

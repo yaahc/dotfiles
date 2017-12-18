@@ -77,23 +77,28 @@ endif
 set nobackup
 set noswapfile
 
-" let you return calls from terminals in nvim back to nvim rather
-" than openning a nestd instance of nvim
-if has("nvim")
-    " let $VISUAL = 'nvr -cc split --remote-wait'
-    let $VISUAL = 'nvr --remote-wait'
-endif
+" highlight lines in Sy and vimdiff etc.)
+highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
+highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
+highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
+
+" fixing search highlighting
+hi Search cterm=NONE ctermfg=black ctermbg=yellow
 
 
 " To show all commands that start with leader type :map <leader>
 " leader mappings
 let mapleader = " "
 
+" location list
+nnoremap <leader>l :lopen<CR>
+
 " vim plug
 nnoremap <leader>I :source %<CR>:PlugInstall<CR>
 
 " :terminal easy escape
 tnoremap jj <C-\><C-n>
+nnoremap <leader>t :vs term://zsh<CR>
 
 " tabs & buffers
 nnoremap <C-Up> :tabprevious<CR>
@@ -107,14 +112,13 @@ nnoremap <C-Right> :bnext<CR>
 nmap <leader>a :e <C-R>=expand("%:r")."."<CR>
 
 " Turn off list chars, aka trailing spaces and visible tabs
-nmap <silent> <leader>l :set list!<CR>
+" nmap <silent> <leader>l :set list!<CR>
 " Turn off search highlighting
 nmap <silent> <leader>n :silent :nohlsearch<CR>
 
 " misc
 " keybinds to open last buffer
 nmap <leader>v :vs#<cr>
-nmap <leader>t :tabe#<cr>
 
 " Fix the & command in normal+visual modes {{{2
 nnoremap & :&&<Enter>
@@ -131,14 +135,6 @@ if empty(glob('~/.vim/autoload/plug.vim'))
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
-
-" highlight lines in Sy and vimdiff etc.)
-highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
-highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
-highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
-
-" fixing search highlighting
-hi Search cterm=NONE ctermfg=black ctermbg=yellow
 
 " Load Plugins
 call plug#begin('~/.vim/plugged')
@@ -174,16 +170,16 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-projectionist'
 
 
-" Fuzzy searching
+" Fuzzy searching ripgrep and ctrlp and fzf
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'kien/ctrlp.vim'
+" Plug 'ctrlpvim/ctrlp.vim'
 Plug 'jremmen/vim-ripgrep'
-" ripgrep and ctrlp and fzf
+Plug 'dbakker/vim-projectroot'
 if executable('rg')
   set grepprg=rg\ --vimgrep
-  let g:ctrlp_user_command = 'rg %s --files --no-ignore --hidden --follow --color=never --glob ""'
-  let g:ctrlp_use_caching = 0
+  " let g:ctrlp_user_command = 'rg %s --files --no-ignore --hidden --follow --color=never --glob ""'
+  " let g:ctrlp_use_caching = 0
     " Ripgrep search word under cursor
     nmap <leader>* :Rg<CR>
 endif
@@ -191,25 +187,43 @@ set wildignore=*.pdf,*.fo,*.o,*.jpeg,*.jpg,*.png
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
 set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
 set wildignore+=*/.git/*,*/tmp/*,*.swp,tags
+set wildignore+=$HOME/Library/*
 set suffixes=.otl
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-  \ 'file': '\v\.(exe|so|dll)$',
-  \ 'link': 'some_bad_symbolic_links',
-  \ }
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlPMixed'
+" let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+" let g:ctrlp_custom_ignore = {
+  " \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  " \ 'file': '\v\.(exe|so|dll)$',
+  " \ 'link': 'some_bad_symbolic_links',
+  " \ }
+" let g:ctrlp_map = '<c-p>'
+" let g:ctrlp_cmd = 'CtrlPMixed'
 
-" map <C-p> :Files<CR>
-" map <leader>~ :Files ~<CR>
-" map <leader>g :Files ~/git<CR>
+function! <SID>AutoProjectRootCD()
+  try
+    if &ft != 'help'
+      ProjectRootCD
+    endif
+  catch
+    " Silently ignore invalid buffers
+  endtry
+endfunction
+autocmd BufEnter * call <SID>AutoProjectRootCD()
+let g:fzf_layout = { 'down': '~20%' }
+let g:fzf_buffers_jump = 1
+nnoremap <C-p> :Files<CR>
+nnoremap <leader>p :Files<CR>
+nnoremap <leader>m :History<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>c :Files ~/
 
 
 " Code Formatting Plugins
 Plug 'tell-k/vim-autopep8'
 let g:autopep8_max_line_length=79
 let g:autopep8_aggressive=2
+
+
+Plug 'hynek/vim-python-pep8-indent'
 
 
 Plug 'rhysd/vim-clang-format'
@@ -269,7 +283,7 @@ let g:easytags_suppress_ctags_warning = 1
 
 
 Plug 'majutsushi/tagbar'
-nnoremap <silent> <leader>b :TagbarToggle<CR>
+nnoremap <silent> <leader>B :TagbarToggle<CR>
 
 
 Plug 'zhou13/vim-easyescape'

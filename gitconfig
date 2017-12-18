@@ -2,7 +2,7 @@
 	name = Jane Lusby
 	email = jlusby42@gmail.com
 [core]
-	editor = vim
+	editor = nvr -cc vsplit --remote-wait-silent
 [merge]
 	tool = vimdiff
 [color]
