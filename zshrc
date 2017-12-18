@@ -51,7 +51,7 @@ export LC_ALL="C"
 if [ -x /usr/bin/dircolors ]; then
     # GNU cli color config
     if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
-    alias ls='ls --color=auto'
+    alias ls='ls --color=auto --group-directories-first -l'
     alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -92,19 +92,11 @@ export LESS_TERMCAP_so=$'\E[1;40;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[32m'
 
-export EDITOR=/usr/bin/vim
-
-export PRU_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-pru_2.1.1/
-export ARM_CGT=/home/jlusby/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/
-export SW_DIR=/home/jlusby/starterwarefree-code/
-
-export SVNUSER=jlusby
-
-# export SHCC=$HOME/sdks/ti-processor-sdk-linux-am57xx-evm-02.00.01.07/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-
-
 export XDG_CONFIG_HOME="$HOME/.config"
 
-eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
+if hash keychain > /dev/null 2>&1; then
+    eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
+fi
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -115,77 +107,57 @@ eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/nul
 # SSH_AUTH_SOCK=`ss -xl | grep -o '/run/user/1000/keyring-.*/ssh'`
 # [ -z "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK
 
-sssh(){
-    # try to connect every 0.5 secs (modulo timeouts)
-    while true; do
-        if command ssh "$@"; then
-            break
-        else
-            sleep 0.5;
-        fi
-    done
-}
 
-trynet(){
-    # try to connect every 0.5 secs (modulo timeouts)
-    while true; do
-        if command telnet "$@"; then
-            break
-        else
-            sleep 0.5;
-        fi
-    done
-}
-
-
-alias uselocal='export DEV_ILCU_ADDR="`~/seahawk/app/lanehawk/tools/XmlStatusParser/XmlStatusParser.py`"; echo "Using: $DEV_ILCU_ADDR"'
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden -g "!{.git,node_modules}/*" 2> /dev/null'
-# export FZF_DEFAULT_COMMAND='rg --files -g "!{.git,node_modules}/*" 2> /dev/null'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_CTRL_T_OPTS="--select-1 --exit-0 --reverse"
-export FZF_ALT_C_COMMAND="if [ -e ~/.bfs.cache ]; then cat ~/.bfs.cache; else bfs . -type d -nohidden; fi"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-
-alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
-
-fzf-vim-file-widget() {
-    # set -o xtrace
-
-    # fuzzy search for file to edit
-    edit_file="$(__fsel)"
-
-    # if theres nothing clear the display and redisplay the terminal
-    # immediately
-    if [ ! -n "$edit_file" ]; then
-        zle redisplay
-        # I dont really know what return values from widgets matter for but
-        # hey! ill return 1 randomly when I ctrl-c the fzf search
-        return 1
+FZF_DIR="$HOME/dotfiles/vim/bundle/fzf/bin/"
+if [ -d $FZF_DIR ] || hash fzf; then
+    export PATH=$PATH:$FZF_DIR
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh || $("$FZF_DIR/install" && source ~/.fzf.zsh)
+    if hash rg 2> /dev/null; then
+        export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden -g "!{.git,node_modules}/*" 2> /dev/null'
     fi
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_CTRL_T_OPTS="--select-1 --exit-0 --reverse"
+    if hash bfs 2> /dev/null; then
+        export FZF_ALT_C_COMMAND="if [ -e ~/.bfs.cache ]; then cat ~/.bfs.cache; else bfs ~/ -type d -nohidden; fi"
+        alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
+    fi
+    export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
-    # shellcheck disable=SC2034
-    BUFFER="vim $edit_file"
-    local ret=$?
-    # redraw the display to show what command is about to run
-    zle redisplay
-    # no idea what this does yet
-    typeset -f zle-line-init >/dev/null && zle zle-line-init
-    # run the command
-    zle accept-line
-    return $ret
-}
-zle     -N   fzf-vim-file-widget
-bindkey '^P' fzf-vim-file-widget
+    fzf-vim-file-widget() {
+        # set -o xtrace
 
+        # fuzzy search for file to edit
+        edit_file="$(__fsel)"
 
-# bindkey -s '^P' 'vim $(__fsel)\n'
+        # if theres nothing clear the display and redisplay the terminal
+        # immediately
+        if [ ! -n "$edit_file" ]; then
+            zle redisplay
+            # I dont really know what return values from widgets matter for but
+            # hey! ill return 1 randomly when I ctrl-c the fzf search
+            return 1
+        fi
+
+        # shellcheck disable=SC2034
+        BUFFER="vim $edit_file"
+        local ret=$?
+        # redraw the display to show what command is about to run
+        zle redisplay
+        # no idea what this does yet
+        typeset -f zle-line-init >/dev/null && zle zle-line-init
+        # run the command
+        zle accept-line
+        return $ret
+    }
+
+    zle     -N   fzf-vim-file-widget
+    bindkey '^P' fzf-vim-file-widget
+fi
 
 fpath=(/usr/local/share/zsh-completions $fpath)
 
-# if [ "$TERM" != "screen" ]; then
-#     tmux attach -t Dev
-# fi
+if [ "$TERM" != "screen" ]; then
+    tmux attach -t Dev
+fi
 
 . "$HOME/dotfiles/scalerc"

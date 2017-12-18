@@ -43,6 +43,8 @@ set completeopt=longest,menu,preview
 set ruler
 set showcmd
 set laststatus=2
+scriptencoding utf-8
+set encoding=utf-8
 set listchars=tab:▸\ ,trail:•
 set list
 ",eol:¬
@@ -313,7 +315,6 @@ if has("autocmd")
 endif
 " deoplete tab-complete
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-
 
 " gitv
 " highlight diffAdded ctermfg=darkgreen

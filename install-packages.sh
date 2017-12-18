@@ -10,9 +10,9 @@ OS=`lowercase \`uname\``
 KERNEL=`uname -r`
 MACH=`uname -m`
 
-if [ "{$OS}" == "windowsnt" ]; then
+if [ "{$OS}" = "windowsnt" ]; then
     OS=windows
-elif [ "{$OS}" == "darwin" ]; then
+elif [ "{$OS}" = "darwin" ]; then
     OS=mac
 else
     OS=`uname`
@@ -57,6 +57,14 @@ else
     fi
 fi
 
+echo $OS
+echo $DIST
+echo $DistroBasedOn
+echo $PSUEDONAME
+echo $REV
+echo $KERNEL
+echo $MACH
+
 install_os ()
 {
     UBUNTU_PACKAGE_NAME="$1"
@@ -66,8 +74,8 @@ install_os ()
         Darwin)
             case $UBUNTU_PACKAGE_NAME in
                 build-essential)
-                    xcode-select --install || \
-                        softwareupdate --install -a
+                    # xcode-select --install || \
+                    #     softwareupdate --install -a
                     return $?
                     ;;
                 python-numpy)
@@ -79,11 +87,10 @@ install_os ()
                     UBUNTU_PACKAGE_NAME="${UBUNTU_PACKAGE_NAME%-dev}"
                     ;;
                 golang-go)
-                    brew install go --cross-compile-common
-                    return $?
+                    UBUNTU_PACKAGE_NAME="go --cross-compile-common"
                     ;;
                 devscripts)
-                    brew install "$BIN_NAME"
+                    UBUNTU_PACKAGE_NAME="$BIN_NAME"
                     ;;
                 *)
                     ;;
@@ -92,7 +99,26 @@ install_os ()
             install_tool brew "$@"
             ;;
         Linux|*)
-            install_tool apt "$@"
+            case $DistroBasedOn in
+                redhat)
+                    case $UBUNTU_PACKAGE_NAME in
+                        shellcheck|prospector|cppcheck|python3-dev|python-pip|python-numpy|build-essential)
+                            return 0
+                            ;;
+                        golang-go)
+                            UBUNTU_PACKAGE_NAME="go"
+                            ;;
+                        ripgrep)
+                            sudo yum-config-manager --add-repo=https://copr.fedorainfracloud.org/coprs/carlwgeorge/ripgrep/repo/epel-7/carlwgeorge-ripgrep-epel-7.repo
+                            ;;
+                    esac
+                    set -- "$UBUNTU_PACKAGE_NAME" "$BIN_NAME"
+                    install_tool yum "$@"
+                    ;;
+                debian)
+                    install_tool apt "$@"
+                    ;;
+            esac
             ;;
     esac
     return 0
@@ -123,6 +149,9 @@ install_tool ()
             apt)
                 sudo -H apt-get -y install "$2"
                 ;;
+            yum)
+                sudo -H yum install "$2"
+                ;;
             *)
                 echo "Unrecognized installer type"
                 ;;
@@ -149,13 +178,15 @@ switch_shell ()
 install_os zsh
 switch_shell zsh
 
-install_os keychain
+# install_os keychain
 install_os vim
 # install_os rustc
 # install_os cargo
 
 # fzf
+( cd vim/bundle/fzf && make && make install && ./install )
 # ripgrep (hard because not in apt) (jk do it with cargo)
+install_os ripgrep
 
 # compile ycm
 # cd dotfiles/vim/bundle/vim-youcompleteme
@@ -175,8 +206,8 @@ install_os golang-go
 
 # static analysis checkers
 install_os cppcheck
-install_tool pip prospector
-install_tool pip bashate
+# install_tool pip prospector
+# install_tool pip bashate
 install_os devscripts checkbashisms # checkbashisms
 # you have to enable trusty-backports on ubuntu 14.04 inorder to get this download to work
 install_os shellcheck

@@ -126,3 +126,4 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+alias build='make BUILD_SCQAD_CASES=1 BUILD_TYPE=debug TARGETDIR=obj/generic -j32 -C /local/scale-product | tee build.txt 2>&1'

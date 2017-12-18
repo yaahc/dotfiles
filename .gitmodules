@@ -1,3 +1,6 @@
 [submodule "packages/fonts"]
 	path = packages/fonts
 	url = https://github.com/powerline/fonts.git
+[submodule "packages/neovim"]
+	path = packages/neovim
+	url = https://github.com/neovim/neovim.git
