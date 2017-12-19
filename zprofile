@@ -1,4 +1,3 @@
-echo "Sourcing .zprofile"
 #xset +fp /usr/share/fonts/local
 #xset fp rehash
 
@@ -18,3 +17,7 @@ echo "Sourcing .zprofile"
 # eval $(keychain --eval --quiet id_rsa ~/.ssh/id_rsa)
 
 . $HOME/.profile
+
+if [ "$TERM" != "screen" ]; then
+    tmux attach -t Dev
+fi

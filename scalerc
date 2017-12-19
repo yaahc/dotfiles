@@ -1,6 +1,13 @@
 #! /bin/sh
 
-init_mezzanine() (
+export SRC_ROOT="/local/scale-product"
+export TARGETDIR='obj/generic'
+export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
+export TRACE_FLAGS=--coverage
+export BUILD_TYPE=debug
+
+init_mezzanine()
+{
     buildID="$1";
     testbeds="$2";
     if [ "x$buildID" = "x" ] || [ "x$testbeds" = "x" ]; then
@@ -11,11 +18,42 @@ init_mezzanine() (
     cd "/builds/automated/$buildID/src/daemons/scqad/" &&
         "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
     return $?
-)
+}
 
-build_on_vm()
-(
+scrsync()
+{
     CODE_DIR="$HOME/git/scale-product"
-    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product && \
+    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore_global' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product && \
         ssh buildvm "./Scripts/build.sh && ./Scripts/build.sh unit"
-)
+}
+
+scmake ()
+{
+    if [ "x$1" != "x" ]; then
+        LOGFILE="$1.txt"
+    else
+        LOGFILE='build.txt'
+    fi
+
+    # If were not in a subdirectory of the project root then run command from
+    # project root
+    if [ "x$BUILD_ROOT" != "x" ]; then
+        cd $BUILD_ROOT
+    elif [ "${PWD##$SRC_ROOT}" == "${PWD}" ]; then
+        cd $SRC_ROOT
+    fi
+
+    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+    echo -e ">> Compiling ${PWD}\n"
+
+    #output stderr and stdout to $LOGFILE and stderr to screen
+    make "$@" 2>&1 \
+     | tee "$LOGFILE"  \
+     | grep --color -P "error|"
+
+    if [ $? -eq 0 ]; then
+        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+    else
+        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+    fi
+}

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-echo "Sourcing .profile"
+# echo "Sourcing .profile"
 
 export HISTFILE=~/.history
 export HISTSIZE=10000
@@ -84,15 +84,3 @@ if [ -d $FZF_DIR ] || hash fzf; then
     fi
     export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 fi
-
-# PREFERED_SHELL="usr/bin/zsh"
-# if [ "$SHELL" != "$PREFERED_SHELL" ] && hash zsh 2> /dev/null; then
-#     export SHELL="$PREFERED_SHELL"
-#     exec $SHELL
-# else
-#     source ~/.bashrc
-# fi
-
-# if [ "$TERM" != "screen" ]; then
-#     tmux attach -t Dev
-# fi

@@ -1,7 +1,5 @@
 #! /bin/sh
 
-echo "Sourcing .zshrc"
-
 PROFILE_STARTUP=true
 if [[ "$PROFILE_STARTUP" == true ]]; then
     # http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html
