@@ -5,14 +5,20 @@ if [ -e "$BSPWM_TREE" ] ; then
     rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
 fi
 
-export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
+export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin:$HOME/.fzf/bin
 
-export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
 if [ -z "$VISUAL" ]; then
-    VISUAL=nvim
+    if hash nvim 2> /dev/null; then
+        VISUAL="nvim"
+    elif hash vim 2> /dev/null; then
+        VISUAL="vim"
+    else
+        VISUAL="vi"
+    fi
 fi
 
 if [ "$VISUAL" = "nvim" ]; then
+    export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
     if [ -e /tmp/nvimsocket ]; then
         export VISUAL='nvr -cc vsplit -s'
     fi

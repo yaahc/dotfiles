@@ -307,25 +307,27 @@ nnoremap <silent> <leader>B :TagbarToggle<CR>
 " nmap <silent> <leader>D <Plug>(pydocstring)
 
 
-" neovim/vim8 async linter
-Plug 'neomake/neomake'
-let g:neomake_cpp_enabled_makers = ['cppcheck', ]
-" Plug 'vim-syntastic/syntastic'
-" let g:syntastic_error_symbol = '✘'
-" let g:syntastic_warning_symbol = "▲"
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 0
-" let g:syntastic_check_on_wq = 0
-" let g:syntastic_cpp_check_header = 0
-" let g:syntastic_cpp_checkers = ['cppcheck']
-" let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
-" " let g:syntastic_python_prospector_args = "--strictness veryhigh"
-" let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
-" let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
-" " " let g:syntastic_aggregate_errors = 1
-" nmap <leader>c :SyntasticReset<cr>
-" nmap <leader>h :lclose<cr>
+if has('timer')
+    " neovim/vim8 async linter
+    Plug 'neomake/neomake'
+    let g:neomake_cpp_enabled_makers = ['cppcheck', ]
+    " Plug 'vim-syntastic/syntastic'
+    " let g:syntastic_error_symbol = '✘'
+    " let g:syntastic_warning_symbol = "▲"
+    " let g:syntastic_always_populate_loc_list = 1
+    " let g:syntastic_auto_loc_list = 1
+    " let g:syntastic_check_on_open = 0
+    " let g:syntastic_check_on_wq = 0
+    " let g:syntastic_cpp_check_header = 0
+    " let g:syntastic_cpp_checkers = ['cppcheck']
+    " let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
+    " " let g:syntastic_python_prospector_args = "--strictness veryhigh"
+    " let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
+    " let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
+    " " " let g:syntastic_aggregate_errors = 1
+    " nmap <leader>c :SyntasticReset<cr>
+    " nmap <leader>h :lclose<cr>
+endif
 
 if has('python3')
     " Completion Plugin
@@ -372,8 +374,9 @@ if has("autocmd")
 endif
 
 " Neomake Post Plug
-call neomake#configure#automake('nwr', 1000)
-
+if has('timer')
+    call neomake#configure#automake('nwr', 1000)
+endif
 
 " Custom commands
 " Strip trailing whitespace
