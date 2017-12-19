@@ -16,6 +16,6 @@ init_mezzanine() (
 build_on_vm()
 (
     CODE_DIR="$HOME/git/scale-product"
-    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product && \
+    rsync -avzh -e ssh --exclude-from="$HOME/dotfiles/gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:/local/scale-product && \
         ssh buildvm "./Scripts/build.sh && ./Scripts/build.sh unit"
 )
