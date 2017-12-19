@@ -50,6 +50,7 @@ git submodule update --init --recursive
 linkfile zshrc
 linkfile profile
 linkfile bashrc
+linkfile scalerc
 linkfile vim
 linkfile vimrc
 linkfile gvimrc

@@ -1,3 +1,4 @@
+echo "Sourcing .zprofile"
 #xset +fp /usr/share/fonts/local
 #xset fp rehash
 
@@ -15,3 +16,5 @@
 #dropboxd &
 # Keep this at the bottom or killing it will prevent anything below it from being sourced
 # eval $(keychain --eval --quiet id_rsa ~/.ssh/id_rsa)
+
+. $HOME/.profile

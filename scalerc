@@ -15,6 +15,7 @@ init_mezzanine() (
 
 build_on_vm()
 (
-    rsync -avzh -e ssh --exclude='.git/' --exclude='*.swp' ~/git/scale-product/* buildvm:/local/scale-product && \
-        ssh buildvm "./Scripts/build.sh && make runtest"
+    CODE_DIR="$HOME/git/scale-product"
+    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product && \
+        ssh buildvm "./Scripts/build.sh && ./Scripts/build.sh unit"
 )

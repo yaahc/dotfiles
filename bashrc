@@ -2,6 +2,8 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+echo "Sourcing .zshrc"
+
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
@@ -11,10 +13,10 @@ HISTCONTROL=erasedups
 
 # append to the history file, don't overwrite it
 shopt -s histappend
+set completion-ignore-case on
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTFILESIZE=10000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -65,33 +67,6 @@ xterm*|rxvt*)
     ;;
 esac
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls -X --color=auto'
-    alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    export LESS="-R"
-    export GREP_OPTIONS='--color=always'
-    #alias grep='grep --color=auto'
-    #alias fgrep='fgrep --color=auto'
-    #alias egrep='egrep --color=auto'
-fi
-
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Fix vim alias issues
-# alias vim='vi'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
@@ -102,28 +77,3 @@ fi
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
-
-# stuff from CSE 160 setting up tinyos
-export PATH=$HOME/local/bin:$PATH
-export TOSROOT=$HOME/local/src/tinyos-2.x
-export TOSDIR=$TOSROOT/tos
-export MAKERULES=$TOSROOT/support/make/Makerules
-export CLASSPATH=$TOSROOT/support/sdk/java/tinyos.jar:.
-export PYTHONPATH=.:$TOSROOT/support/sdk/python:$PYTHONPATH
-export PATH=$TOSROOT/support/sdk/c:$PATH
-
-export PATH=$HOME/nachos/bin:$PATH
-
-# colorful man pages
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
-
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-alias build='make BUILD_SCQAD_CASES=1 BUILD_TYPE=debug TARGETDIR=obj/generic -j32 -C /local/scale-product | tee build.txt 2>&1'
