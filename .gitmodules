@@ -4,3 +4,6 @@
 [submodule "packages/neovim"]
 	path = packages/neovim
 	url = https://github.com/neovim/neovim.git
+[submodule "packages/oh-my-zsh"]
+	path = packages/oh-my-zsh
+	url = https://github.com/robbyrussell/oh-my-zsh.git

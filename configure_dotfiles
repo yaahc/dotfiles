@@ -47,17 +47,22 @@ linkfile gitignore_global
 
 git submodule update --init --recursive
 
-linkfile zshrc
 linkfile profile
+linkfile zprofile
+linkfile zshrc
+linkfile bash_profile
 linkfile bashrc
+linkfile aliasrc
+
 linkfile scalerc
+
 linkfile vim
 linkfile vimrc
 linkfile gvimrc
 linkfile nvim .config/nvim
+
 linkfile xinitrc
 linkfile Xresources
-linkfile zprofile
 linkfile xprofile
 linkfile bspwm .config/bspwm
 linkfile sxhkd .config/sxhkd

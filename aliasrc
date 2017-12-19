@@ -1,0 +1,23 @@
+#! /bin/sh
+
+alias vim="$VISUAL"
+if [ -x /usr/bin/dircolors ]; then
+    # GNU cli color config
+    if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
+    alias ls='ls --color=auto --group-directories-first -l'
+    alias dir='dir --color=auto'
+
+    export LESS="-R"
+    export GREP_OPTIONS='--color=auto'
+else
+    alias ls="/usr/local/bin/gls --color -h --group-directories-first"
+    export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+    export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+fi
+
+# some more ls aliases
+alias open="xdg-open"
+
+#random Aliases
+alias pianobar="pianobar | tee ~/.piano_lines.out"
+alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
