@@ -85,3 +85,21 @@ fi
 if [ -f ~/.aliasrc ]; then
     . ~/.aliasrc
 fi
+
+__fzf_editor__() {
+  local cmd="${FZF_CTRL_T_COMMAND:-"command find -L . -mindepth 1 \\( -path '*/\\.*' -o -fstype 'sysfs' -o -fstype 'devfs' -o -fstype 'devtmpfs' -o -fstype 'proc' \\) -prune \
+    -o -type f -print \
+    -o -type d -print \
+    -o -type l -print 2> /dev/null | cut -b3-"}"
+  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" fzf -m "$@" | while read -r item; do
+    printf '%q %q' "$VISUAL" "$item"
+  done
+}
+
+# CTRL-P - open selected file with configured editor
+if [[ ! -o vi ]]; then
+    bind '"\C-p": " \C-e\C-u`__fzf_editor__`\e\C-e\er\C-m"'
+else
+    bind '"\C-p": "\C-x\C-addi`__fzf_editor__`\C-x\C-e\C-x\C-r\C-m"'
+    bind -m vi-command '"\C-p": "ddi`__fzf_editor__`\C-x\C-e\C-x\C-r\C-m"'
+fi

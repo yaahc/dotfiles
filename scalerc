@@ -1,11 +1,22 @@
 #! /bin/sh
 
-export SRC_ROOT="/local/scale-product"
-export TARGETDIR='obj/generic'
-export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
-export TRACE_FLAGS=--coverage
-export BUILD_TYPE=debug
+SRC_ROOT="/local/scale-product"
+TARGETDIR='obj/generic'
+MAKEFLAGS="-j$(expr $(nproc) \- 1)"
+# export TRACE_FLAGS=--coverage
+BUILD_TYPE=debug
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
+alias scd="cd $SRC_ROOT"
+alias tcd="cd ./$TARGETDIR"
+
+
+sclog ()
+{
+    filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf | awk '{print $2}')
+    if [ -n "$filename" ]; then
+        $VISUAL $filename
+    fi
+}
 
 
 init_mezzanine ()
@@ -22,6 +33,10 @@ init_mezzanine ()
     return $?
 }
 
+rpmupdate ()
+{
+    sudo yum install --enablerepo=SCEL-master --enablerepo=CentOS-base --enablerepo=CentOS-updates $(cat $SRC_ROOT/re/stor/rpmlist_build)  --skip-broken -y
+}
 
 # copy local changes to buildvm source copy
 scrsync ()
@@ -47,13 +62,21 @@ rscmake ()
 }
 
 
-# call make on local build directory and log output
 scmake ()
 {
+    screen -dRR -S build -q bash -c "source ~/.bash_profile; BUILD_ROOT=\"$BUILD_ROOT\" screenless-scmake $@"
+    tput bel
+    tput bel
+}
+
+
+# call make on local build directory and log output
+screenless-scmake ()
+{
     if [ "x$1" != "x" ]; then
-        TARGET_NAME="all"
-    else
         TARGET_NAME="$1"
+    else
+        TARGET_NAME="all"
     fi
 
     # If were not in a subdirectory of the project root then run command from
@@ -64,16 +87,21 @@ scmake ()
         cd $SRC_ROOT
     fi
 
-    DIRNAME=${basename ${PWD}}
-    LOGFILE="$SRC_ROOT/$DIRNAME-$TARGET_NAME.make.txt"
+    LOGFILE="$TARGET_NAME.make.txt"
 
     echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
     echo -e ">> Compiling ${PWD}\n"
 
     #output stderr and stdout to $LOGFILE and stderr to screen
+    (
+    export MAKEFLAGS
+    export TARGETDIR
+    export BUILD_TYPE
     make "$@" 2>&1 \
      | tee "$LOGFILE"  \
      | grep --color -P "error|"
+    )
+
 
     if [ $? -eq 0 ]; then
         echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"

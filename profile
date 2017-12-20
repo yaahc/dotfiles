@@ -15,8 +15,8 @@ if [ -e "$BSPWM_TREE" ] ; then
     rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
 fi
 
-export PATH='/bin:/sbin':"$PATH"
-export PATH=$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin
+export PATH="$HOME/bin:/bin:/sbin:$PATH"
+export PATH="$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin"
 
 if hash nvim 2> /dev/null; then
     export VISUAL="nvim"
@@ -53,6 +53,11 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 if hash keychain > /dev/null 2>&1; then
     eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
+else
+    ssh-add ~/.ssh/build_rsa
+    ssh-add ~/.ssh/build_dsa
+    ssh-add ~/.ssh/id_rsa
+    ssh-add ~/.ssh/id_ed25519
 fi
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
@@ -80,7 +85,7 @@ if [ -d $FZF_DIR ] || hash fzf; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_CTRL_T_OPTS="--select-1 --exit-0"
     if hash bfs 2> /dev/null; then
-        export FZF_ALT_C_COMMAND="bfs . -type d -nohidden"
+        export FZF_ALT_C_COMMAND="bfs . -type d -nohidden 2> /dev/null"
     fi
     export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 fi

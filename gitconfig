@@ -3,6 +3,7 @@
 	email = jlusby42@gmail.com
 [core]
 	editor = nvr -cc vsplit --remote-wait-silent
+	excludesfile = /home/jlusby/.gitignore_global
 [merge]
 	tool = vimdiff
 [color]

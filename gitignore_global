@@ -41,3 +41,11 @@ Thumbs.db
 ##############
 *.swp
 tags
+
+# Scale unittest files #
+########################
+*.cpp.log
+*UnitTest*xml
+core.*
+*.executed
+*.make.txt
