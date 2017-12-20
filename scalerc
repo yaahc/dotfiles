@@ -43,7 +43,7 @@ rscmake ()
     fi
     # -m forces a new session to be created
     # ssh -t buildvm screen -dRR -s bash -S build "bash -c \"echo hi; source ~/.bash_profile; scmake\""
-    ssh -t buildvm screen -dRR -S build "bash -c \"echo hi; source ~/.bash_profile; cd $BUILD_ROOT; scmake $@\""
+    ssh -t buildvm "source ~/.bash_profile; export BUILD_ROOT=$BUILD_ROOT; scmake $@"
 }
 
 
