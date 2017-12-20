@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 SRC_ROOT="/local/scale-product"
 TARGETDIR='obj/generic'
@@ -6,6 +6,7 @@ MAKEFLAGS="-j$(expr $(nproc) \- 1)"
 # export TRACE_FLAGS=--coverage
 BUILD_TYPE=debug
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
+GIT_ROOT="$HOME/git/scale-product"
 alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
 
@@ -19,6 +20,7 @@ sclog ()
 }
 
 
+# get cluster up and running on a mezzanine test bed
 init_mezzanine ()
 {
     buildID="$1";
@@ -38,6 +40,21 @@ rpmupdate ()
     sudo yum install --enablerepo=SCEL-master --enablerepo=CentOS-base --enablerepo=CentOS-updates $(cat $SRC_ROOT/re/stor/rpmlist_build)  --skip-broken -y
 }
 
+# alias to automatically determine if we're on a build vm or not
+scmake ()
+(
+    if [ -d $SRC_ROOT ]; then
+        local_scmake "$@"
+    else
+        if [ "${PWD##$GIT_ROOT}" != "${PWD}" ]; then
+            BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
+        fi
+        scrsync
+        remote_scmake "$@"
+    fi
+)
+
+
 # copy local changes to buildvm source copy
 scrsync ()
 {
@@ -51,7 +68,7 @@ scrsync ()
 #   - If I lose connectivity my build isnt killed
 #   - If I want to detach I can just ctrl-a d and ill end up back in the local terminal session
 #   - If I run this while another build is in session it reattaches the existing build rather than starting a new one
-rscmake ()
+remote_scmake ()
 {
     if [ "x$BUILD_ROOT" = "x" ]; then
         BUILD_ROOT="$SRC_ROOT"
@@ -62,7 +79,8 @@ rscmake ()
 }
 
 
-scmake ()
+# call make on local build directory and log output
+local_scmake ()
 {
     screen -dRR -S build -q bash -c "source ~/.bash_profile; BUILD_ROOT=\"$BUILD_ROOT\" screenless-scmake $@"
     tput bel

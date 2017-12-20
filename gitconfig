@@ -3,6 +3,7 @@
 	email = jlusby42@gmail.com
 [core]
 	excludesfile = /home/jlusby/.gitignore_global
+	editor = vim
 [merge]
 	tool = vimdiff
 [color]

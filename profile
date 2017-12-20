@@ -28,10 +28,6 @@ fi
 
 if [ "$VISUAL" = "nvim" ]; then
     export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
-    if [ -e /tmp/nvimsocket ]; then
-        echo "found socket"
-        export VISUAL='nvr -cc vsplit -s'
-    fi
     export VIMCONFIG=~/.config/nvim
     export VIMDATA=~/.local/share/nvim
 else
