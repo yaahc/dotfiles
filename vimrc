@@ -4,7 +4,7 @@ set nocompatible
 runtime macros/matchit.vim
 runtime ftplugin/man.vim
 
-set tags=./tags;
+set tags+=tags;/
 
 " Allow for tmux borked ctrl arrow keys
 if &term =~ '^screen'
@@ -99,10 +99,10 @@ nnoremap <leader>l :lopen<CR>
 nnoremap <leader>I :source %<CR>:PlugInstall<CR>
 
 " :terminal easy escape
-if has('nvim')
-    tnoremap jj <C-\><C-n>
-    nnoremap <leader>t :vs term://zsh<CR>
-endif
+" if has('nvim')
+"     tnoremap jj <C-\><C-n>
+"     nnoremap <leader>t :vs term://zsh<CR>
+" endif
 
 " tabs & buffers
 nnoremap <C-Up> :tabprevious<CR>
@@ -221,6 +221,7 @@ nnoremap <leader>p :Files<CR>
 nnoremap <leader>m :History<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>c :Files ~/
+nnoremap <leader>t :Tags<CR>
 
 
 " Code Formatting Plugins
