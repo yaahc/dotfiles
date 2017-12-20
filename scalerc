@@ -27,7 +27,7 @@ init_mezzanine ()
 scrsync ()
 {
     CODE_DIR="$HOME/git/scale-product"
-    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore_global' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product
+    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:/local/scape-product
 }
 
 
