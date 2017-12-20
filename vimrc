@@ -173,6 +173,8 @@ Plug 'tpope/vim-fugitive'
 " Projectionist plugin to let me jump around code, not really in use yet
 Plug 'tpope/vim-projectionist'
 
+Plug 'tpope/vim-speeddating'
+
 
 " Fuzzy searching ripgrep and ctrlp and fzf
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -358,6 +360,8 @@ if has('python3')
     let g:easyescape_timeout = 150
     cnoremap jj <ESC>
 endif
+
+Plug 'jceb/vim-orgmode'
 
 call plug#end()
 
