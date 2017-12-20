@@ -5,8 +5,10 @@ export TARGETDIR='obj/generic'
 export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
 export TRACE_FLAGS=--coverage
 export BUILD_TYPE=debug
+# OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
 
-init_mezzanine()
+
+init_mezzanine ()
 {
     buildID="$1";
     testbeds="$2";
@@ -20,13 +22,29 @@ init_mezzanine()
     return $?
 }
 
-scrsync()
+
+# copy local changes to buildvm source copy
+scrsync ()
 {
     CODE_DIR="$HOME/git/scale-product"
-    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore_global' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product && \
-        ssh buildvm "./Scripts/build.sh && ./Scripts/build.sh unit"
+    rsync -avzh -e ssh --exclude-from='$HOME/.gitignore_global' --exclude-from='$CODE_DIR/.gitignore' $CODE_DIR/* buildvm:/local/scape-product
 }
 
+
+# ssh into buildvm and launch scmake in a screen session
+rscmake ()
+{
+    remote_cmd=""
+    if [ "x$BUILD_ROOT" != "x" ]; then
+        remote_cmd="$remote_cmd; cd $BUILD_ROOT;"
+    fi
+    # -m forces a new session to be created
+    remote_cmd="$remote_cmd; screen -m scmake $@;"
+    ssh buildvm bash -c $remote_cmd
+}
+
+
+# call make on local build directory and log output
 scmake ()
 {
     if [ "x$1" != "x" ]; then
