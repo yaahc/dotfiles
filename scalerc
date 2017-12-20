@@ -27,20 +27,23 @@ init_mezzanine ()
 scrsync ()
 {
     CODE_DIR="$HOME/git/scale-product"
-    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:/local/scape-product
+    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:$SRC_ROOT
 }
 
 
 # ssh into buildvm and launch scmake in a screen session
+# some cool things this lets me do
+#   - If I lose connectivity my build isnt killed
+#   - If I want to detach I can just ctrl-a d and ill end up back in the local terminal session
+#   - If I run this while another build is in session it reattaches the existing build rather than starting a new one
 rscmake ()
 {
-    remote_cmd=""
-    if [ "x$BUILD_ROOT" != "x" ]; then
-        remote_cmd="$remote_cmd; cd $BUILD_ROOT;"
+    if [ "x$BUILD_ROOT" = "x" ]; then
+        BUILD_ROOT="$SRC_ROOT"
     fi
     # -m forces a new session to be created
-    remote_cmd="$remote_cmd; screen -m scmake $@;"
-    ssh buildvm bash -c $remote_cmd
+    # ssh -t buildvm screen -dRR -s bash -S build "bash -c \"echo hi; source ~/.bash_profile; scmake\""
+    ssh -t buildvm screen -dRR -S build "bash -c \"echo hi; source ~/.bash_profile; cd $BUILD_ROOT; scmake $@\""
 }
 
 
@@ -48,9 +51,9 @@ rscmake ()
 scmake ()
 {
     if [ "x$1" != "x" ]; then
-        LOGFILE="$1.txt"
+        TARGET_NAME="all"
     else
-        LOGFILE='build.txt'
+        TARGET_NAME="$1"
     fi
 
     # If were not in a subdirectory of the project root then run command from
@@ -60,6 +63,9 @@ scmake ()
     elif [ "${PWD##$SRC_ROOT}" == "${PWD}" ]; then
         cd $SRC_ROOT
     fi
+
+    DIRNAME=${basename ${PWD}}
+    LOGFILE="$SRC_ROOT/$DIRNAME-$TARGET_NAME.make.txt"
 
     echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
     echo -e ">> Compiling ${PWD}\n"
