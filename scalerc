@@ -28,16 +28,30 @@ maybe_run_remote()
     fi
 }
 
+run_case()
+{
+    maybe_run_remote local_run_case "$@"
+}
 
-# I tried making it so this didnt have to be a cd but scqadleader expects to be
-# run relative to the tests directory in order for it to resolve their names
-# nicely. Doing it this way gives the cleanest command line invocations
+local_run_case ()
+{
+    # TODO enforce this existing
+    CASE_NAME="$1"
+    TEST_BEDS="$(testbeds)"
+    TARGETDIR="$(make -s -C $SRC_ROOT echo_targetdir)"
+
+    local-scqadleader -b "$TEST_BEDS" -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}"
+}
 
 scqadleader ()
 {
     maybe_run_remote local-scqadleader "$@"
 }
 
+
+# I tried making it so this didnt have to be a cd but scqadleader expects to be
+# run relative to the tests directory in order for it to resolve their names
+# nicely. Doing it this way gives the cleanest command line invocations
 local-scqadleader()
 (
     cd $SCQAD_DIR
