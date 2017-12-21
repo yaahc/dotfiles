@@ -1,21 +1,43 @@
 #! /bin/bash
 
 SRC_ROOT="/local/scale-product"
-TARGETDIR='obj/generic'
+# Use target dir with care. This will cause your objs files to live in the same
+# directory regardless of your branch, which may cause weird dependency
+# conflicts. If your scripts need to reference the targetdir where the object
+# files are stored they should cale make echo_targetdir
+# TARGETDIR='obj/generic'
 MAKEFLAGS="-j$(expr $(nproc) \- 1)"
 # export TRACE_FLAGS=--coverage
 BUILD_TYPE=debug
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
 GIT_ROOT="$HOME/git/scale-product"
+BUILD_SCQAD_CASES=1
 alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
+SCQAD_DIR="$SRC_ROOT/daemons/scqad"
+# alias scqadleader='$SCQAD_DIR/$(export BUILD_TYPE; make -s -C $SCQAD_DIR echo_targetdir)/scqadleader'
 
+
+# I tried making it so this didnt have to be a cd but scqadleader expects to be
+# run relative to the tests directory in order for it to resolve their names
+# nicely. Doing it this way gives the cleanest command line invocations
+scqadleader()
+(
+    cd $SCQAD_DIR
+    export BUILD_TYPE
+    export TARGET_DIR=$(make echo_targetdir)
+    $TARGET_DIR/scqadleader "$@"
+)
 
 sclog ()
 {
-    filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf | awk '{print $2}')
-    if [ -n "$filename" ]; then
-        $VISUAL $filename
+    if [ -d $SRC_ROOT ]; then
+        filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf --select-1 --exit-0 | awk '{print $2}')
+        if [ -n "$filename" ]; then
+            $VISUAL $filename
+        fi
+    else
+        ssh buildvm sclog
     fi
 }
 
@@ -30,8 +52,9 @@ init_mezzanine ()
         echo "Expected: \"buildID\" \"testbeds\""
         return 1
     fi
-    cd "/builds/automated/$buildID/src/daemons/scqad/" &&
-        "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
+    # cd "/builds/automated/$buildID/src/daemons/scqad/" &&
+    #     "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
+    scqadleader -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
     return $?
 }
 
@@ -111,14 +134,12 @@ screenless-scmake ()
     echo -e ">> Compiling ${PWD}\n"
 
     #output stderr and stdout to $LOGFILE and stderr to screen
-    (
     export MAKEFLAGS
-    export TARGETDIR
-    export BUILD_TYPE
-    make "$@" 2>&1 \
-     | tee "$LOGFILE"  \
+    # export TARGETDIR
+    export BUILD_SCQAD_CASES
+    (time make "$@") \
+     |& tee $LOGFILE \
      | grep --color -P "error|"
-    )
 
 
     if [ $? -eq 0 ]; then

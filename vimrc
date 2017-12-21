@@ -46,7 +46,7 @@ set laststatus=2
 scriptencoding utf-8
 set encoding=utf-8
 set listchars=tab:▸\ ,trail:•
-set list
+" set list
 ",eol:¬
 set relativenumber
 set number
@@ -116,7 +116,7 @@ nnoremap <C-Right> :bnext<CR>
 nmap <leader>a :e <C-R>=expand("%:r")."."<CR>
 
 " Turn off list chars, aka trailing spaces and visible tabs
-" nmap <silent> <leader>l :set list!<CR>
+nmap <silent> <leader>L :set list!<CR>
 " Turn off search highlighting
 nmap <silent> <leader>n :silent :nohlsearch<CR>
 
