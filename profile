@@ -65,8 +65,6 @@ fi
 # SSH_AUTH_SOCK=`ss -xl | grep -o '/run/user/1000/keyring-.*/ssh'`
 # [ -z "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK
 
-. "$HOME/dotfiles/scalerc"
-
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
 #use solarized ls colors
 #eval $(dircolors ~/.dir_colors)

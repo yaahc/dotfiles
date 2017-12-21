@@ -113,7 +113,7 @@ nnoremap <C-Left> :bprevious<CR>
 nnoremap <C-Right> :bnext<CR>
 
 " Prompt to open file with same name, different extension
-nmap <leader>a :e <C-R>=expand("%:r")."."<CR>
+nmap <leader>A :vs <C-R>=expand("%:r")."."<CR>
 
 " Turn off list chars, aka trailing spaces and visible tabs
 nmap <silent> <leader>L :set list!<CR>
@@ -187,7 +187,6 @@ if executable('rg')
   " let g:ctrlp_user_command = 'rg %s --files --no-ignore --hidden --follow --color=never --glob ""'
   " let g:ctrlp_use_caching = 0
     " Ripgrep search word under cursor
-    nmap <leader>* :Rg<CR>
 endif
 set wildignore=*.pdf,*.fo,*.o,*.jpeg,*.jpg,*.png
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
@@ -216,12 +215,16 @@ endfunction
 autocmd BufEnter * call <SID>AutoProjectRootCD()
 let g:fzf_layout = { 'down': '~20%' }
 let g:fzf_buffers_jump = 1
+let g:fzf_tags_command = 'git ctags'
 nnoremap <C-p> :Files<CR>
 nnoremap <leader>p :Files<CR>
 nnoremap <leader>m :History<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>c :Files ~/
-nnoremap <leader>t :Tags<CR>
+" nnoremap <leader>t :Tags<CR>
+nnoremap <leader>* :execute "Ag! ".expand("<cword>").""<CR>
+nnoremap <leader>a :Ag!<CR>
+nnoremap <leader>t :call fzf#vim#tags(expand('<cword>'), {'options': '--exact --select-1 --exit-0'})<CR>
 
 
 " Code Formatting Plugins
@@ -279,14 +282,14 @@ nnoremap <leader>N :NERDTreeToggle<CR>
 " endif
 
 
-Plug 'xolox/vim-easytags'
-Plug 'xolox/vim-misc'
-let g:easytags_async = 1
-let g:easytags_dynamic_files = 1
-let g:easytags_auto_highlight = 0
-let g:easytags_events = ['BufReadPost', 'BufWritePost']
-let g:easytags_resolve_links = 1
-let g:easytags_suppress_ctags_warning = 1
+" Plug 'xolox/vim-easytags'
+" Plug 'xolox/vim-misc'
+" let g:easytags_async = 1
+" let g:easytags_dynamic_files = 1
+" let g:easytags_auto_highlight = 0
+" let g:easytags_events = ['BufReadPost', 'BufWritePost']
+" let g:easytags_resolve_links = 1
+" let g:easytags_suppress_ctags_warning = 1
 
 
 Plug 'majutsushi/tagbar'
@@ -383,6 +386,26 @@ if has('timer')
     call neomake#configure#automake('nwr', 1000)
 endif
 
+command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+
+" Similarly, we can apply it to fzf#vim#grep. To use ripgrep instead of ag:
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+
+" Likewise, Files command with preview window
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+
 " Custom commands
 " Strip trailing whitespace
 function! Preserve(command)
@@ -413,6 +436,20 @@ function! s:PasteEscaped()
         return substitute(escaped_register, '\n', '\\n', 'g')
     endif
 endfunction
+
+function! DeleteHiddenBuffers()
+  let tpbl=[]
+  let closed = 0
+  call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
+  for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+    if getbufvar(buf, '&mod') == 0
+      silent execute 'bwipeout' buf
+      let closed += 1
+    endif
+  endfor
+  echo "Closed ".closed." hidden buffers"
+endfunction
+nnoremap <leader>d :call DeleteHiddenBuffers()<CR>
 
 
 " Autocommands
