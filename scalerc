@@ -16,12 +16,29 @@ alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
 SCQAD_DIR="$SRC_ROOT/daemons/scqad"
 # alias scqadleader='$SCQAD_DIR/$(export BUILD_TYPE; make -s -C $SCQAD_DIR echo_targetdir)/scqadleader'
+SCREWI_USER="jlusby"
+alias testbeds="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci"
+
+maybe_run_remote()
+{
+    if [ -d $SRC_ROOT ]; then
+        "$@"
+    else
+        ssh -t buildvm "source ~/.bash_profile; source ~/.scalerc; $@"
+    fi
+}
 
 
 # I tried making it so this didnt have to be a cd but scqadleader expects to be
 # run relative to the tests directory in order for it to resolve their names
 # nicely. Doing it this way gives the cleanest command line invocations
-scqadleader()
+
+scqadleader ()
+{
+    maybe_run_remote local-scqadleader "$@"
+}
+
+local-scqadleader()
 (
     cd $SCQAD_DIR
     export BUILD_TYPE
@@ -31,13 +48,14 @@ scqadleader()
 
 sclog ()
 {
-    if [ -d $SRC_ROOT ]; then
-        filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf --select-1 --exit-0 | awk '{print $2}')
-        if [ -n "$filename" ]; then
-            $VISUAL $filename
-        fi
-    else
-        ssh buildvm sclog
+    maybe_run_remote local-sclog "$@"
+}
+
+local-sclog ()
+{
+    filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf --select-1 --exit-0 | awk '{print $2}')
+    if [ -n "$filename" ]; then
+        $VISUAL $filename
     fi
 }
 
@@ -130,21 +148,23 @@ screenless-scmake ()
 
     LOGFILE="$TARGET_NAME.make.txt"
 
-    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
-    echo -e ">> Compiling ${PWD}\n"
-
     #output stderr and stdout to $LOGFILE and stderr to screen
-    export MAKEFLAGS
-    # export TARGETDIR
-    export BUILD_SCQAD_CASES
-    (time make "$@") \
-     |& tee $LOGFILE \
-     | grep --color -P "error|"
+    (
+        echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+        echo -e ">> Compiling ${PWD}\n"
 
+        export BUILD_TYPE;
+        export MAKEFLAGS;
+        # export TARGETDIR;
+        export BUILD_SCQAD_CASES;
+        time make "$@"
 
-    if [ $? -eq 0 ]; then
-        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
-    else
-        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
-    fi
+        if [ $? -eq 0 ]; then
+            echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+        else
+            echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+        fi
+    ) \
+         |& tee $LOGFILE \
+         | grep --color -P "error|"
 }
