@@ -18,49 +18,86 @@ alias tcd="cd ./$TARGETDIR"
 SCQAD_DIR="$SRC_ROOT/daemons/scqad"
 # alias scqadleader='$SCQAD_DIR/$(export BUILD_TYPE; make -s -C $SCQAD_DIR echo_targetdir)/scqadleader'
 SCREWI_USER="jlusby"
-alias testbeds="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci"
+TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci"
+alias testbeds='eval $TESTBEDS'
+SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
+DOORBELL='tput bel; tput bel'
 
-maybe_run_remote()
+# END_CMD="echo \"Press enter to continue\"; read"
+# END_CMD="exec bash"
+END_CMD=""
+
+
+run_screen ()
 {
+    cmd="$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD"
+    echo $cmd
+    screen -L -x -R -S build -q bash -c "$cmd"
+}
+
+
+maybe_run_remote ()
+{
+    echo "gonna try running $@"
     if [ -d $SRC_ROOT ]; then
-        "$@"
+        run_screen "$@"
     else
-        ssh -t buildvm "source ~/.bash_profile; source ~/.scalerc; $@"
+        if [ "${PWD##$GIT_ROOT}" != "${PWD}" ]; then
+            BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
+        fi
+        scrsync
+        ssh -t buildvm "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\"; $DOORBELL"
     fi
+    ret=$?
 }
 
-run_case()
+
+run_case ()
 {
+    echo "running $0 $@"
     maybe_run_remote local_run_case "$@"
+    return $?
 }
+
+
+scmake ()
+{
+    maybe_run_remote local_scmake "$@"
+}
+
 
 local_run_case ()
 {
     # TODO enforce this existing
     CASE_NAME="$1"
-    TEST_BEDS="$(testbeds)"
+    TEST_BEDS="$(eval $TESTBEDS)"
     TARGETDIR="$(make -s -C $SRC_ROOT echo_targetdir)"
 
-    local_make_case $CASE_NAME
-    local-scqadleader -b "$TEST_BEDS" -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}"
+    local_make_case $CASE_NAME && \
+        local-scqadleader -b "$TEST_BEDS" -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}"
 }
+
 
 make_case ()
 {
     maybe_run_remote local_make_case "$@"
+    return $?
 }
+
 
 local_make_case ()
 (
     CASE_NAME="$1"
-    cd $SCQAD_DIR
-    local_scmake ${CASE_NAME}.case
+    cd $SCQAD_DIR && \
+        BUILD_ROOT="" local_scmake ${CASE_NAME}.case
+    return $?
 )
 
 
 scqadleader ()
 {
     maybe_run_remote local-scqadleader "$@"
+    return $?
 }
 
 
@@ -69,16 +106,20 @@ scqadleader ()
 # nicely. Doing it this way gives the cleanest command line invocations
 local-scqadleader()
 (
-    cd $SCQAD_DIR
     export BUILD_TYPE
     export TARGET_DIR=$(make echo_targetdir)
-    $TARGET_DIR/scqadleader "$@"
+    cd $SCQAD_DIR && \
+        $TARGET_DIR/scqadleader "$@"
+    return $?
 )
+
 
 sclog ()
 {
     maybe_run_remote local-sclog "$@"
+    return $?
 }
+
 
 local-sclog ()
 {
@@ -86,6 +127,7 @@ local-sclog ()
     if [ -n "$filename" ]; then
         $VISUAL $filename
     fi
+    return $?
 }
 
 
@@ -97,7 +139,6 @@ init_mezzanine ()
     if [ "x$buildID" = "x" ] || [ "x$testbeds" = "x" ]; then
         echo "Error: missing arguments"
         echo "Expected: \"buildID\" \"testbeds\""
-        return 1
     fi
     # cd "/builds/automated/$buildID/src/daemons/scqad/" &&
     #     "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
@@ -105,31 +146,24 @@ init_mezzanine ()
     return $?
 }
 
+
 rpmupdate ()
 {
     sudo yum install --enablerepo=SCEL-master --enablerepo=CentOS-base --enablerepo=CentOS-updates $(cat $SRC_ROOT/re/stor/rpmlist_build)  --skip-broken -y
+    return $?
 }
-
-# alias to automatically determine if we're on a build vm or not
-scmake ()
-(
-    if [ -d $SRC_ROOT ]; then
-        local_scmake "$@"
-    else
-        if [ "${PWD##$GIT_ROOT}" != "${PWD}" ]; then
-            BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
-        fi
-        scrsync
-        remote_scmake "$@"
-    fi
-)
 
 
 # copy local changes to buildvm source copy
 scrsync ()
 {
     CODE_DIR="$HOME/git/scale-product"
+    # this might be a bad idea, but im gonna make the laptop scalerc file the
+    # master, I bet ill clobber changes a bunch and this will overwrite the
+    # link i have back to my dotfiles but WHATEVER ill figure it out LATER
+    scp ~/.scalerc buildvm:~/
     rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:$SRC_ROOT
+    return $?
 }
 
 
@@ -138,28 +172,8 @@ scrsync ()
 #   - If I lose connectivity my build isnt killed
 #   - If I want to detach I can just ctrl-a d and ill end up back in the local terminal session
 #   - If I run this while another build is in session it reattaches the existing build rather than starting a new one
-remote_scmake ()
-{
-    if [ "x$BUILD_ROOT" = "x" ]; then
-        BUILD_ROOT="$SRC_ROOT"
-    fi
-    # -m forces a new session to be created
-    # ssh -t buildvm screen -dRR -s bash -S build "bash -c \"echo hi; source ~/.bash_profile; scmake\""
-    ssh -t buildvm "source ~/.bash_profile; source ~/.scalerc; export BUILD_ROOT=$BUILD_ROOT; scmake $@"
-}
-
-
 # call make on local build directory and log output
 local_scmake ()
-{
-    screen -dRR -S build -q bash -c "source ~/.bash_profile; source ~/.scalerc; BUILD_ROOT=\"$BUILD_ROOT\" screenless_scmake $@ && (echo 'Hit enter to continue'; read)"
-    tput bel
-    tput bel
-}
-
-
-# call make on local build directory and log output
-screenless_scmake ()
 {
     if [ "x$1" != "x" ]; then
         TARGET_NAME="$1"
