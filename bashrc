@@ -79,6 +79,7 @@ fi
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
+PROMPT_COMMAND=""
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 

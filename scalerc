@@ -6,12 +6,13 @@ SRC_ROOT="/local/scale-product"
 # conflicts. If your scripts need to reference the targetdir where the object
 # files are stored they should cale make echo_targetdir
 # TARGETDIR='obj/generic'
-MAKEFLAGS="-j$(expr $(nproc) \- 1)"
+export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
 # export TRACE_FLAGS=--coverage
-BUILD_TYPE=debug
+# BUILD_TYPE=debug
+BUILD_TYPE=opt
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
 GIT_ROOT="$HOME/git/scale-product"
-BUILD_SCQAD_CASES=1
+BUILD_SCQAD_CASES=0
 alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
 SCQAD_DIR="$SRC_ROOT/daemons/scqad"
@@ -40,8 +41,22 @@ local_run_case ()
     TEST_BEDS="$(testbeds)"
     TARGETDIR="$(make -s -C $SRC_ROOT echo_targetdir)"
 
+    local_make_case $CASE_NAME
     local-scqadleader -b "$TEST_BEDS" -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}"
 }
+
+make_case ()
+{
+    maybe_run_remote local_make_case "$@"
+}
+
+local_make_case ()
+(
+    CASE_NAME="$1"
+    cd $SCQAD_DIR
+    local_scmake ${CASE_NAME}.case
+)
+
 
 scqadleader ()
 {
@@ -130,21 +145,21 @@ remote_scmake ()
     fi
     # -m forces a new session to be created
     # ssh -t buildvm screen -dRR -s bash -S build "bash -c \"echo hi; source ~/.bash_profile; scmake\""
-    ssh -t buildvm "source ~/.bash_profile; export BUILD_ROOT=$BUILD_ROOT; scmake $@"
+    ssh -t buildvm "source ~/.bash_profile; source ~/.scalerc; export BUILD_ROOT=$BUILD_ROOT; scmake $@"
 }
 
 
 # call make on local build directory and log output
 local_scmake ()
 {
-    screen -dRR -S build -q bash -c "source ~/.bash_profile; BUILD_ROOT=\"$BUILD_ROOT\" screenless-scmake $@"
+    screen -dRR -S build -q bash -c "source ~/.bash_profile; source ~/.scalerc; BUILD_ROOT=\"$BUILD_ROOT\" screenless_scmake $@ && (echo 'Hit enter to continue'; read)"
     tput bel
     tput bel
 }
 
 
 # call make on local build directory and log output
-screenless-scmake ()
+screenless_scmake ()
 {
     if [ "x$1" != "x" ]; then
         TARGET_NAME="$1"
@@ -162,23 +177,23 @@ screenless-scmake ()
 
     LOGFILE="$TARGET_NAME.make.txt"
 
-    #output stderr and stdout to $LOGFILE and stderr to screen
-    (
-        echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
-        echo -e ">> Compiling ${PWD}\n"
+    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+    echo -e ">> Compiling ${PWD}\n"
 
+    #output stderr and stdout to $LOGFILE and stderr to screen
+    time (
         export BUILD_TYPE;
         export MAKEFLAGS;
-        # export TARGETDIR;
         export BUILD_SCQAD_CASES;
-        time make "$@"
+        make "$@"
+    ) |& tee $LOGFILE \
+      | grep --color -P "error|"
 
-        if [ $? -eq 0 ]; then
-            echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
-        else
-            echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
-        fi
-    ) \
-         |& tee $LOGFILE \
-         | grep --color -P "error|"
+    if [ $? -eq 0 ]; then
+        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+        return 0
+    else
+        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+        return 1
+    fi
 }
