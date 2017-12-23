@@ -49,3 +49,4 @@ tags
 core.*
 *.executed
 *.make.txt
+tags
