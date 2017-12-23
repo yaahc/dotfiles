@@ -1,38 +1,85 @@
 #! /bin/bash
 
-SRC_ROOT="/local/scale-product"
-# Use target dir with care. This will cause your objs files to live in the same
+# Use TARGETDIR with care. This will cause your objs files to live in the same
 # directory regardless of your branch, which may cause weird dependency
 # conflicts. If your scripts need to reference the targetdir where the object
 # files are stored they should cale make echo_targetdir
+# scale make specific variable definitions
 # TARGETDIR='obj/generic'
 export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
 # export TRACE_FLAGS=--coverage
 # BUILD_TYPE=debug
-BUILD_TYPE=opt
-# OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
-GIT_ROOT="$HOME/git/scale-product"
+BUILD_TYPE=debug
 BUILD_SCQAD_CASES=0
+
+# scalerc configuration variables
+# OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
+SCREWI_USER="jlusby"
+BUILDVM_HOSTNAME="buildvm"
+SRC_ROOT="/local/scale-product"  # on buildvm
+GIT_ROOT="$HOME/git/scale-product"  # on dev pc
+AUTOMATED_ROOT="/build/automated"
+SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
+DOORBELL='tput bel; tput bel'
+TIMEOUT=10
+# END_CMD="echo \"Press enter to continue\"; read"
+# END_CMD="exec bash"
+END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
+LOG_CMD="less -RN"
+# LOG_CMD="$VISUAL"
+
+# helpful aliases
 alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
 SCQAD_DIR="$SRC_ROOT/daemons/scqad"
-# alias scqadleader='$SCQAD_DIR/$(export BUILD_TYPE; make -s -C $SCQAD_DIR echo_targetdir)/scqadleader'
-SCREWI_USER="jlusby"
-TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci"
-alias testbeds='eval $TESTBEDS'
-SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
-DOORBELL='tput bel; tput bel'
+TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null"
 
-# END_CMD="echo \"Press enter to continue\"; read"
-# END_CMD="exec bash"
-END_CMD=""
+run_gdb ()
+{
+    gdb --args "$@"
+    return $?
+}
+
+
+testbeds()
+{
+    echo "$(eval $TESTBEDS | fzf --select-1 --exit-0 --multi)"
+    return $?
+}
+
+# is first directory inside of second?
+is_1_in_2 ()
+{
+    [ "${1##$2}" != "${1}" ]
+    return $?
+}
+
+
+# short alias for make echo_targetdir
+targetdir ()
+{
+    if [ -n "$1" ]; then
+        ECHO_DIR="$1"
+    else
+        ECHO_DIR="$SRC_ROOT"
+    fi
+    TARGETDIR="$(BUILD_TYPE=$BUILD_TYPE make -s -C $ECHO_DIR echo_targetdir)"
+    echo $TARGETDIR
+}
+
+
+get_buildid ()
+{
+    cmd="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select build_id from testbeds where testbed = '$1'\" re_ci 2> /dev/null"
+    echo $(eval $cmd)
+}
 
 
 run_screen ()
 {
     cmd="$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD"
     echo $cmd
-    screen -L -x -R -S build -q bash -c "$cmd"
+    screen -L -x -R -S "$1" -q bash -c "$cmd"
 }
 
 
@@ -42,11 +89,11 @@ maybe_run_remote ()
     if [ -d $SRC_ROOT ]; then
         run_screen "$@"
     else
-        if [ "${PWD##$GIT_ROOT}" != "${PWD}" ]; then
+        if is_1_in_2 $PWD $GIT_ROOT; then
             BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
         scrsync
-        ssh -t buildvm "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\"; $DOORBELL"
+        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\"; $DOORBELL"
     fi
     ret=$?
 }
@@ -70,11 +117,14 @@ local_run_case ()
 {
     # TODO enforce this existing
     CASE_NAME="$1"
-    TEST_BEDS="$(eval $TESTBEDS)"
-    TARGETDIR="$(make -s -C $SRC_ROOT echo_targetdir)"
+    TEST_BEDS="$(testbeds)"
+    TARGETDIR="$(BUILD_TYPE=$BUILD_TYPE make -s -C $SRC_ROOT echo_targetdir)"
 
     local_make_case $CASE_NAME && \
-        local-scqadleader -b "$TEST_BEDS" -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}"
+        for testbed in $TEST_BEDS; do
+            local-scqadleader -b $testbed -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}" \
+            || local-scqadleader -b $testbed -s "removeTestArtifacts{}"
+        done
 }
 
 
@@ -90,7 +140,9 @@ local_make_case ()
     CASE_NAME="$1"
     cd $SCQAD_DIR && \
         BUILD_ROOT="" local_scmake ${CASE_NAME}.case
-    return $?
+    ret=$?
+    echo "the make returned $ret"
+    return $ret
 )
 
 
@@ -107,9 +159,9 @@ scqadleader ()
 local-scqadleader()
 (
     export BUILD_TYPE
-    export TARGET_DIR=$(make echo_targetdir)
+    export TARGETDIR=$(make -s -C $SRC_ROOT echo_targetdir)
     cd $SCQAD_DIR && \
-        $TARGET_DIR/scqadleader "$@"
+        $TARGETDIR/scqadleader "$@"
     return $?
 )
 
@@ -125,26 +177,32 @@ local-sclog ()
 {
     filename=$(bfs $SRC_ROOT -type f -name "*.make.txt" -printf "%T+\t%p\n" | sort -r | fzf --select-1 --exit-0 | awk '{print $2}')
     if [ -n "$filename" ]; then
-        $VISUAL $filename
+        $LOG_CMD $filename
     fi
     return $?
+}
+
+
+init_mezzanine ()
+{
+    maybe_run_remote local_init_mezzanine "$@"
 }
 
 
 # get cluster up and running on a mezzanine test bed
-init_mezzanine ()
-{
-    buildID="$1";
-    testbeds="$2";
-    if [ "x$buildID" = "x" ] || [ "x$testbeds" = "x" ]; then
-        echo "Error: missing arguments"
-        echo "Expected: \"buildID\" \"testbeds\""
-    fi
-    # cd "/builds/automated/$buildID/src/daemons/scqad/" &&
-    #     "$(make -s echo_targetdir)/scqadleader" -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
-    scqadleader -s -b $testbeds 'installSCQADOnCluster {}; configureClusters {}'
+local_init_mezzanine ()
+(
+    TEST_BEDS="$(testbeds)"
+    unset BUILD_TYPE
+    unset TARGETDIR
+    TEST_BEDS="$(echo $TEST_BEDS | fzf --select-1 --exit-0)"
+    for testbed in $TEST_BEDS; do
+        buildID=$(get_buildid $testbed);
+        cd "/builds/automated/$buildID/src/daemons/scqad/" &&
+            "$(make -s echo_targetdir)/scqadleader" -s -b $testbed 'installSCQADOnCluster {}; configureClusters {}'
+    done
     return $?
-}
+)
 
 
 rpmupdate ()
@@ -161,8 +219,9 @@ scrsync ()
     # this might be a bad idea, but im gonna make the laptop scalerc file the
     # master, I bet ill clobber changes a bunch and this will overwrite the
     # link i have back to my dotfiles but WHATEVER ill figure it out LATER
-    scp ~/.scalerc buildvm:~/
-    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* buildvm:$SRC_ROOT
+    scp ~/.scalerc $BUILDVM_HOSTNAME:~/
+    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* $BUILDVM_HOSTNAME:$SRC_ROOT
+    rsync -avzh -e ssh $CODE_DIR/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
     return $?
 }
 
@@ -185,29 +244,32 @@ local_scmake ()
     # project root
     if [ "x$BUILD_ROOT" != "x" ]; then
         cd $BUILD_ROOT
-    elif [ "${PWD##$SRC_ROOT}" == "${PWD}" ]; then
+    elif ! is_1_in_2 $PWD $SRC_ROOT; then
+        # dont change directories if you're already locally in the correct
+        # directory
         cd $SRC_ROOT
     fi
 
     LOGFILE="$TARGET_NAME.make.txt"
 
-    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
-    echo -e ">> Compiling ${PWD}\n"
-
     #output stderr and stdout to $LOGFILE and stderr to screen
     time (
+        echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+        echo -e ">> Compiling ${PWD}\n"
+
         export BUILD_TYPE;
         export MAKEFLAGS;
         export BUILD_SCQAD_CASES;
         make "$@"
+        if [ $? -eq 0 ]; then
+            echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+        else
+            echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+        fi
     ) |& tee $LOGFILE \
       | grep --color -P "error|"
 
-    if [ $? -eq 0 ]; then
-        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
-        return 0
-    else
-        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
-        return 1
-    fi
+    tail $LOGFILE | grep -q -E "Killed"
+    [ ! $? -eq 0 ]
+    return $?
 }

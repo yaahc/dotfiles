@@ -280,6 +280,10 @@ nnoremap <leader>N :NERDTreeToggle<CR>
 "     autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 "     autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " endif
+" enable line numbers
+let NERDTreeShowLineNumbers=1
+" make sure relative line numbers are used
+autocmd FileType nerdtree setlocal relativenumber
 
 
 " Plug 'xolox/vim-easytags'
@@ -293,7 +297,7 @@ nnoremap <leader>N :NERDTreeToggle<CR>
 
 
 Plug 'majutsushi/tagbar'
-nnoremap <silent> <leader>B :TagbarToggle<CR>
+nnoremap <silent> <leader>T :TagbarToggle<CR>
 
 
 " gitv
