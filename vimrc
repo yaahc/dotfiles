@@ -369,7 +369,17 @@ if has('python3')
     cnoremap jj <ESC>
 endif
 
+function! BuildYCM(info)
+  if a:info.status == 'installed' || a:info.force
+    !./install.py --clang-completer --gocode-completer
+  endif
+endfunction
+" Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'], 'do': function('BuildYCM') }
+
 Plug 'jceb/vim-orgmode'
+
+Plug 'solarnz/thrift.vim'
+
 
 call plug#end()
 

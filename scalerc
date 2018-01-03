@@ -22,9 +22,9 @@ AUTOMATED_ROOT="/build/automated"
 SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
 DOORBELL='tput bel; tput bel'
 TIMEOUT=10
-# END_CMD="echo \"Press enter to continue\"; read"
+END_CMD="$DOORBELL; echo \"Press enter to continue\"; read"
 # END_CMD="exec bash"
-END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
+# END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
 LOG_CMD="less -RN"
 # LOG_CMD="$VISUAL"
 
@@ -93,7 +93,7 @@ maybe_run_remote ()
             BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
         scrsync
-        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\"; $DOORBELL"
+        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\""
     fi
     ret=$?
 }
@@ -253,14 +253,14 @@ local_scmake ()
     LOGFILE="$TARGET_NAME.make.txt"
 
     #output stderr and stdout to $LOGFILE and stderr to screen
-    time (
+    (
         echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
         echo -e ">> Compiling ${PWD}\n"
 
         export BUILD_TYPE;
         export MAKEFLAGS;
         export BUILD_SCQAD_CASES;
-        make "$@"
+        time make "$@"
         if [ $? -eq 0 ]; then
             echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
         else
