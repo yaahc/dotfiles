@@ -49,11 +49,11 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 if hash keychain > /dev/null 2>&1; then
     eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
-else
-    ssh-add ~/.ssh/build_rsa
-    ssh-add ~/.ssh/build_dsa
-    ssh-add ~/.ssh/id_rsa
-    ssh-add ~/.ssh/id_ed25519
+# else
+#     ssh-add ~/.ssh/build_rsa
+#     ssh-add ~/.ssh/build_dsa
+#     ssh-add ~/.ssh/id_rsa
+#     ssh-add ~/.ssh/id_ed25519
 fi
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
