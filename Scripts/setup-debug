@@ -1,0 +1,28 @@
+#!/bin/bash
+# wait for sc node show to return something
+while ((1)); do sc node show && break; sleep 1; done
+echo waiting for scribed...
+# wait for scribed to start
+while ((1)); do pidof scribed && break; sleep 2; done
+from=$1; [ -z "$1" ] && from=NODEBUG
+to=$2; [ -z "$2" ] && to=UPTO_DEBUG
+function dbgconf
+{
+    local conf="$1"
+    local name="${1##*/}"
+    cat $conf | sed -e "s/$from/$to/" > "dbg-$name"
+    cp $conf ./"backup-$name"
+    mv "dbg-$name" $conf
+    while ((1)); do sccpall "$conf" && break; sleep 1; done
+}
+# update scribed.conf to UPTO_DEBUG
+dbgconf /opt/scale/etc/scribed.conf
+# update scaled.conf to UPTO_DEBUG
+dbgconf /opt/scale/etc/scaled.conf
+function dbglogstream
+{
+    local daemon="$1"
+    while ((1)); do scdoall sc logstream update daemon $daemon outputpath /var/log/scale/${daemon}.log mask $to && break; sleep 1; done
+}
+dbglogstream scribed
+dbglogstream scaled

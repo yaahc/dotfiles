@@ -1,6 +1,7 @@
 #! /bin/bash
 
 set -e
+read -p "Password: " -s szPassword
 
 lowercase(){
     echo "$1" | sed "y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/"
@@ -109,7 +110,7 @@ install_os ()
                             UBUNTU_PACKAGE_NAME="go"
                             ;;
                         ripgrep)
-                            sudo yum-config-manager --add-repo=https://copr.fedorainfracloud.org/coprs/carlwgeorge/ripgrep/repo/epel-7/carlwgeorge-ripgrep-epel-7.repo
+                            printf "%s\n" "$szPassword" | sudo --stdin yum-config-manager --add-repo=https://copr.fedorainfracloud.org/coprs/carlwgeorge/ripgrep/repo/epel-7/carlwgeorge-ripgrep-epel-7.repo
                             ;;
                     esac
                     set -- "$UBUNTU_PACKAGE_NAME" "$BIN_NAME"
@@ -141,16 +142,16 @@ install_tool ()
                 brew install "$2"
                 ;;
             pip)
-                sudo -H pip install "$2"
+                printf "%s\n" "$szPassword" | sudo --stdin -H pip install "$2"
                 ;;
             pip3)
-                sudo -H pip3 install "$2"
+                printf "%s\n" "$szPassword" | sudo --stdin -H pip3 install "$2"
                 ;;
             apt)
-                sudo -H apt-get -y install "$2"
+                printf "%s\n" "$szPassword" | sudo --stdin -H apt -y install "$2"
                 ;;
             yum)
-                sudo -H yum install "$2"
+                printf "%s\n" "$szPassword" | sudo --stdin -H yum install "$2"
                 ;;
             *)
                 echo "Unrecognized installer type"
@@ -171,7 +172,8 @@ switch_shell ()
     OLD_SHELL="$SHELL"
     NEW_SHELL="$(type -p "$1")"
     if [ "$OLD_SHELL" != "$NEW_SHELL" ]; then
-        chsh -s "$NEW_SHELL"
+        echo "changing shell"
+        printf "%s\n" "$szPassword" | sudo --stdin chsh -s "$NEW_SHELL" "$USER"
     fi
 }
 
@@ -180,13 +182,14 @@ switch_shell zsh
 
 # install_os keychain
 install_os vim
+install_os silversearcher-ag ag
+install_os mysql-client mysql
 # install_os rustc
 # install_os cargo
 
 # fzf
-( cd vim/bundle/fzf && make && make install && ./install )
 # ripgrep (hard because not in apt) (jk do it with cargo)
-install_os ripgrep
+# install_os ripgrep
 
 # compile ycm
 # cd dotfiles/vim/bundle/vim-youcompleteme
@@ -196,7 +199,7 @@ install_os ripgrep
 #       datalogic projects, but tags completion does!
 
 # install_os cmake # redundant?
-install_os cmake3 cmake
+install_os cmake
 install_os build-essential
 install_os python-dev python
 install_os python3-dev python3

@@ -2,6 +2,8 @@
 
 # echo "Sourcing .profile"
 
+export PROFILE_SOURCED="true"
+
 export HISTFILE=~/.history
 export HISTSIZE=10000
 
@@ -35,7 +37,7 @@ else
     export VIMDATA=~/.vim
 fi
 
-export LC_ALL="C"
+# export LC_ALL="C"
 # colorful man pages
 export LESS_TERMCAP_mb=$'\E[31m'
 export LESS_TERMCAP_md=$'\E[31m'
@@ -47,14 +49,15 @@ export LESS_TERMCAP_us=$'\E[32m'
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-if hash keychain > /dev/null 2>&1; then
-    eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
+
+# if hash keychain > /dev/null 2>&1; then
+    # eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
 # else
 #     ssh-add ~/.ssh/build_rsa
 #     ssh-add ~/.ssh/build_dsa
 #     ssh-add ~/.ssh/id_rsa
 #     ssh-add ~/.ssh/id_ed25519
-fi
+# fi
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"

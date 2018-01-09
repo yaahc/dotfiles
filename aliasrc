@@ -1,14 +1,17 @@
 #! /bin/sh
 
-alias vim="$VISUAL"
+if [ -n "$VISUAL" ]; then
+    alias vim='$VISUAL'
+fi
+
 if [ -x /usr/bin/dircolors ]; then
     # GNU cli color config
     if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
-    alias ls='ls --color=auto --group-directories-first -l'
+    alias ls='ls --color=auto --group-directories-first'
     alias dir='dir --color=auto'
+    alias grep='grep --color=auto'
 
     export LESS="-R"
-    export GREP_OPTIONS='--color=auto'
 else
     alias ls="/usr/local/bin/gls --color -h --group-directories-first"
     export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"

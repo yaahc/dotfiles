@@ -10,7 +10,7 @@
 ! URxvt specific settings
 URxvt.termName: rxvt-256color
 ! URxvt.reverseVideo: True
-URxvt.font: xft:Inconsolata:size=9
+URxvt.font: xft:Inconsolata:size=8
 URxvt.scrollBar: false
 URxvt.saveLines: 4096
 URxvt.depth: 32
@@ -23,4 +23,4 @@ URxvt.colorUL: #4682B4
 !#include "/home/jlusby/dotfiles/colors/raven-dark"
 !#include "/home/jlusby/dotfiles/colors/mytangoesque"
 !#include "/home/jlusby/dotfiles/colors/gnometerm"
-#include "/home/jlusby/dotfiles/colors/tango"
+#include "/home/jlusby/.dotfiles/colors/tango"

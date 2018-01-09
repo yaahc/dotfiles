@@ -105,4 +105,4 @@ else
     bind -m vi-command '"\C-p": "ddi`__fzf_editor__`\C-x\C-e\C-x\C-r\C-m"'
 fi
 
-. "$HOME/dotfiles/scalerc"
+. "$HOME/.scalerc"
