@@ -1,0 +1,99 @@
+#! /bin/bash
+
+sc_build_root="$HOME/.scalerc"
+
+# translates buildvm paths to local paths. Correct _most_ of the time, but
+# occasionally fooled.
+#tee /tmp/lastbuild;
+
+# I'm gonna try just symlinking /local/scale-product and see how that goes
+# function convertToPwd {
+#     local THEPWD="$HOME/git/scale-product"
+#     { cat   <(cd "$THEPWD" && find "." | egrep '(cpp|h)$') \
+#             <(echo SWITCHOVER);
+#             tee /dev/null;
+#     } | tee /tmp/lastbuild | gawk '
+#     BEGIN { sw=0; FS="/"; }
+#     /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
+#     sw == 0 { m[$NF] = $0; }
+
+#     sw == 1 { printed = 0 }
+#     /:[0-9]+:/ && sw == 1 {
+
+#         tmp=$0;
+#         if (match($1, /\/([^\/]+)$/, r) != 0) $1 = r[1];
+
+#         for (i in m) {
+#             if ($0 ~ i) {
+#                 sub(i, m[i], tmp);
+#                 print tmp;
+#                 printed = 1;
+#             }
+#         }
+#     }
+#     sw == 1 && printed == 0 {
+#         print $0;
+#     }
+#     '
+# }
+
+function convertToPwd {
+    local THEPWD="$HOME/git/scale-product"
+    { cat   <(cd "$THEPWD" && find "$THEPWD" | egrep '(cpp|h)$') \
+            <(echo SWITCHOVER);
+            tee /dev/null;
+    } | tee /tmp/lastbuild | gawk '
+    BEGIN { sw=0; FS="/"; }
+    /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
+    sw == 0 { m[$NF] = $0; }
+    sw == 1 { printed = 0 }
+    /:[0-9]+:/ && sw == 1 {
+    tmp=$0;
+    if (match($1, /\/([^\/]+)$/, r) != 0) $1 = r[1];
+    gsub(/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/, "", $1)
+    if ($1 in m) {
+        # print $tmp
+        # print $1
+        # print m[$1]
+        rgx="^[^:]*"$1
+        sub(rgx, m[$1], tmp);
+        print tmp;
+    } else {
+        print $0;
+    }
+    printed = 1;
+    }
+    sw == 1 && printed == 0 {
+        print $0;
+    }
+    '
+}
+
+
+cd ~/git/scale-product
+LAST_FILE=""
+echo $(git ls-files --exclude-standard --others --modified)
+for file in $(git ls-files --exclude-standard --others --modified); do
+    if [ "x$LAST_FILE" = "x" ]; then
+        LAST_FILE=$(dirname $file)
+    else
+        echo $LAST_FILE
+        echo $file
+        LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+    fi
+done
+
+echo $LAST_FILE
+FILES=$(rg --color=never -g "*.h" -g "*.cpp" --files ~/git/scale-product)
+
+if [ ! -f $LAST_FILE ]; then
+    if [ ! -d $LAST_FILE ]; then
+        LAST_FILE=$(dirname $LAST_FILE)
+    fi
+    cd $LAST_FILE
+fi
+if [ -f $sc_build_root ]; then
+    # $HOME/Scripts/fscmake $@ | $HOME/Scripts/fenagle_filenames.py $FILES
+    $HOME/Scripts/fscmake $@ | convertToPwd
+fi
+

@@ -1,0 +1,6 @@
+#! /bin/bash
+
+sc_build_root="$HOME/.scalerc"
+. $sc_build_root
+scmake $@ # | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"
+# cat $HOME/Scripts/lastbuild | sed -r "s/^\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"

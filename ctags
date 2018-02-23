@@ -12,3 +12,9 @@
 --regex-nesC=/^[ \t]*task[ \t]*([a-zA-Z0-9_]+)[ \t]+([a-zA-Z0-9_]+)[ \t]*\(/\1 \2/t,task/
 --regex-nesC=/^[ \t]*result_t[ \t]+([a-zA-Z0-9_]+)[ \t]*\(/result_t \1/r,result/
 --regex-nesC=/^[ \t]*uses[ \t]+interface[ \t]+[a-zA-Z0-9_]+[a-zA-Z0-9 \t]+as[ \t]+([a-zA-Z0-9_]+)/\1/u,uses/
+--langdef=thrift
+--langmap=thrift:.thrift
+--regex-thrift=/^[ \t]*struct[ \t]*([a-zA-Z0-9_]+)/\1/c,classes/
+--regex-thrift=/^[ \t]*enum[ \t]*([a-zA-Z0-9_]+)/\1/T,types/
+--regex-thrift=/^[ \t]*[a-zA-Z0-9_<>\.]+[ \t]*([a-zA-Z0-9_]+)\(/\1/m,methods/
+--regex-thrift=/^[ \t]*([A-Z0-9_]+)[ \t]*=/\1/C,constants/

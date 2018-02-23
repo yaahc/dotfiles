@@ -29,7 +29,7 @@ ZSH_THEME=""
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
 # Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
@@ -45,10 +45,10 @@ HYPHEN_INSENSITIVE="true"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -246,7 +246,7 @@ if [ -d $FZF_DIR ] || hash fzf; then
         fi
 
         # shellcheck disable=SC2034
-        BUFFER="vim $edit_file"
+        BUFFER="vim -O $edit_file"
         local ret=$?
         # redraw the display to show what command is about to run
         zle redisplay
@@ -274,6 +274,10 @@ fi
 
 . "$HOME/.scalerc"
 
-if [ "$TERM" != "screen" ] && [ "$TERM" != "screen-256color" ]; then
-    tmux attach -t Dev
-fi
+# if [ -f $(which powerline-daemon) ]; then
+#     . /usr/share/powerline/zsh/powerline.zsh
+# fi
+
+# if [ "$TERM" != "screen" ] && [ "$TERM" != "screen-256color" ]; then
+#     tmux attach -t Dev
+# fi

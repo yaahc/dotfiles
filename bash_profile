@@ -1,10 +1,12 @@
-# echo "Sourcing .bash_profile"
+# .bash_profile
 
-# . "$HOME/.profile"
-
-if [ -n "$BASH_VERSION" ] && [ -f $HOME/.bashrc ];then
-    source $HOME/.bashrc
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
 fi
 
-# echo "Attaching screen"
-# screen -dRR
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH

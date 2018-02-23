@@ -25,7 +25,6 @@ set nojoinspaces
 set nrformats=
 set splitright
 
-highlight OverLength ctermbg=red ctermfg=white guibg=#592929
 " match OverLength /\%81v.\+/
 if has('mouse')
     " Don't want the mouse to work in insert mode.
@@ -55,11 +54,13 @@ if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
 endif
+set winwidth=86
+set winminwidth=20
 
 " folding
 set foldlevelstart=99
 set foldmethod=syntax
-set foldcolumn=1
+" set foldcolumn=1
 nnoremap , za
 
 " Indentation {{{2
@@ -79,13 +80,6 @@ endif
 set nobackup
 set noswapfile
 
-" highlight lines in Sy and vimdiff etc.)
-highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
-highlight DiffDelete        cterm=bold ctermbg=none ctermfg=1
-highlight DiffChange        cterm=bold ctermbg=none ctermfg=3
-
-" fixing search highlighting
-hi Search cterm=NONE ctermfg=black ctermbg=yellow
 
 
 " To show all commands that start with leader type :map <leader>
@@ -96,7 +90,7 @@ let mapleader = " "
 nnoremap <leader>l :lopen<CR>
 
 " vim plug
-nnoremap <leader>I :source %<CR>:PlugInstall<CR>
+nnoremap <leader>I :source ~/.vimrc<CR>:PlugInstall<CR>
 
 " :terminal easy escape
 " if has('nvim')
@@ -113,7 +107,7 @@ nnoremap <C-Left> :bprevious<CR>
 nnoremap <C-Right> :bnext<CR>
 
 " Prompt to open file with same name, different extension
-nmap <leader>A :vs <C-R>=expand("%:r")."."<CR>
+nmap <leader>h :vs <C-R>=expand("%:r")."."<CR>
 
 " Turn off list chars, aka trailing spaces and visible tabs
 nmap <silent> <leader>L :set list!<CR>
@@ -132,6 +126,10 @@ xnoremap & :&&<Enter>
 " Crude visualmode-only mappings for block level XML tags {{{2
 nnoremap viT vitVkoj
 nnoremap vaT vatV
+
+" mapping to drop into substitute 
+nnoremap <leader>s :%s///gc<Left><Left><Left>
+nnoremap <leader>S :cdo s///gc<Left><Left><Left>
 
 
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -168,6 +166,7 @@ Plug 'tpope/vim-unimpaired'
 " Git interface I massively underuse, mostly only use Gblame, GStatus is super
 " epic and i know i should use it
 Plug 'tpope/vim-fugitive'
+nnoremap <leader>g :Gstatus<CR>
 
 
 " Projectionist plugin to let me jump around code, not really in use yet
@@ -180,7 +179,7 @@ Plug 'tpope/vim-speeddating'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 " Plug 'ctrlpvim/ctrlp.vim'
-Plug 'jremmen/vim-ripgrep'
+" Plug 'jremmen/vim-ripgrep'
 Plug 'dbakker/vim-projectroot'
 if executable('rg')
   set grepprg=rg\ --vimgrep
@@ -220,11 +219,12 @@ nnoremap <C-p> :Files<CR>
 nnoremap <leader>p :Files<CR>
 nnoremap <leader>m :History<CR>
 nnoremap <leader>b :Buffers<CR>
-nnoremap <leader>c :Files ~/
+nnoremap <leader>f :Files ~/
 " nnoremap <leader>t :Tags<CR>
-nnoremap <leader>* :execute "Ag! ".expand("<cword>").""<CR>
-nnoremap <leader>a :Ag!<CR>
-nnoremap <leader>t :call fzf#vim#tags(expand('<cword>'), {'options': '--exact --select-1 --exit-0'})<CR>
+nnoremap <leader>* :execute "Rg! ".expand("<cword>").""<CR>
+nnoremap <leader>A :Rg!<CR>
+nnoremap <leader>a :Rggg<CR>
+nnoremap <leader>t :call fzf#vim#tags(expand('<cword>')." ", {'options': '--exact --select-1 --exit-0'})<CR>
 
 
 " Code Formatting Plugins
@@ -266,6 +266,8 @@ Plug 'mhinz/vim-signify'
 Plug 'bling/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+let g:airline_solarized_bg='dark'
 
 
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -317,27 +319,40 @@ nnoremap <silent> <leader>T :TagbarToggle<CR>
 " nmap <silent> <leader>D <Plug>(pydocstring)
 
 
-if has('timer')
-    " neovim/vim8 async linter
-    Plug 'neomake/neomake'
-    let g:neomake_cpp_enabled_makers = ['cppcheck', ]
-    " Plug 'vim-syntastic/syntastic'
-    " let g:syntastic_error_symbol = '✘'
-    " let g:syntastic_warning_symbol = "▲"
-    " let g:syntastic_always_populate_loc_list = 1
-    " let g:syntastic_auto_loc_list = 1
-    " let g:syntastic_check_on_open = 0
-    " let g:syntastic_check_on_wq = 0
-    " let g:syntastic_cpp_check_header = 0
-    " let g:syntastic_cpp_checkers = ['cppcheck']
-    " let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
-    " " let g:syntastic_python_prospector_args = "--strictness veryhigh"
-    " let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
-    " let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
-    " " " let g:syntastic_aggregate_errors = 1
-    " nmap <leader>c :SyntasticReset<cr>
-    " nmap <leader>h :lclose<cr>
-endif
+" neovim/vim8 async linter
+" Plug 'neomake/neomake'
+" let g:neomake_cpp_enabled_makers = ['cppcheck', ]
+set makeprg=rscmake
+Plug 'w0rp/ale'
+" let g:ale_linters = {
+" \   'cpp': ['cppcheck'],
+" \}
+Plug 'tpope/vim-dispatch'
+nnoremap <leader>d :Dispatch!<CR>
+nnoremap <leader>c :Copen<CR>G
+nnoremap <leader>q :cfirst<CR>
+nnoremap , @q
+nnoremap <leader>... :<c-u><c-r><c-r>='let @q = '. string(getreg('q'))<cr><c-f><left>
+
+
+
+
+" Plug 'vim-syntastic/syntastic'
+" let g:syntastic_error_symbol = '✘'
+" let g:syntastic_warning_symbol = "▲"
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 0
+" let g:syntastic_check_on_wq = 0
+" let g:syntastic_cpp_check_header = 0
+" let g:syntastic_cpp_checkers = ['cppcheck']
+" let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
+" " let g:syntastic_python_prospector_args = "--strictness veryhigh"
+" let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
+" let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
+" " " let g:syntastic_aggregate_errors = 1
+" nmap <leader>c :SyntasticReset<cr>
+" nmap <leader>h :lclose<cr>
 
 if has('python3')
     " Completion Plugin
@@ -380,6 +395,19 @@ Plug 'jceb/vim-orgmode'
 
 Plug 'solarnz/thrift.vim'
 
+" Plug 'pelodelfuego/vim-swoop'
+
+" Plug 'terryma/vim-multiple-cursors'
+
+Plug 'miyakogi/conoline.vim'
+
+" Plug 'nathanaelkane/vim-indent-guides'
+
+Plug 'yggdroot/indentline'
+
+
+Plug 'flazz/vim-colorschemes'
+Plug 'altercation/vim-colors-solarized'
 
 call plug#end()
 
@@ -406,10 +434,29 @@ command! -bang -nargs=* Ag
   \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
   \                 <bang>0)
 
-" Similarly, we can apply it to fzf#vim#grep. To use ripgrep instead of ag:
+command! -bang -nargs=* Rggg
+  \ call fzf#vim#rg(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+  \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
+  \                 <bang>0)
+
 command! -bang -nargs=* Rg
+  \ call fzf#vim#rg(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+
+" " Similarly, we can apply it to fzf#vim#grep. To use ripgrep instead of ag:
+" command! -bang -nargs=* Rgg
+"   \ call fzf#vim#grep(
+"   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+"   \   <bang>0 ? fzf#vim#with_preview('up:60%')
+"   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+"   \   <bang>0)
+command! -bang -nargs=* Rgg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   'rg --column --line-number --no-heading --color=always -v '
+  \ . <q-args>, 1,
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
@@ -463,7 +510,7 @@ function! DeleteHiddenBuffers()
   endfor
   echo "Closed ".closed." hidden buffers"
 endfunction
-nnoremap <leader>d :call DeleteHiddenBuffers()<CR>
+" nnoremap <leader>d :call DeleteHiddenBuffers()<CR>
 
 
 " Autocommands
@@ -488,3 +535,10 @@ if has("autocmd")
 else
     set autoindent		" always set autoindenting on
 endif
+
+
+map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+colorscheme janecolors

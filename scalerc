@@ -6,11 +6,25 @@
 # files are stored they should cale make echo_targetdir
 # scale make specific variable definitions
 # TARGETDIR='obj/generic'
+
+# Set build flags
 export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
-# export TRACE_FLAGS=--coverage
-# BUILD_TYPE=debug
-BUILD_TYPE=debug
-BUILD_SCQAD_CASES=0
+# unset MAKEFLAGS
+
+export TRACE_FLAGS=--coverage
+# unset TRACE_FLAGS
+
+export BUILD_TYPE=debug
+# unset BUILD_TYPE
+
+export BUILD_SCQAD_CASES=0
+# unset BUILD_SCQAD_CASES
+
+export ENABLE_BUILD_TIMER=1
+# unset ENABLE_BUILD_TIMER
+
+export NOCHECKSUMTEST=1
+# unset NOCHECKSUMTEST
 
 # scalerc configuration variables
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
@@ -20,9 +34,9 @@ SRC_ROOT="/local/scale-product"  # on buildvm
 GIT_ROOT="$HOME/git/scale-product"  # on dev pc
 AUTOMATED_ROOT="/build/automated"
 SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
-DOORBELL='tput bel; tput bel'
+DOORBELL='tput bel; sleep 1; tput bel'
 TIMEOUT=10
-END_CMD="$DOORBELL; echo \"Press enter to continue\"; read"
+END_CMD="$DOORBELL"
 # END_CMD="exec bash"
 # END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
 LOG_CMD="less -RN"
@@ -32,7 +46,7 @@ LOG_CMD="less -RN"
 alias scd="cd $SRC_ROOT"
 alias tcd="cd ./$TARGETDIR"
 SCQAD_DIR="$SRC_ROOT/daemons/scqad"
-TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null | sed 's/\>/-01.lab.local/g'"
+TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null | sed 's/\>/-01.lab.local/g' | uniq"
 
 run_gdb ()
 {
@@ -75,27 +89,47 @@ get_buildid ()
 }
 
 
+jsh ()
+{
+    jsh buildvm
+}
+
+
 run_screen ()
 {
-    cmd="$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD"
+    cmd="$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD;"
     echo $cmd
-    screen -L -x -R -S "$1" -q bash -c "$cmd"
+    # screen -L -x -R -S "$1" -q bash -c "$cmd"
+    case $1 in
+        local_scmake)
+            nohup stdbuf -oL script -qfc "$cmd" |& tee "$HOME/$1.out"
+            # less -RN +F "$HOME/$1.out"
+            # tail -f "$HOME/$1.out"
+            ;;
+        *)
+            eval "$@"
+            ;;
+    esac
 }
 
 
 maybe_run_remote ()
 {
-    echo "gonna try running $@"
-    if [ -d $SRC_ROOT ]; then
+    if hostname | grep -q "buildvm"; then
         run_screen "$@"
     else
+        LOCAL_BUILD_ROOT=$BUILD_ROOT
         if is_1_in_2 $PWD $GIT_ROOT; then
-            BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
+            LOCAL_BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
         scrsync
-        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" run_screen \"$@\""
+        # ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" run_screen \"$@\""
+        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" $@"
+        ret=$?
+        unset LOCAL_BUILD_ROOT
     fi
-    ret=$?
+    eval $END_CMD
+    return $ret
 }
 
 
@@ -121,13 +155,20 @@ local_run_case ()
     if [ -z "$TEST_BEDS" ]; then
         echo "failed to find any claimed testbeds"
     fi
-    TARGETDIR="$(BUILD_TYPE=$BUILD_TYPE make -s -C $SRC_ROOT echo_targetdir)"
+    TARGETDIR="$(find . -type d -wholename "./obj/*" -and -name "SC001*" | fzf --select-1 --exit-0)"
+    if [ -z "$TARGETDIR" ]; then
+        echo "Couldnt find targetdir, try running from root directory of the source tree you wish to deploy from"
+        return 1
+    fi
 
-    local_make_case $CASE_NAME && \
-        for testbed in $TEST_BEDS; do
-            local-scqadleader -b $testbed -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}" \
-            || local-scqadleader -b $testbed -s "removeTestArtifacts{}"
-        done
+    echo "hi . $TARGETDIR ."
+
+    # local_make_case $CASE_NAME && \
+    for testbed in $TEST_BEDS; do
+        # echo "$testbed $TARGETDIR $CASE_NAME"
+        $TARGETDIR/scqadleader -b $testbed -d cases/$TARGETDIR -s "runTest{name = '$CASE_NAME'}" \
+        || $TARGERTDIR/scqadleader -b $testbed -s "removeTestArtifacts{}"
+    done
 }
 
 
@@ -217,32 +258,19 @@ rpmupdate ()
 
 # copy local changes to buildvm source copy
 scrsync ()
-{
-    CODE_DIR="$HOME/git/scale-product"
-    # this might be a bad idea, but im gonna make the laptop scalerc file the
-    # master, I bet ill clobber changes a bunch and this will overwrite the
-    # link i have back to my dotfiles but WHATEVER ill figure it out LATER
+(
+    cd $GIT_ROOT
     scp ~/.scalerc $BUILDVM_HOSTNAME:~/
-    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$CODE_DIR/.gitignore" $CODE_DIR/* $BUILDVM_HOSTNAME:$SRC_ROOT
-    rsync -avzh -e ssh $CODE_DIR/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
+    rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$GIT_ROOT/.gitignore" $GIT_ROOT/* $BUILDVM_HOSTNAME:$SRC_ROOT
+    # rsync -avzh -e ssh $GIT_ROOT/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
+    # rsync -avR `git diff -r origin/sb_drsd -r HEAD | grep ^diff | awk '{ print $3 }' | sed 's@^a/@@'` ${BUILDVM_HOSTNAME}:${SRC_ROOT}
     return $?
-}
+)
 
 
-# ssh into buildvm and launch scmake in a screen session
-# some cool things this lets me do
-#   - If I lose connectivity my build isnt killed
-#   - If I want to detach I can just ctrl-a d and ill end up back in the local terminal session
-#   - If I run this while another build is in session it reattaches the existing build rather than starting a new one
-# call make on local build directory and log output
+# Wrapper around make that handles scale specific environment variables
 local_scmake ()
 {
-    if [ "x$1" != "x" ]; then
-        TARGET_NAME="$1"
-    else
-        TARGET_NAME="all"
-    fi
-
     # If were not in a subdirectory of the project root then run command from
     # project root
     if [ "x$BUILD_ROOT" != "x" ]; then
@@ -253,28 +281,39 @@ local_scmake ()
         cd $SRC_ROOT
     fi
 
-    LOGFILE="$TARGET_NAME.make.txt"
+    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+    echo -e ">> Compiling ${PWD}\n"
+    time make "$@"
+    RET=$?
+    if [ $RET -eq 0 ]; then
+        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+    else
+        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+    fi
+    return $RET
+}
 
-    #output stderr and stdout to $LOGFILE and stderr to screen
-    (
-        echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
-        echo -e ">> Compiling ${PWD}\n"
+local_rscmake ()
+(
+    mkdir -p $SRC_ROOT/build
+    cd $SRC_ROOT/build
+    cmake ..
+    echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
+    echo -e ">> Compiling ${PWD}\n"
+    time make "$@"
+    RET=$?
+    if [ $RET -eq 0 ]; then
+        echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
+    else
+        echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
+    fi
+    return $RET
+)
 
-        export BUILD_TYPE;
-        export MAKEFLAGS;
-        export BUILD_SCQAD_CASES;
-        time make "$@"
-        if [ $? -eq 0 ]; then
-            echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
-        else
-            echo -e "\n>>>>>>>> \e[91mKilled\e[0m <<<<<<<<"
-        fi
-    ) |& tee $LOGFILE \
-      | grep --color -P "error|"
-
-    tail $LOGFILE | grep -q -E "Killed"
-    [ ! $? -eq 0 ]
-    return $?
+rscmake ()
+{
+    maybe_run_remote local_rscmake "$@"
+    echo $?
 }
 
 local_setup_debug ()
@@ -315,4 +354,107 @@ setup_debug ()
     TEST_BEDS="$(testbeds)"
     scp -v ~/.scalerc root@${TEST_BEDS}:.
     ssh -t root@${TEST_BEDS} "$SOURCE_FILES; local_setup_debug \"$2\" \"$3\""
+}
+
+local_copy_newest_objects ()
+{
+    # determine which objects directory is the most recently compiled one
+    NEWEST_FILE=$(find $SRC_ROOT -type f -wholename "*/obj/*" -and ! -wholename "*$(targetdir)/*" -printf "%T+\t%p\n" | sort -r | head -n 1 | awk '{print $2}')
+    OLD_TARGETDIR=$(basename $(dirname $NEWEST_FILE))
+    # get the name of the new targetdir
+    NEW_TARGETDIR=$(basename $(targetdir))
+    # for every directory matching newestobjects, copy the directory to newtarget
+    for file in $(find $SRC_ROOT -type d -name $OLD_TARGETDIR); do
+        NEWFILE=$(echo $file | sed "s/$OLD_TARGETDIR/$NEW_TARGETDIR/")
+        echo "$file -> $NEWFILE"
+        cp -vr $file $NEWFILE
+    done
+}
+
+local_compactrun ()
+{
+    while ! [ -z "$1" ]; do
+        (set -o pipefail ; "$1" |& awk 'BEGIN { p[0]="|";p[1]="-" } { printf "\r"p[c % 2]; ++c; } /^\[/ { printf "\r" ; print $0 ; c=0 }' || exit 1 ; ) \
+        || return 1;
+        shift
+    done
+    return 0
+}
+
+local_scjobs ()
+{
+    # [jlusby@buildvm-fcc497cc-2f84-4300-9501-8277f3db1634 automated]$ /opt/scale/bin/scjobs add --help
+    # Usage: /opt/scale/bin/scjobs add --command CMD [<OPTIONS>]
+    # Arguments:
+    #     CMD                            - BUILD|TEST|INSTALL|PUBLISH|WORKER_CREATE
+    #                                    - WORKER_DELETE|WORKER_ENABLE|WORKER_DISABLE
+    #                                    - WORKER_BLESS_AUTOMATION
+    #                                    - WORKER_UNBLESS_AUTOMATION
+    # OPTIONS:
+    #     --user USER                    - user owning job (defaults to $USER)
+    #     --gerrit-id ID                 - determine user from gerrit-id
+    #     --prerequisite ID              - prerequisite job id
+    #     --worker-id ID                 - id of a worker in the worker group
+    #     --worker-ip IP                 - ip of a worker in the worker group
+    #     --worker-sha1 SHA1             - sha1 of worker group
+    #     --parameter PARAM=VALUE        - Set job parameter PARAM to VALUE (can be specified multiple times)
+    #     --minimal-free-clusters COUNT  - if free clusters < COUNT, do not add the job
+
+    TEST_NAME="VSDTieredAbuseTest"
+    BUILD_ID="181562"
+    COMMIT_ID="$(mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e "select commit_id from builds where build_id = '$BUILD_ID'" re_ci 2> /dev/null)"
+    LOAD_PROFILE="default"
+    TEST_BEDS="$(mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e "select testbed from claims where username = '$SCREWI_USER'" re_ci 2> /dev/null | uniq)"
+    COUNT="1"
+    OVERRIDE_CLAIM="1"
+    TYPE="grinder"
+    NOMEZZANINE="1"
+
+    CMD="/opt/scale/bin/scjobs add --user $SCREWI_USER --command test --parameter build_id=$BUILD_ID --parameter commit_id=$COMMIT_ID --parameter load_profile=$LOAD_PROFILE --parameter testbeds=$TEST_BEDS --parameter grinder_testcases=$TEST_NAME --parameter grinder_repeat=1 --parameter override_claim=1 --parameter type=grinder --parameter nomezzanine=1"
+
+    echo $CMD
+    eval $CMD
+}
+
+scunit ()
+{
+    if [ "x$@" = "x" ]; then
+        UNIT_TESTS="$(find . -type f -name "*UnitTest.cpp" -exec basename {} .cpp \; | sort -u | fzf --select-1 --exit-0 --multi)"
+    else
+        UNIT_TESTS="$@"
+    fi
+
+    for i in $(echo $UNIT_TESTS); do
+        # echo "$i blah"
+        run_unit $i
+    done
+}
+
+scunit-coverage ()
+{
+    scmake runtest
+    rm -rf /tmp/coverage
+    rsync -avzh -e ssh $BUILDVM_HOSTNAME:$SRC_ROOT/generated/ /tmp/coverage
+    open /tmp/coverage/coverage/unittest/all/index.html
+}
+
+run_unit ()
+{
+    UNIT_TEST_NAME="$1"
+    maybe_run_remote local_run_unit "$UNIT_TEST_NAME"
+    rm -rf /tmp/$UNIT_TEST_NAME-coverage
+    rsync -avzh -e ssh $BUILDVM_HOSTNAME:$SRC_ROOT/generated/ /tmp/$UNIT_TEST_NAME-coverage
+    open /tmp/$UNIT_TEST_NAME-coverage/coverage/unittest/all/index.html
+    # return $?
+}
+
+local_run_unit ()
+{
+    UNIT_TEST_NAME="$1"
+    UNIT_TEST_PATH="$(find $SRC_ROOT -type f -wholename "*/$(targetdir)/*" -name "$UNIT_TEST_NAME")"
+    if [ -f "$UNIT_TEST_PATH" ]; then
+        local_scmake pre-runtest
+        $UNIT_TEST_PATH
+        local_scmake post-runtest
+    fi
 }

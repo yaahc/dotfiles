@@ -5,7 +5,7 @@
 	excludesfile = /home/jlusby/.gitignore_global
 	editor = vim
 [merge]
-	tool = vimdiff
+	tool = meld
 [color]
 	ui = true
 [alias]
@@ -21,4 +21,4 @@
 [init]
 	templatedir = ~/.git_template
 [push]
-	default = simple
+	default = matching

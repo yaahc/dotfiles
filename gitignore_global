@@ -50,3 +50,4 @@ core.*
 *.executed
 *.make.txt
 tags
+update_buildvm.sh

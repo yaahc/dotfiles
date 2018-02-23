@@ -18,7 +18,7 @@ if [ -e "$BSPWM_TREE" ] ; then
 fi
 
 export PATH="$HOME/bin:/bin:/sbin:$PATH"
-export PATH="$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin"
+export PATH="$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin:$HOME/git/rouge/bin:$HOME/go/bin"
 
 if hash nvim 2> /dev/null; then
     export VISUAL="nvim"
@@ -50,14 +50,14 @@ export LESS_TERMCAP_us=$'\E[32m'
 export XDG_CONFIG_HOME="$HOME/.config"
 
 
-# if hash keychain > /dev/null 2>&1; then
-    # eval "$(keychain --eval --quiet id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
+if hash keychain > /dev/null 2>&1; then
+    eval "$(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa > /dev/null 2>&1)"
 # else
 #     ssh-add ~/.ssh/build_rsa
 #     ssh-add ~/.ssh/build_dsa
 #     ssh-add ~/.ssh/id_rsa
 #     ssh-add ~/.ssh/id_ed25519
-# fi
+fi
 
 # if [ -f "${HOME}/.gpg-agent-info" ]; then
 #     . "${HOME}/.gpg-agent-info"
@@ -70,7 +70,7 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
 #use solarized ls colors
-#eval $(dircolors ~/.dir_colors)
+# eval $(dircolors ~/git/dircolors-solarized/dircolors.ansi-dark)
 
 FZF_DIR="$HOME/.fzf/bin/"
 if [ -d $FZF_DIR ] || hash fzf; then
