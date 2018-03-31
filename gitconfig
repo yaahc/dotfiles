@@ -22,3 +22,5 @@
 	templatedir = ~/.git_template
 [push]
 	default = matching
+[rebase]
+	autosquash = true

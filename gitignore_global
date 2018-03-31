@@ -51,3 +51,7 @@ core.*
 *.make.txt
 tags
 update_buildvm.sh
+compile_commands.json
+.projections.json
+spdk/
+.clang

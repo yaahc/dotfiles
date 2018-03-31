@@ -72,6 +72,7 @@ DISABLE_AUTO_TITLE="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  arcanist
 )
 
 source $ZSH/oh-my-zsh.sh

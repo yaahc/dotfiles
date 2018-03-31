@@ -1,6 +1,12 @@
 #! /bin/bash
 
 sc_build_root="$HOME/.scalerc"
+if [ -f "$sc_build_root" ]; then
+    # shellcheck source=/home/jlusby/.scalerc
+    . "$sc_build_root"
+else
+    exit 1
+fi
 
 # translates buildvm paths to local paths. Correct _most_ of the time, but
 # occasionally fooled.
@@ -37,11 +43,31 @@ sc_build_root="$HOME/.scalerc"
 #     '
 # }
 
-function convertToPwd {
+BUILDLOG="/tmp/rscmake.log"
+# PIDFILE="/tmp/rscmake.pid"
+TARGET="all"
+DIRNAME="$GIT_ROOT"
+
+if [ "x$1" != "x" ]; then
+    if [ -f "$1" ]; then
+        DIRNAME="$(dirname "$1")"
+        BASENAME="$(basename "$1")"
+        TARGET="$(targetdir)/${BASENAME%.*}.o"
+    fi
+fi
+
+if [ "$TARGET" != "all" ]; then
+    MBUILDLOG="/dev/null"
+else
+    MBUILDLOG=$BUILDLOG
+fi
+
+function convertToPwd() {
     local THEPWD="$HOME/git/scale-product"
-    { cat   <(cd "$THEPWD" && find "$THEPWD" | egrep '(cpp|h)$') \
-            <(echo SWITCHOVER);
-            tee /dev/null;
+    {
+        cat <(cd "$THEPWD" && find "$THEPWD" | grep -E '(cpp|h)$') \
+            <(echo SWITCHOVER)
+        tee $MBUILDLOG
     } | tee /tmp/lastbuild | gawk '
     BEGIN { sw=0; FS="/"; }
     /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
@@ -69,31 +95,95 @@ function convertToPwd {
     '
 }
 
+function makeIsRunning() {
+    ssh buildvm pgrep make >/dev/null
+    return $?
+}
 
-cd ~/git/scale-product
-LAST_FILE=""
-echo $(git ls-files --exclude-standard --others --modified)
-for file in $(git ls-files --exclude-standard --others --modified); do
-    if [ "x$LAST_FILE" = "x" ]; then
-        LAST_FILE=$(dirname $file)
-    else
-        echo $LAST_FILE
-        echo $file
-        LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+function waitForRunningMakes() {
+    while true; do
+        if makeIsRunning; then
+            echo "Waiting for active make to finish"
+            sleep 0.5
+        else
+            break
+        fi
+    done
+}
+
+cd "$DIRNAME" || exit 1
+
+if [ "$TARGET" == "all" ]; then
+    LAST_FILE=""
+    for file in $(git ls-files --exclude-standard --others --modified); do
+        if [ "x$LAST_FILE" = "x" ]; then
+            LAST_FILE=$(dirname "$file")
+        else
+            LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+        fi
+    done
+
+    if [ ! -f "$LAST_FILE" ]; then
+        if [ ! -d "$LAST_FILE" ]; then
+            LAST_FILE=$(dirname "$LAST_FILE")
+        fi
+        cd "$LAST_FILE" || exit 1
     fi
-done
 
-echo $LAST_FILE
-FILES=$(rg --color=never -g "*.h" -g "*.cpp" --files ~/git/scale-product)
-
-if [ ! -f $LAST_FILE ]; then
-    if [ ! -d $LAST_FILE ]; then
-        LAST_FILE=$(dirname $LAST_FILE)
-    fi
-    cd $LAST_FILE
-fi
-if [ -f $sc_build_root ]; then
-    # $HOME/Scripts/fscmake $@ | $HOME/Scripts/fenagle_filenames.py $FILES
-    $HOME/Scripts/fscmake $@ | convertToPwd
+    waitForRunningMakes
+    scmake 2>&1 | convertToPwd
+else
+    time scmake "$TARGET" 2>&1 | convertToPwd
 fi
 
+exit $?
+
+# function cleanup() {
+#     if [ -f $BUILDLOG ]; then
+#         for pid in $(lsof -t $BUILDLOG); do
+#             kill -9 "$pid"
+#         done
+#         rm -f $BUILDLOG
+#         rm -r $PIDFILE
+#     fi
+# }
+
+# if [ -f $PIDFILE ]; then
+#     pid=$(cat $PIDFILE)
+#     if [ "x$pid" != "x" ] && [ -e "/proc/$pid" ]; then
+#         tail -f -n +1 $BUILDLOG | convertToPwd
+#         exit 0
+#     fi
+# fi
+
+# cleanup
+
+# echo $$ >$PIDFILE
+
+# cd ~/git/scale-product || exit 1
+
+# LAST_FILE=""
+# for file in $(git ls-files --exclude-standard --others --modified); do
+#     if [ "x$LAST_FILE" = "x" ]; then
+#         LAST_FILE=$(dirname "$file")
+#     else
+#         LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+#     fi
+# done
+
+# if [ ! -f "$LAST_FILE" ]; then
+#     if [ ! -d "$LAST_FILE" ]; then
+#         LAST_FILE=$(dirname "$LAST_FILE")
+#     fi
+#     cd "$LAST_FILE" || exit 1
+# fi
+# if [ -f "$sc_build_root" ]; then
+#     # $HOME/Scripts/fscmake $@ | $HOME/Scripts/fenagle_filenames.py $FILES
+#     # shellcheck source=/home/jlusby/.scalerc
+#     . "$sc_build_root"
+#     scmake 2>&1 | convertToPwd
+#     cleanup
+#     exit $?
+# fi
+
+# exit 1

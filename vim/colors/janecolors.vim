@@ -60,7 +60,7 @@ hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=
 hi Todo term=standout ctermfg=0 ctermbg=3 guifg=Blue guibg=Yellow
 
 let g:indent_guides_auto_colors = 0
-hi IndentGuidesEven ctermbg=darkgrey
+hi IndentGuidesEven ctermbg=237
 
 " highlight lines in Sy and vimdiff etc.)
 highlight DiffAdd           cterm=bold ctermbg=none ctermfg=2
