@@ -8,7 +8,7 @@
 # TARGETDIR='obj/generic'
 
 # Set build flags
-export MAKEFLAGS="-j$(expr $(nproc) \- 1)"
+export MAKEFLAGS="-j $(expr $(nproc) \- 1)"
 # unset MAKEFLAGS
 
 export TRACE_FLAGS=--coverage
@@ -21,13 +21,12 @@ export BUILD_SCQAD_CASES=0
 # unset BUILD_SCQAD_CASES
 
 export ENABLE_BUILD_TIMER=1
-unset ENABLE_BUILD_TIMER
+# unset ENABLE_BUILD_TIMER
 
 export NOCHECKSUMTEST=1
 # unset NOCHECKSUMTEST
 
-export VERBOSE=1
-unset VERBOSE
+export V=1
 
 export NORECURSION=1
 unset NORECURSION
@@ -41,10 +40,11 @@ export GTEST_COLOR=1
 # OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
 SCREWI_USER="jlusby"
 BUILDVM_HOSTNAME="buildvm"
-SRC_ROOT="/local/scale-product"    # on buildvm
+SRC_ROOT="/local/scale-product" # on buildvm
+COV_DIR="/local/cov"
 GIT_ROOT="$HOME/git/scale-product" # on dev pc
 AUTOMATED_ROOT="/build/automated"
-SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc'
+SOURCE_FILES='source ~/.profile; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc; source /etc/profile.d/ccache.sh'
 DOORBELL='tput bel; sleep 1; tput bel'
 TIMEOUT=10
 END_CMD="$DOORBELL"
@@ -115,7 +115,7 @@ maybe_run_remote() {
         if is_1_in_2 $PWD $GIT_ROOT; then
             LOCAL_BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
-        scrsync
+        scrsync-internal
         # ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" run_screen \"$@\""
         ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" $@"
         ret=$?
@@ -224,21 +224,53 @@ rpmupdate() {
     return $?
 }
 
-# copy local changes to buildvm source copy
+repo_clean() {
+    maybe_run_remote local_repo_clean
+}
+
+local_repo_clean() {
+    cd $SRC_ROOT || return
+    git clean -xf
+    git checkout -- .
+}
+
 scrsync() (
+    repo_clean
+    scrsync-internal
+)
+
+# copy local changes to buildvm source copy
+scrsync-internal() (
     cd "$GIT_ROOT" || exit 1
-    # scp ~/.scalerc $BUILDVM_HOSTNAME:~/
+
+    scp ~/.scalerc $BUILDVM_HOSTNAME:~/
+
+    # rsync -avzh -e ssh "$GIT_ROOT"/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
     # rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$GIT_ROOT/.gitignore" "$GIT_ROOT"/* $BUILDVM_HOSTNAME:$SRC_ROOT
-    # rsync -aHAXxv --numeric-ids --delete --progress -e "ssh -T -c arcfour -o Compression=no -x" user@<source>:<source_dir> <dest_dir>
-    # rsync -aHAXxv --numeric-ids --progress -e "ssh -T -o Compression=no -x" --exclude-from="$HOME/.gitignore_global" --exclude-from="$GIT_ROOT/.gitignore" "$GIT_ROOT"/* $BUILDVM_HOSTNAME:$SRC_ROOT
-    # rsync -avzh -e ssh $GIT_ROOT/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
-    # rsync -avR $(git diff -r origin/sb_drsd | grep ^diff | gawk '{ print $3 }' | sed 's@^a/@@') ${BUILDVM_HOSTNAME}:${SRC_ROOT}
+    # rsync -avzh -e ssh "$GIT_ROOT"/* $BUILDVM_HOSTNAME:$SRC_ROOT
+
     FILES=$(git diff -r origin/sb_drsd)
     FILES=$(echo "$FILES" | grep ^diff | gawk '{ print $3 }' | sed 's@^a/@@')
     FILES=$(printf "%s\n$(git ls-files --exclude-standard --others --modified)" "$FILES" | sort -u)
-    # echo $FILES
     rsync -avR $(echo $FILES) ${BUILDVM_HOSTNAME}:${SRC_ROOT}
-    # | grep ^diff | awk '{ print $3 }' | sed 's@^a/@@')" ${BUILDVM_HOSTNAME}:${SRC_ROOT}
+
+    return $?
+)
+
+scrsync-hard() (
+    cd "$GIT_ROOT" || exit 1
+
+    scp ~/.scalerc $BUILDVM_HOSTNAME:~/
+
+    # rsync -avzh -e ssh "$GIT_ROOT"/.git/* $BUILDVM_HOSTNAME:$SRC_ROOT/.git
+    # rsync -avzh -e ssh --exclude-from="$HOME/.gitignore_global" --exclude-from="$GIT_ROOT/.gitignore" "$GIT_ROOT"/* $BUILDVM_HOSTNAME:$SRC_ROOT
+    rsync -avzh -e ssh "$GIT_ROOT"/* $BUILDVM_HOSTNAME:$SRC_ROOT
+
+    #     FILES=$(git diff -r origin/sb_drsd)
+    #     FILES=$(echo "$FILES" | grep ^diff | gawk '{ print $3 }' | sed 's@^a/@@')
+    #     FILES=$(printf "%s\n$(git ls-files --exclude-standard --others --modified)" "$FILES" | sort -u)
+    #     rsync -avR $(echo $FILES) ${BUILDVM_HOSTNAME}:${SRC_ROOT}
+
     return $?
 )
 
@@ -256,7 +288,7 @@ local_scmake() {
 
     echo -e "\n>>>>>>>> \e[94mStarting\e[0m <<<<<<<<"
     echo -e ">> Compiling ${PWD}\n"
-    time intercept-build make "$@"
+    time make "$@"
     RET=$?
     if [ $RET -eq 0 ]; then
         echo -e "\n>>>>>>>> \e[92mDone\e[0m <<<<<<<<"
@@ -411,33 +443,41 @@ scunit() {
 }
 
 scunit-coverage() {
-    scmake runtest
-    rm -rf /tmp/coverage
-    rsync -avzh -e ssh $BUILDVM_HOSTNAME:$SRC_ROOT/generated/ /tmp/coverage
-    open /tmp/coverage/coverage/unittest/all/index.html
+    scmake &&
+        scmake runtest &&
+        maybe_run_remote local_save_report "runtest-coverage"
 }
 
 run_unit() {
     UNIT_TEST_NAME="$1"
     maybe_run_remote local_run_unit "$UNIT_TEST_NAME"
     rm -rf "$UNIT_TEST_NAME-coverage"
-    pull_report "$UNIT_TEST_NAME-coverage"
-    # return $?
+    maybe_run_remote local_save_report "$UNIT_TEST_NAME-coverage"
 }
 
-pull_report() {
-    rsync -avzh -e ssh $BUILDVM_HOSTNAME:$SRC_ROOT/generated/ "/tmp/$1"
-    open "/tmp/$1/coverage/unittest/all/index.html"
+local_save_report() {
+    cd "$SRC_ROOT/generated/coverage/unittest" || return 1
+    GIT_SHA=$(git rev-parse --short HEAD)
+    DEST_DIR="$COV_DIR/revs/$1-$GIT_SHA/"
+    if [ -d "$DEST_DIR" ]; then
+        rm -rf "$DEST_DIR"
+    fi
+    mkdir -p "$DEST_DIR"
+    cp -r ./* "$DEST_DIR"
+    rm -rf "${COV_DIR:?}/$1"
+    ln -sf "$DEST_DIR" "$COV_DIR/$1"
 }
 
 local_run_unit() {
     UNIT_TEST_NAME="$1"
-    UNIT_TEST_PATH="$(find $SRC_ROOT -type f -wholename "*/$(targetdir)/*" -name "$UNIT_TEST_NAME")"
-    if [ -f "$UNIT_TEST_PATH" ]; then
-        local_scmake pre-runtest
-        $UNIT_TEST_PATH
-        local_scmake post-runtest
-    fi
+    UNIT_TEST_PATHS="find \"$SRC_ROOT\" -type f -wholename \"*/$(targetdir)/*\" -name \"*$UNIT_TEST_NAME*\" -name \"*UnitTest\""
+    local_scmake pre-runtest
+    for var in $(eval "$UNIT_TEST_PATHS"); do
+        if [ -f "$var" ]; then
+            $var || exit 1
+        fi
+    done
+    local_scmake post-runtest
 }
 
 test_unit_determinism() {
@@ -468,7 +508,36 @@ local_repo_rinse() (
     git submodule update --init --recursive
 )
 
+scprep() {
+    git fetch && usb=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}')
+    git rebase -i "$usb"
+}
+
+scgpush() {
+    usb=$(git rev-parse --abbrev-ref --symbolic '@{u}' | awk 'BEGIN { FS=\"/\" } {print $2}')
+    tags=$1
+    if [ -n "$tags" ]; then usb=$usb$tags; fi
+    git push origin "HEAD:refs/for/$usb"
+}
+
+scls() {
+    rev=HEAD
+    if [ -n "$1" ]; then rev=$1; fi
+    git diff-tree --no-commit-id --name-only -r "$rev"
+}
+
+BRANCH="sb_drsd"
+PHAB_PROJECT="drsd"
+# scwip?
 scpush() {
-    arc diff sb_drsd
-    # git push origin HEAD:refs/for/sb_drsd
+    # arc diff HEAD~ --reviewers="#$PHAB_PROJECT" --plan-changes
+    git push origin HEAD:refs/for/$BRANCH
+}
+
+scplus1() {
+    # arc diff HEAD~ --reviewers="#$PHAB_PROJECT"
+    git push origin HEAD:refs/for/$BRANCH/build_type=debug
+    changeid=$(git show -s | grep "Change-Id" | awk '{print $2}')
+    gerrit_revision=$(ssh -p 29418 gerrit.lab.local gerrit query --current-patch-set "$changeid" | grep -A2 currentPatchSet | grep "revision" | awk '{print $2}')
+    ssh -p 29418 gerrit.lab.local gerrit review --code-review +1 "$gerrit_revision"
 }

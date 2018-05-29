@@ -2,6 +2,8 @@
 
 . $HOME/.shellrc
 
+fpath+=~/.zfunc
+
 PROFILE_STARTUP=true
 if [[ "$PROFILE_STARTUP" == true ]]; then
     # http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html

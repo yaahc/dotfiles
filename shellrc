@@ -32,7 +32,7 @@ fi
 export EDITOR=$VISUAL
 
 if [ "$VISUAL" = "nvim" ]; then
-    export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
+    # export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
     export VIMCONFIG=~/.config/nvim
     export VIMDATA=~/.local/share/nvim
 else

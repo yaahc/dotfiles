@@ -55,3 +55,8 @@ compile_commands.json
 .projections.json
 spdk/
 .clang
+
+.mypy_cache/
+cscope.out*
+ncscope.out.temp
+.*.rs.rustfmt

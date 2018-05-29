@@ -23,6 +23,7 @@ set hidden
 set nojoinspaces
 set nrformats=
 set splitright
+set switchbuf=useopen,usetab,vsplit
 
 " match OverLength /\%81v.\+/
 if has('mouse')
@@ -92,12 +93,6 @@ nnoremap <leader>l :lopen<CR>
 " vim plug
 nnoremap <leader>I :source ~/.vimrc<CR>:PlugUpdate<CR>
 
-" :terminal easy escape
-" if has('nvim')
-"     tnoremap jj <C-\><C-n>
-"     nnoremap <leader>t :vs term://zsh<CR>
-" endif
-
 " tabs & buffers
 nnoremap <C-Up> :tabprevious<CR>
 nnoremap <C-Down> :tabnext<CR>
@@ -105,13 +100,6 @@ nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
 nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
 nnoremap <C-Left> :bprevious<CR>
 nnoremap <C-Right> :bnext<CR>
-
-" Prompt to open file with same name, different extension
-" nmap <leader>h :vs <C-R>=expand("%:r")."."<CR>
-" nmap <leader>AT :Etest <C-R>=expand("%:r")<CR><CR>
-" nmap <leader>AH :Eheader <C-R>=substitute(expand("%:r"), "UnitTest", "", "g")<CR><CR>
-" nmap <leader>AS :Esource <C-R>=expand("%:r")<CR><CR>
-" nmap <leader>H :vs <C-R>=expand("%:h")."/CMakeLists.txt"<CR><CR>
 
 " Turn off list chars, aka trailing spaces and visible tabs
 nmap <silent> <leader>L :set list!<CR>
@@ -131,7 +119,7 @@ xnoremap & :&&<Enter>
 nnoremap viT vitVkoj
 nnoremap vaT vatV
 
-" mapping to drop into substitute 
+" mapping to drop into substitute
 nnoremap <leader>s :%s///gc<Left><Left><Left>
 nnoremap <leader>S :cdo s///gc<Left><Left><Left>
 
@@ -177,7 +165,7 @@ nnoremap <leader>g :Gstatus<CR>
 
 
 " Projectionist plugin to let me jump around code, not really in use yet
-Plug 'tpope/vim-projectionist'
+" Plug 'tpope/vim-projectionist'
 
 Plug 'tpope/vim-speeddating'
 
@@ -188,14 +176,9 @@ Plug 'junegunn/fzf.vim'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'git ctags'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
-" Plug 'ctrlpvim/ctrlp.vim'
-" Plug 'jremmen/vim-ripgrep'
 Plug 'dbakker/vim-projectroot'
 if executable('rg')
     set grepprg=rg\ --vimgrep\ --color=never
-    " let g:ctrlp_user_command = 'rg %s --files --hidden --follow --color=never --glob ""'
-    " let g:ctrlp_use_caching = 1
-    " Ripgrep search word under cursor
 endif
 set wildignore=*.pdf,*.fo,*.o,*.jpeg,*.jpg,*.png
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
@@ -203,13 +186,6 @@ set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
 set wildignore+=*/.git/*,*/tmp/*,*.swp,tags
 set wildignore+=$HOME/Library/*
 set suffixes=.otl
-" let g:ctrlp_custom_ignore = {
-"             \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-"             \ 'file': '\v\.(exe|so|dll)$',
-"             \ 'link': 'some_bad_symbolic_links',
-"             \ }
-" let g:ctrlp_map = '<c-p>'
-" let g:ctrlp_cmd = 'CtrlPMixed'
 
 function! <SID>AutoProjectRootCD()
     try
@@ -222,8 +198,6 @@ function! <SID>AutoProjectRootCD()
 endfunction
 autocmd BufEnter * call <SID>AutoProjectRootCD()
 let g:fzf_layout = { 'down': '~20%' }
-let g:fzf_buffers_jump = 1
-let g:fzf_tags_command = 'git ctags'
 nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fp :Files<CR>
 nnoremap <C-p> :Files<CR>
@@ -249,12 +223,6 @@ Plug 'hynek/vim-python-pep8-indent'
 
 
 Plug 'rhysd/vim-clang-format'
-function! Formatonsave()
-    let l:formatdiff = 1
-    pyf ~/git/clang/tools/clang-format/clang-format.py
-endfunction
-autocmd BufWritePre *.h,*.cc,*.cpp call Formatonsave()
-
 
 " Super useful, lets you navigate between tmux panes and vim panes with the
 " same keybinds (ctrl +hjkl) who cares what type of pane it is!!!
@@ -267,34 +235,8 @@ Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'roxma/vim-tmux-clipboard'
 
 
-" Tmux zoom emulating plugin TOOD needs work to get it playing nicely with
-" NERDTree though in reality its NERDTrees fault, either use vim-session in
-" vim-zoom or rework vim-zoom to just spawn a new tab and kill it instead of
-" using sessions (though i expect that sessions are the right tool for this
-" problem)
-" Plug 'dhruvasagar/vim-zoom'
-" nmap <leader>z <Plug>(zoom-toggle)
-
-
 " VCS agnostic sign gutter plugin
 Plug 'mhinz/vim-signify'
-
-
-" Plug 'tomtom/quickfixsigns_vim'
-" let g:quickfixsigns_classes = ['qfl', 'marks', 'breakpoints']
-" let g:quickfixsigns_protect_sign_rx = '^neomake_'
-
-
-" Plug 'vim-scripts/errormarker.vim'
-
-
-" Plug 'twinside/vim-cuteerrormarker'
-
-
-" Plug 'jceb/vim-hier'
-
-
-" Plug 'dannyob/quickfixstatus'
 
 
 Plug 'bling/vim-airline'
@@ -302,6 +244,8 @@ Plug 'vim-airline/vim-airline-themes'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 let g:airline_solarized_bg='dark'
+let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
+let g:airline#extensions#gutentags#enabled = 1
 
 
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -311,111 +255,64 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'scrooloose/nerdtree'
 Plug 'xuyuanp/nerdtree-git-plugin'
 nnoremap <leader>N :NERDTreeToggle<CR>
-" if has("autocmd") autocmd vimenter * NERDTree | wincmd p
-"     autocmd StdinReadPre * let s:std_in=1
-"     autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-"     autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-" endif
 " enable line numbers
 let g:NERDTreeShowLineNumbers=1
 " make sure relative line numbers are used
 autocmd FileType nerdtree setlocal relativenumber
 
 
-" Plug 'xolox/vim-easytags'
-" Plug 'xolox/vim-misc'
-" let g:easytags_async = 1
-" let g:easytags_dynamic_files = 1
-" let g:easytags_auto_highlight = 0
-" let g:easytags_events = ['BufReadPost', 'BufWritePost']
-" let g:easytags_resolve_links = 1
-" let g:easytags_suppress_ctags_warning = 1
-
-
 Plug 'majutsushi/tagbar'
 nnoremap <silent> <leader>T :TagbarToggle<CR>
-
-
-" gitv
-" highlight diffAdded ctermfg=darkgreen
-" highlight diffRemoved ctermfg=darkred
-" set lazyredraw
-" nmap <leader>gv :Gitv --all<cr>
-" nmap <leader>gV :Gitv! --all<cr>
-" vmap <leader>gV :Gitv! --all<cr>
-
-
-" " Gundo.vim {{{2
-" nmap <leader>u :GundoToggle<CR>
 
 
 " " Pydocstring
 Plug 'heavenshell/vim-pydocstring'
 nmap <silent> <leader>D <Plug>(pydocstring)
 
-compiler gcc
-set makeprg=rscmake
-
-" neovim/vim8 async linter
-" Plug 'neomake/neomake'
-
-" let g:neomake_cpp_enabled_makers = ['cppcheck', 'cpplint', 'flawfinder', 'clangtidy', 'clangcheck']
-
-" \   'cpp': ['clangcheck', 'clangtidy', 'cppcheck', 'cpplint', 'flawfinder', 'g++'],
-
 
 Plug 'rust-lang/rust.vim'
+let g:rustfmt_autosave = 1
+let g:rustfmt_command = 'rustfmt +nightly'
+let g:rustfmt_fail_silently = 1
+
+
 Plug 'cespare/vim-toml'
 
 
-" \ 'cpp' : ['rscmake', 'cppcheck', 'clangtidy', 'flawfinder'],
-Plug 'w0rp/ale'
-let g:ale_linters = {
-\ 'cpp' : ['rscmake', 'cppcheck', 'clangtidy'],
-\ 'rust' : ['rls'],
-\}
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+let g:LanguageClient_loggingLevel = 'DEBUG'
 
-" \ 'cpp' : ['cppcheck', 'clangtidy', 'clangcheck', 'g++'],
-let g:ale_cpp_clangtidy_checks = ['*', '-cppcoreguidelines-pro-bounds-array-to-pointer-decay', '-cppcoreguidelines-pro-type-vararg', '-llvm-include-order', '-cppcoreguidelines-pro-bounds-pointer-arithmetic', '-modernize-make-unique', '-cppcoreguidelines-special-member-functions', '-hicpp-use-equals-default', '-hicpp-use-equals-delete', '-google-readability-namespace-comments', '-llvm-namespace-comment']
+highlight link ALEErrorSign error
+highlight link ALEWarningSign todo
+highlight link ALEInfoSign ALEWarningSign
+highlight link ALEError SpellBad
+highlight link ALEWarning SpellCap
+highlight link ALEInfo ALEWarning
+
+
+Plug 'w0rp/ale'
+let g:ale_linters = { 'cpp' : ['rscmake', 'cppcheck', 'clangtidy'], 'rust' : ['cargo'] }
 let g:ale_echo_msg_format = '%code: %%s %linter%'
-" let g:ale_emit_conflict_warnings = 0
-let g:ale_fixers = { 
-            \ 'sh' : ['shfmt'], 
+let g:ale_cpp_gcc_options = '-std=c++14 -Wall -IGL'
+let g:ale_cpp_clangtidy_checks = []
+let g:ale_fixers = {
+            \ 'sh' : ['shfmt'],
             \ 'markdown': ['prettier'],
-            \ 'rust': ['rustfmt', 'remove_trailing_lines', 'trim_whitespace'],
             \ 'python': ['add_blank_lines_for_python_control_statements', 'autopep8', 'isort', 'yapf'],
             \ }
 let g:ale_fix_on_save = 1
 let g:ale_proto_protoc_gen_lint_options=''
+let g:ale_sh_shfmt_options = '-i 4'
 
 
 Plug 'tpope/vim-dispatch'
 nnoremap <leader>d :Make<CR>
 nnoremap <leader>c :Copen<CR>
 nnoremap <leader>q :cfirst<CR>
-" nnoremap , @q
-" nnoremap <leader>... :<c-u><c-r><c-r>='let @q = '. string(getreg('q'))<cr><c-f><left>
 
-" Plug 'skywind3000/asyncrun.vim'
-
-
-
-" Plug 'vim-syntastic/syntastic'
-" let g:syntastic_error_symbol = '✘'
-" let g:syntastic_warning_symbol = "▲"
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 0
-" let g:syntastic_check_on_wq = 0
-" let g:syntastic_cpp_check_header = 0
-" let g:syntastic_cpp_checkers = ['cppcheck']
-" let g:syntastic_python_checkers = ['python', 'prospector', 'pep8', 'pycodestyle', 'pyflakes', 'pep257', 'pydocstyle', 'pylint']
-" " let g:syntastic_python_prospector_args = "--strictness veryhigh"
-" let g:syntastic_sh_checkers = ['sh', 'shellcheck', 'bashate', 'checkbashisms']
-" let g:syntastic_zsh_checkers = ['zsh', 'sh/shellcheck']
-" " " let g:syntastic_aggregate_errors = 1
-" nmap <leader>c :SyntasticReset<cr>
-" nmap <leader>h :lclose<cr>
 
 if has('python3')
     " Completion Plugin
@@ -427,59 +324,37 @@ if has('python3')
         Plug 'roxma/vim-hug-neovim-rpc'
     endif
     Plug 'zchee/deoplete-jedi'
-    Plug 'zchee/deoplete-clang'
-    Plug 'sebastianmarkow/deoplete-rust'
     Plug 'zchee/deoplete-go', { 'do': 'make'}
-    " let g:deoplete#enable_at_startup = 1
-    " if !exists('g:deoplete#omni#input_patterns')
-    "     let g:deoplete#omni#input_patterns = {}
-    " endif
-    " " let g:deoplete#disable_auto_complete = 1
+
     if has('autocmd')
         autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
     endif
-    " deoplete tab-complete
-    inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-
-
-    Plug 'zhou13/vim-easyescape'
-    " easy escape
-    let g:easyescape_chars = { 'j': 2 }
-    let g:easyescape_timeout = 150
-    cnoremap jj <ESC>
 endif
 
-function! BuildYCM(info)
-    if a:info.status ==# 'installed' || a:info.force
-        !./install.py --clang-completer --gocode-completer
-    endif
-endfunction
-" Plug 'Valloric/YouCompleteMe', { 'for': ['c', 'cpp'], 'do': function('BuildYCM') }
+
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+" Plugin key-mappings.
+" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+
 
 Plug 'jceb/vim-orgmode'
 
+
 Plug 'solarnz/thrift.vim'
 
-" Plug 'pelodelfuego/vim-swoop'
-
-" Plug 'terryma/vim-multiple-cursors'
-
-Plug 'miyakogi/conoline.vim'
 
 Plug 'nathanaelkane/vim-indent-guides'
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
-let g:ale_sh_shfmt_options = '-i 4'
-
-" Plug 'yggdroot/indentline'
 
 
 Plug 'flazz/vim-colorschemes'
 Plug 'altercation/vim-colors-solarized'
-
-
-" Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
 
 
 Plug 'Shougo/neoinclude.vim'
@@ -491,6 +366,15 @@ endif
 let g:neoinclude#exts.cpp = ['', 'h', 'hpp', 'hxx']
 
 Plug 'fatih/vim-go'
+
+
+Plug 'ludovicchabant/vim-gutentags'
+" let g:gutentags_modules=['ctags', 'cscope']
+
+
+Plug 'google/vim-maktaba'
+Plug 'google/vim-coverage'
+
 call plug#end()
 
 
@@ -515,43 +399,30 @@ let g:deoplete#sources#jedi#server_timeout = 20
 if exists('$CONDA_DEFAULT_ENV')
     let g:deoplete#sources#jedi#python_path = substitute(system('which python'), "\n", '', 'g')
 endif
-call deoplete#custom#set('jedi', 'rank', 1000)
-call deoplete#custom#set('clang', 'rank', 1000)
-call deoplete#custom#set('gocode', 'rank', 1000)
-call deoplete#custom#set('go', 'rank', 1000)
-call deoplete#custom#set('_', 'converters', ['converter_auto_paren'])
+call deoplete#custom#source('LanguageClient',
+            \ 'min_pattern_length',
+            \ 2)
+call deoplete#custom#source('jedi', 'rank', 1000)
+call deoplete#custom#source('gocode', 'rank', 1000)
+call deoplete#custom#source('go', 'rank', 1000)
+call deoplete#custom#source('_', 'converters', ['converter_auto_paren'])
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+inoremap <expr><S-tab> pumvisible() ? "\<c-p>" : "\<S-tab>"
 
-let g:deoplete#sources#rust#racer_binary=$HOME.'/.cargo/bin/racer'
-let g:deoplete#sources#rust#rust_source_path=$HOME.'/git/rustlang/src/'
-let g:deoplete#sources#rust#show_duplicates=1
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+    \ 'cpp': ['~/git/cquery/build/release/bin/cquery', '--log-file=/tmp/cq.log'],
+    \ }
+let g:LanguageClient_loadSettings = 1
+let g:LanguageClient_settingsPath = '/home/jlusby/.dotfiles/nvim/settings.json'
 
-
-" Neomake Post Plug
-" if has('timer')
-"     function! MyOnBattery()
-"         return readfile('/sys/class/power_supply/AC/online') == ['0']
-"     endfunction
-"     if MyOnBattery()
-"         call neomake#configure#automake('w')
-"     else
-"         call neomake#configure#automake('nrw', 1000)
-"     endif
-" endif
-" function! MyOnNeomakeJobFinished() abort
-"     let l:context = g:neomake_hook_context
-"     botright copen
-"     if l:context.jobinfo.exit_code != 0
-"         echom printf('The job for maker %s exited non-zero: %s',
-"                     \ l:context.jobinfo.maker.name, l:context.jobinfo.exit_code)
-"     else
-"         echom printf('The job for maker %s finished successfully.',
-"                     \ l:context.jobinfo.maker.name)
-"     endif
-" endfunction
-" augroup my_neomake_hooks
-"     au!
-"     autocmd User NeomakeJobFinished call MyOnNeomakeJobFinished()
-" augroup END
+nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
+nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
+nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+set completefunc=LanguageClient#complete
 
 command! -bang -nargs=* Ag
             \ call fzf#vim#ag(<q-args>,
@@ -571,13 +442,6 @@ command! -bang -nargs=* Rg
             \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
             \                 <bang>0)
 
-" " Similarly, we can apply it to fzf#vim#grep. To use ripgrep instead of ag:
-" command! -bang -nargs=* Rgg
-"   \ call fzf#vim#grep(
-"   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
-"   \   <bang>0 ? fzf#vim#with_preview('up:60%')
-"   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-"   \   <bang>0)
 command! -bang -nargs=* Rgg
             \ call fzf#vim#grep(
             \   'rg --column --line-number --no-heading --color=always -v '
@@ -635,7 +499,7 @@ function! DeleteHiddenBuffers()
     endfor
     echo 'Closed '.l:closed.' hidden buffers'
 endfunction
-" nnoremap <leader>d :call DeleteHiddenBuffers()<CR>
+nnoremap <leader>bd :call DeleteHiddenBuffers()<CR>
 
 
 " Autocommands
@@ -670,4 +534,24 @@ map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
             \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
             \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
+function! SetupEnvironment()
+  let l:path = expand('%:p')
+  if l:path =~# '/home/jlusby/git/scale-product'
+    compiler gcc
+    set makeprg=rscmake
+  elseif l:path =~# '/home/jlusby/git/notjobless'
+    compiler gcc
+    set makeprg=./make.sh
+  endif
+endfunction
+autocmd! BufReadPost,BufNewFile * call SetupEnvironment()
+
+function! Formatonsave()
+    let l:formatdiff = 1
+    pyf ~/git/clang/tools/clang-format/clang-format.py
+endfunction
+autocmd BufWritePre *.h,*.cc,*.cpp call Formatonsave()
+
+
+set cursorline
 colorscheme janecolors

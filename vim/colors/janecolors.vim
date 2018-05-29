@@ -57,7 +57,7 @@ hi PreProc term=underline ctermfg=5 guifg=Magenta3
 hi Type term=underline ctermfg=2 gui=bold guifg=SeaGreen
 hi Ignore cterm=bold ctermfg=7 guifg=bg
 hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
-hi Todo term=standout ctermfg=0 ctermbg=3 guifg=Blue guibg=Yellow
+hi Todo term=standout ctermfg=3 ctermbg=0 guifg=Blue guibg=Yellow cterm=reverse
 
 let g:indent_guides_auto_colors = 0
 hi IndentGuidesEven ctermbg=237
@@ -83,3 +83,4 @@ highlight link SignifySignChange          DiffChange
 highlight link SignifySignDelete          DiffDelete
 highlight link SignifySignChangeDelete    SignifySignChange
 highlight link SignifySignDeleteFirstLine SignifySignDelete
+hi CursorLine term=NONE cterm=NONE guibg=Grey40 ctermbg=235
