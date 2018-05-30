@@ -390,24 +390,26 @@ if has('autocmd')
 endif
 
 " Use deoplete.
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#auto_complete_delay = 10
-let g:deoplete#auto_completion_start_length = 1
-let g:deoplete#skip_chars = ['(', ')']
-let g:deoplete#sources#jedi#show_docstring = 1
-let g:deoplete#sources#jedi#server_timeout = 20
-if exists('$CONDA_DEFAULT_ENV')
-    let g:deoplete#sources#jedi#python_path = substitute(system('which python'), "\n", '', 'g')
+if has('python3')
+    let g:deoplete#enable_at_startup = 1
+    let g:deoplete#auto_complete_delay = 10
+    let g:deoplete#auto_completion_start_length = 1
+    let g:deoplete#skip_chars = ['(', ')']
+    let g:deoplete#sources#jedi#show_docstring = 1
+    let g:deoplete#sources#jedi#server_timeout = 20
+    if exists('$CONDA_DEFAULT_ENV')
+        let g:deoplete#sources#jedi#python_path = substitute(system('which python'), "\n", '', 'g')
+    endif
+    call deoplete#custom#source('LanguageClient',
+                \ 'min_pattern_length',
+                \ 2)
+    call deoplete#custom#source('jedi', 'rank', 1000)
+    call deoplete#custom#source('gocode', 'rank', 1000)
+    call deoplete#custom#source('go', 'rank', 1000)
+    call deoplete#custom#source('_', 'converters', ['converter_auto_paren'])
+    inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+    inoremap <expr><S-tab> pumvisible() ? "\<c-p>" : "\<S-tab>"
 endif
-call deoplete#custom#source('LanguageClient',
-            \ 'min_pattern_length',
-            \ 2)
-call deoplete#custom#source('jedi', 'rank', 1000)
-call deoplete#custom#source('gocode', 'rank', 1000)
-call deoplete#custom#source('go', 'rank', 1000)
-call deoplete#custom#source('_', 'converters', ['converter_auto_paren'])
-inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr><S-tab> pumvisible() ? "\<c-p>" : "\<S-tab>"
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
