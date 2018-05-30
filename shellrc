@@ -6,6 +6,7 @@ export HISTFILE=~/.history
 export HISTSIZE=10000
 
 export PATH="$HOME/.ccache/bin:$PATH"
+export PATH="$HOME/Scripts:$PATH"
 
 if hash nvim 2>/dev/null; then
     export VISUAL="nvim"
@@ -17,7 +18,6 @@ fi
 export EDITOR=$VISUAL
 
 if [ "$VISUAL" = "nvim" ]; then
-    # export NVIM_LISTEN_ADDRESS=/tmp/nvimsocket
     export VIMCONFIG=~/.config/nvim
     export VIMDATA=~/.local/share/nvim
 else

@@ -279,18 +279,24 @@ let g:rustfmt_fail_silently = 1
 Plug 'cespare/vim-toml'
 
 
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
-let g:LanguageClient_loggingLevel = 'DEBUG'
+if has('nvim')
+	Plug 'autozimu/LanguageClient-neovim', {
+	    \ 'branch': 'next',
+	    \ 'do': 'bash install.sh',
+	    \ }
+	let g:LanguageClient_loggingLevel = 'DEBUG'
 
-highlight link ALEErrorSign error
-highlight link ALEWarningSign todo
-highlight link ALEInfoSign ALEWarningSign
-highlight link ALEError SpellBad
-highlight link ALEWarning SpellCap
-highlight link ALEInfo ALEWarning
+    highlight link ALEErrorSign error
+    highlight link ALEWarningSign todo
+    highlight link ALEInfoSign ALEWarningSign
+    highlight link ALEError SpellBad
+    highlight link ALEWarning SpellCap
+    highlight link ALEInfo ALEWarning
+
+
+    Plug 'ludovicchabant/vim-gutentags'
+    " let g:gutentags_modules=['ctags', 'cscope']
+endif
 
 
 Plug 'w0rp/ale'
@@ -366,10 +372,6 @@ endif
 let g:neoinclude#exts.cpp = ['', 'h', 'hpp', 'hxx']
 
 Plug 'fatih/vim-go'
-
-
-Plug 'ludovicchabant/vim-gutentags'
-" let g:gutentags_modules=['ctags', 'cscope']
 
 
 Plug 'google/vim-maktaba'
