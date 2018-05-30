@@ -1,26 +1,11 @@
 #! /bin/sh
 
-# echo "Sourcing .profile"
-
 export PROFILE_SOURCED="true"
 
 export HISTFILE=~/.history
 export HISTSIZE=10000
 
-# if hash "xset" 2> /dev/null; then
-#     xset +fp /usr/share/fonts/local
-#     xset fp rehash
-# fi
-
-if [ -e "$BSPWM_TREE" ]; then
-    bspc restore -T "$BSPWM_TREE" -H "$BSPWM_HISTORY" -S "$BSPWM_STACK"
-    rm "$BSPWM_TREE" "$BSPWM_HISTORY" "$BSPWM_STACK"
-fi
-
-export PATH="$HOME/.ccache/bin:$HOME/bin:/bin:/sbin:$PATH"
-export PATH="$HOME/Scripts:$HOME/seahawk/bin:$PATH:/opt/java/bin:$HOME/.cargo/bin:$HOME/git/rouge/bin:$HOME/go/bin"
-export PATH="$PATH:$HOME/Downloads/redpen-distribution-1.10.2-SNAPSHOT/bin/"
-export PATH="$PATH:$HOME/git/arcanist/bin/"
+export PATH="$HOME/.ccache/bin:$PATH"
 
 if hash nvim 2>/dev/null; then
     export VISUAL="nvim"
@@ -40,7 +25,6 @@ else
     export VIMDATA=~/.vim
 fi
 
-# export LC_ALL="C"
 # colorful man pages
 export LESS_TERMCAP_mb=$'\E[31m'
 export LESS_TERMCAP_md=$'\E[31m'
@@ -54,25 +38,9 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 if hash keychain >/dev/null 2>&1; then
     eval "$(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa >/dev/null 2>&1)"
-    # else
-    #     ssh-add ~/.ssh/build_rsa
-    #     ssh-add ~/.ssh/build_dsa
-    #     ssh-add ~/.ssh/id_rsa
-    #     ssh-add ~/.ssh/id_ed25519
 fi
 
-# if [ -f "${HOME}/.gpg-agent-info" ]; then
-#     . "${HOME}/.gpg-agent-info"
-#     export GPG_AGENT_INFO
-#     export SSH_AUTH_SOCK
-# fi
-
-# SSH_AUTH_SOCK=`ss -xl | grep -o '/run/user/1000/keyring-.*/ssh'`
-# [ -z "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK
-
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
-#use solarized ls colors
-# eval $(dircolors ~/git/dircolors-solarized/dircolors.ansi-dark)
 
 FZF_DIR="$HOME/.fzf/bin/"
 if [ -d $FZF_DIR ] || hash fzf; then

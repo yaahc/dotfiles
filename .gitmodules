@@ -10,3 +10,6 @@
 [submodule "packages/tmux"]
 	path = packages/tmux
 	url = https://github.com/tmux/tmux.git
+[submodule "dotbot"]
+	path = dotbot
+	url = https://github.com/anishathalye/dotbot
