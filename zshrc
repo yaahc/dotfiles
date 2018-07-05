@@ -132,6 +132,10 @@ autoload -U colors && colors
 autoload -U promptinit
 promptinit
 
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd v edit-command-line
+
 # Gets the difference between the local and remote branches
 function git_remote_status() {
     local remote ahead behind git_remote_status git_remote_status_detailed
@@ -282,3 +286,5 @@ fi
 # if [ "$TERM" != "screen" ] && [ "$TERM" != "screen-256color" ]; then
 #     tmux attach -t Dev
 # fi
+
+eval $(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa 2> /dev/null)

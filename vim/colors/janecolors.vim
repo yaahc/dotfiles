@@ -84,3 +84,4 @@ highlight link SignifySignDelete          DiffDelete
 highlight link SignifySignChangeDelete    SignifySignChange
 highlight link SignifySignDeleteFirstLine SignifySignDelete
 hi CursorLine term=NONE cterm=NONE guibg=Grey40 ctermbg=235
+highlight link ALEInfoSign ALEInfo

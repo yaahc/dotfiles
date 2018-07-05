@@ -4,8 +4,6 @@
 [core]
 	excludesfile = /home/jlusby/.gitignore_global
 	editor = vim
-[merge]
-	tool = meld
 [color]
 	ui = true
 [alias]
@@ -24,3 +22,9 @@
 	default = matching
 [rebase]
 	autosquash = true
+[merge]
+    tool = vimdiff
+[mergetool]
+    prompt = false
+[mergetool "vimdiff"]
+    cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'

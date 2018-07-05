@@ -208,7 +208,9 @@ nnoremap <leader>f~ :Files ~/<CR>
 " nnoremap <leader>t :Tags<CR>
 nnoremap <leader>* :execute "Rg! ".expand("<cword>").""<CR>
 nnoremap <leader>fA :Rg!<CR>
-nnoremap <leader>fa :Rggg<CR>
+nnoremap <leader>fa :Rg<CR>
+nnoremap <leader>fd :Rggg<CR>
+nnoremap <leader>fD :Rggg<CR>
 nnoremap <leader>ft :call fzf#vim#tags(expand('<cword>')." ", {'options': '--exact --select-1 --exit-0'})<CR>
 nnoremap <leader>fT :Tags<CR>
 
@@ -271,9 +273,8 @@ nmap <silent> <leader>D <Plug>(pydocstring)
 
 
 Plug 'rust-lang/rust.vim'
-let g:rustfmt_autosave = 1
-let g:rustfmt_command = 'rustfmt +nightly'
-let g:rustfmt_fail_silently = 1
+" let g:rustfmt_autosave = 1
+" let g:rustfmt_command = 'rustfmt +nightly'
 
 
 Plug 'cespare/vim-toml'
@@ -300,7 +301,7 @@ endif
 
 
 Plug 'w0rp/ale'
-let g:ale_linters = { 'cpp' : ['rscmake', 'cppcheck', 'clangtidy'], 'rust' : ['cargo'] }
+let g:ale_linters = { 'cpp' : ['rscmake', 'cppcheck', 'clangtidy', 'gcovcheck'], 'rust' : [] }
 let g:ale_echo_msg_format = '%code: %%s %linter%'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -IGL'
 let g:ale_cpp_clangtidy_checks = []
@@ -308,10 +309,13 @@ let g:ale_fixers = {
             \ 'sh' : ['shfmt'],
             \ 'markdown': ['prettier'],
             \ 'python': ['add_blank_lines_for_python_control_statements', 'autopep8', 'isort', 'yapf'],
+            \ 'rust' : ['rustfmt'],
             \ }
 let g:ale_fix_on_save = 1
 let g:ale_proto_protoc_gen_lint_options=''
 let g:ale_sh_shfmt_options = '-i 4'
+let g:ale_sign_info = 'X'
+" let g:ale_cpp_gcovcheck_executable='covrun.sh'
 
 
 Plug 'tpope/vim-dispatch'
@@ -338,14 +342,25 @@ if has('python3')
 endif
 
 
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
-" Plugin key-mappings.
-" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-k>     <Plug>(neosnippet_expand_target)
+" Plug 'Shougo/neosnippet.vim'
+" Plug 'Shougo/neosnippet-snippets'
+" " Plugin key-mappings.
+" " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+" imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+" smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+" xmap <C-k>     <Plug>(neosnippet_expand_target)
+" let g:neosnippet#enable_snipmate_compatibility = 1
 
+
+Plug 'sirver/ultisnips'
+Plug 'honza/vim-snippets'
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger='<C-j>'
+let g:UltiSnipsListSnippets = '<c-u>'
+let g:UltiSnipsJumpForwardTrigger='<c-]>'
+let g:UltiSnipsJumpBackwardTrigger='<c-[>'
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
 
 
 Plug 'jceb/vim-orgmode'
@@ -363,6 +378,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'altercation/vim-colors-solarized'
 
 
+
 Plug 'Shougo/neoinclude.vim'
 let g:neoinclude#paths = {}
 let g:neoinclude#paths.cpp = '~/git/scale-product/daemons/scribed'
@@ -376,6 +392,19 @@ Plug 'fatih/vim-go'
 
 Plug 'google/vim-maktaba'
 Plug 'google/vim-coverage'
+
+
+Plug 'othree/yajs.vim'
+Plug 'othree/es.next.syntax.vim'
+Plug 'gavocanov/vim-js-indent'
+Plug 'mxw/vim-jsx'
+
+
+Plug 'm42e/vim-gcov-marker'
+let g:gcov_marker_covered    = ''
+let g:gcov_marker_uncovered  = 'X'
+let g:gcov_marker_path       = '/home/jlusby/gcov/'
+let g:gcov_marker_auto_lopen = 0
 
 call plug#end()
 
@@ -406,6 +435,7 @@ if has('python3')
                 \ 'min_pattern_length',
                 \ 2)
     call deoplete#custom#source('jedi', 'rank', 1000)
+    call deoplete#custom#source('ultisnips', 'rank', 1001)
     call deoplete#custom#source('gocode', 'rank', 1000)
     call deoplete#custom#source('go', 'rank', 1000)
     call deoplete#custom#source('_', 'converters', ['converter_auto_paren'])
@@ -415,8 +445,9 @@ endif
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-    \ 'cpp': ['~/git/cquery/build/release/bin/cquery', '--log-file=/tmp/cq.log'],
     \ }
+    " \ 'cpp': ['~/git/cquery/build/release/bin/cquery', '--log-file=/tmp/cq.log'],
+
 let g:LanguageClient_loadSettings = 1
 let g:LanguageClient_settingsPath = '/home/jlusby/.dotfiles/nvim/settings.json'
 
@@ -428,31 +459,54 @@ nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
 nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 set completefunc=LanguageClient#complete
 
-command! -bang -nargs=* Ag
-            \ call fzf#vim#ag(<q-args>,
-            \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-            \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-            \                 <bang>0)
+" command! -bang -nargs=* Ag
+"             \ call fzf#vim#ag(<q-args>,
+"             \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+"             \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+"             \                 <bang>0)
 
-command! -bang -nargs=* Rggg
-            \ call fzf#vim#rg(<q-args>,
-            \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
-            \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
-            \                 <bang>0)
+" command! -bang -nargs=* Rggg
+"             \ call fzf#vim#ag(<q-args>,
+"             \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+"             \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
+"             \                 <bang>0)
+
+" command! -bang -nargs=* Rg
+"             \ call fzf#vim#ag(<q-args>,
+"             \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+"             \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+"             \                 <bang>0)
+
+" command! -bang -nargs=* Rg
+"             \ call fzf#vim#grep(
+"             \   'rg --column --line-number --no-heading --color=never -v '
+"             \ . <q-args>, 1,
+"             \   <bang>0 ? fzf#vim#with_preview('up:60%')
+"             \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+"             \   <bang>0)
+
+" command! -bang -nargs=* Rggg
+"             \ call fzf#vim#grep(
+"             \   'rg --column --line-number --no-heading --color=never -v '
+"             \ . <q-args>, 1,
+"             \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+"             \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
+"             \   <bang>0)
 
 command! -bang -nargs=* Rg
-            \ call fzf#vim#rg(<q-args>,
-            \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-            \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-            \                 <bang>0)
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%', '?'),
+  \   <bang>0)
 
-command! -bang -nargs=* Rgg
-            \ call fzf#vim#grep(
-            \   'rg --column --line-number --no-heading --color=always -v '
-            \ . <q-args>, 1,
-            \   <bang>0 ? fzf#vim#with_preview('up:60%')
-            \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-            \   <bang>0)
+command! -bang -nargs=* Rggg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+  \           : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
+  \   <bang>0)
+
 
 " Likewise, Files command with preview window
 command! -bang -nargs=? -complete=dir Files
@@ -546,6 +600,9 @@ function! SetupEnvironment()
   elseif l:path =~# '/home/jlusby/git/notjobless'
     compiler gcc
     set makeprg=./make.sh
+  elseif l:path =~# '/home/jlusby/git/carowo'
+    compiler gcc
+    set makeprg=make\ -C\ build/
   endif
 endfunction
 autocmd! BufReadPost,BufNewFile * call SetupEnvironment()
@@ -556,6 +613,42 @@ function! Formatonsave()
 endfunction
 autocmd BufWritePre *.h,*.cc,*.cpp call Formatonsave()
 
+
+function! ExpandLspSnippet()
+    call UltiSnips#ExpandSnippetOrJump()
+    if !pumvisible() || empty(v:completed_item)
+        return ''
+    endif
+
+    " only expand Lsp if UltiSnips#ExpandSnippetOrJump not effect.
+    let l:value = v:completed_item['word']
+    let l:matched = len(l:value)
+    if l:matched <= 0
+        return ''
+    endif
+
+    " remove inserted chars before expand snippet
+    if col('.') == col('$')
+        let l:matched -= 1
+        exec 'normal! ' . l:matched . 'Xx'
+    else
+        exec 'normal! ' . l:matched . 'X'
+    endif
+
+    if col('.') == col('$') - 1
+        " move to $ if at the end of line.
+        call cursor(line('.'), col('$'))
+    endif
+
+    " expand snippet now.
+    call UltiSnips#Anon(l:value)
+    return ''
+endfunction
+
+imap <C-k> <C-R>=ExpandLspSnippet()<CR>
+
+nnoremap <leader>G :cexpr system('gcovcheck --vimgrep ' . shellescape(expand('%:p')))<CR>
+nnoremap <leader>C :Dispatch covrun %:p<CR>
 
 set cursorline
 colorscheme janecolors

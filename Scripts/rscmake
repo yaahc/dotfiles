@@ -8,43 +8,7 @@ else
     exit 1
 fi
 
-# translates buildvm paths to local paths. Correct _most_ of the time, but
-# occasionally fooled.
-#tee /tmp/lastbuild;
-
-# I'm gonna try just symlinking /local/scale-product and see how that goes
-# function convertToPwd {
-#     local THEPWD="$HOME/git/scale-product"
-#     { cat   <(cd "$THEPWD" && find "." | egrep '(cpp|h)$') \
-#             <(echo SWITCHOVER);
-#             tee /dev/null;
-#     } | tee /tmp/lastbuild | gawk '
-#     BEGIN { sw=0; FS="/"; }
-#     /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
-#     sw == 0 { m[$NF] = $0; }
-
-#     sw == 1 { printed = 0 }
-#     /:[0-9]+:/ && sw == 1 {
-
-#         tmp=$0;
-#         if (match($1, /\/([^\/]+)$/, r) != 0) $1 = r[1];
-
-#         for (i in m) {
-#             if ($0 ~ i) {
-#                 sub(i, m[i], tmp);
-#                 print tmp;
-#                 printed = 1;
-#             }
-#         }
-#     }
-#     sw == 1 && printed == 0 {
-#         print $0;
-#     }
-#     '
-# }
-
 BUILDLOG="/tmp/rscmake.log"
-# PIDFILE="/tmp/rscmake.pid"
 TARGET="all"
 DIRNAME="$GIT_ROOT"
 
@@ -94,96 +58,43 @@ function convertToPwd() {
     }
     '
 }
-
-function makeIsRunning() {
-    ssh buildvm pgrep make >/dev/null
-    return $?
-}
-
-function waitForRunningMakes() {
-    while true; do
-        if makeIsRunning; then
-            echo "Waiting for active make to finish"
-            sleep 0.5
-        else
-            break
-        fi
-    done
-}
-
 cd "$DIRNAME" || exit 1
 
 if [ "$TARGET" == "all" ]; then
-    LAST_FILE=""
-    for file in $(git ls-files --exclude-standard --others --modified); do
-        if [ "x$LAST_FILE" = "x" ]; then
-            LAST_FILE=$(dirname "$file")
-        else
-            LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
-        fi
-    done
 
-    if [ ! -f "$LAST_FILE" ]; then
-        if [ ! -d "$LAST_FILE" ]; then
-            LAST_FILE=$(dirname "$LAST_FILE")
-        fi
-        cd "$LAST_FILE" || exit 1
-    fi
+    {
+        flock -x 3 || exit 1
+        LAST_FILE=""
+        for file in $(git ls-files --exclude-standard --others --modified); do
+            if [ "x$LAST_FILE" = "x" ]; then
+                LAST_FILE=$(dirname "$file")
+            else
+                LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+            fi
+        done
 
-    waitForRunningMakes
-    scmake 2>&1 | convertToPwd
+        if [ ! -f "$LAST_FILE" ]; then
+            if [ ! -d "$LAST_FILE" ]; then
+                LAST_FILE=$(dirname "$LAST_FILE")
+            fi
+            cd "$LAST_FILE" || exit 1
+        fi
+    } 3>/tmp/scgsync.lock
+
+    {
+        echo "Attmpting exclusive acquire on rscmake lock"
+        flock -x 4 || exit 1
+        echo "Acquired lock"
+        scmake 2>&1 | convertToPwd
+    } 4>/tmp/rscmake.lock
 else
-    time scmake "$TARGET" 2>&1 | convertToPwd
+    {
+        echo "Attmpting shared acquire on rscmake lock"
+        flock -s 4 || exit 1
+        echo "Acquired lock"
+        time scmake "$TARGET" 2>&1 | convertToPwd
+    } 4>/tmp/rscmake.lock
+
 fi
 
 exit $?
-
-# function cleanup() {
-#     if [ -f $BUILDLOG ]; then
-#         for pid in $(lsof -t $BUILDLOG); do
-#             kill -9 "$pid"
-#         done
-#         rm -f $BUILDLOG
-#         rm -r $PIDFILE
-#     fi
-# }
-
-# if [ -f $PIDFILE ]; then
-#     pid=$(cat $PIDFILE)
-#     if [ "x$pid" != "x" ] && [ -e "/proc/$pid" ]; then
-#         tail -f -n +1 $BUILDLOG | convertToPwd
-#         exit 0
-#     fi
-# fi
-
-# cleanup
-
-# echo $$ >$PIDFILE
-
-# cd ~/git/scale-product || exit 1
-
-# LAST_FILE=""
-# for file in $(git ls-files --exclude-standard --others --modified); do
-#     if [ "x$LAST_FILE" = "x" ]; then
-#         LAST_FILE=$(dirname "$file")
-#     else
-#         LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
-#     fi
-# done
-
-# if [ ! -f "$LAST_FILE" ]; then
-#     if [ ! -d "$LAST_FILE" ]; then
-#         LAST_FILE=$(dirname "$LAST_FILE")
-#     fi
-#     cd "$LAST_FILE" || exit 1
-# fi
-# if [ -f "$sc_build_root" ]; then
-#     # $HOME/Scripts/fscmake $@ | $HOME/Scripts/fenagle_filenames.py $FILES
-#     # shellcheck source=/home/jlusby/.scalerc
-#     . "$sc_build_root"
-#     scmake 2>&1 | convertToPwd
-#     cleanup
-#     exit $?
-# fi
-
-# exit 1

@@ -1,4 +1,27 @@
 #! /bin/bash
+# scalerc configuration variables
+# OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
+export SCREWI_USER="jlusby"
+BUILDVM_HOSTNAME="buildvm"
+export SRC_ROOT="/local/scale-product" # on buildvm
+COV_DIR="/local/cov"
+GIT_ROOT="$HOME/git/scale-product" # on dev pc
+AUTOMATED_ROOT="/build/automated"
+# SOURCE_FILES='source ~/.shellrc; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc; source /etc/profile.d/ccache.sh'
+# SOURCE_FILES='source ~/.scalerc'
+DOORBELL='tput bel; sleep 1; tput bel'
+TIMEOUT=10
+END_CMD="$DOORBELL"
+# END_CMD="exec bash"
+# END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
+LOG_CMD="less -RN"
+# LOG_CMD="$VISUAL"
+
+# helpful aliases
+alias scd="cd $SRC_ROOT"
+alias tcd="cd ./$TARGETDIR"
+SCQAD_DIR="$SRC_ROOT/daemons/scqad"
+TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null | sed 's/\>/-01.lab.local/g' | uniq"
 
 # Use TARGETDIR with care. This will cause your objs files to live in the same
 # directory regardless of your branch, which may cause weird dependency
@@ -26,39 +49,26 @@ export ENABLE_BUILD_TIMER=1
 export NOCHECKSUMTEST=1
 # unset NOCHECKSUMTEST
 
-export V=1
+export V=2
 
 export NORECURSION=1
 unset NORECURSION
 
-export CCACHE_PREFIX="bear -a -o ~/compile_commands.json"
-unset CCACHE_PREFIX
+# export GCOV_PREFIX_STRIP=1
+# export GCOV_PREFIX="$SRC_ROOT"
+
+# export CCACHE_PREFIX="bear -a -o ~/compile_commands.json"
+# unset CCACHE_PREFIX
+
+export CCACHE_LOGFILE=/tmp/ccache.debug
+# unset CCACHE_LOGFILE
+
+# export CCACHE_RECACHE=1
 
 export GTEST_COLOR=1
 
-# scalerc configuration variables
-# OPTIONAL BUILD_ROOT forces build to run make from $BUILD_ROOT
-SCREWI_USER="jlusby"
-BUILDVM_HOSTNAME="buildvm"
-SRC_ROOT="/local/scale-product" # on buildvm
-COV_DIR="/local/cov"
-GIT_ROOT="$HOME/git/scale-product" # on dev pc
-AUTOMATED_ROOT="/build/automated"
-# SOURCE_FILES='source ~/.shellrc; source ~/.scalerc; source ~/.bash_profile; source ~/.bashrc; source ~/.aliasrc; source /etc/profile.d/ccache.sh'
-SOURCE_FILES='source ~/.scalerc'
-DOORBELL='tput bel; sleep 1; tput bel'
-TIMEOUT=10
-END_CMD="$DOORBELL"
-# END_CMD="exec bash"
-# END_CMD="echo \"Waiting $TIMEOUT seconds before terminating, press enter to exit early\"; read -t $TIMEOUT"
-LOG_CMD="less -RN"
-# LOG_CMD="$VISUAL"
-
-# helpful aliases
-alias scd="cd $SRC_ROOT"
-alias tcd="cd ./$TARGETDIR"
-SCQAD_DIR="$SRC_ROOT/daemons/scqad"
-TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null | sed 's/\>/-01.lab.local/g' | uniq"
+export NO_UI=1
+export GIT_CHANGED_BASE="origin/sb_drsd"
 
 run_gdb() {
     gdb --args "$@"
@@ -89,11 +99,12 @@ get_buildid() {
 }
 
 jsh() {
-    jsh buildvm
+    jsh "$BUILDVM_HOSTNAME"
 }
 
+
 run_screen() {
-    cmd="$SOURCE_FILES; BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD;"
+    cmd="BUILD_ROOT=\"$BUILD_ROOT\" $@; $END_CMD;"
     echo $cmd
     # screen -L -x -R -S "$1" -q bash -c "$cmd"
     case $1 in
@@ -109,16 +120,17 @@ run_screen() {
 }
 
 maybe_run_remote() {
-    if hostname | grep -q "buildvm"; then
+    if hostname | grep -q "$BUILDVM_HOSTNAME"; then
         run_screen "$@"
+        ret=$?
     else
         LOCAL_BUILD_ROOT=$BUILD_ROOT
         if is_1_in_2 $PWD $GIT_ROOT; then
             LOCAL_BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
-        scrsync-internal
-        # ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" run_screen \"$@\""
-        ssh -t $BUILDVM_HOSTNAME "$SOURCE_FILES; BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" $@"
+        scgsync-internal
+        # ssh -t $BUILDVM_HOSTNAME "BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" run_screen \"$@\""
+        ssh -t $BUILDVM_HOSTNAME "BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" $*"
         ret=$?
         unset LOCAL_BUILD_ROOT
     fi
@@ -127,7 +139,7 @@ maybe_run_remote() {
 }
 
 run_case() {
-    echo "running $0 $@"
+    echo "running $0 $*"
     maybe_run_remote local_run_case "$@"
     return $?
 }
@@ -236,13 +248,14 @@ local_repo_clean() {
 }
 
 scrsync() (
-    repo_clean
-    scrsync-internal
+    scgsync-internal
+    # repo_clean
+    # scrsync-internal
 )
 
 # copy local changes to buildvm source copy
 scrsync-internal() (
-    cd "$GIT_ROOT" || exit 1
+    cd "$GIT_ROOT" || return 1
 
     scp ~/.scalerc $BUILDVM_HOSTNAME:~/
 
@@ -258,8 +271,36 @@ scrsync-internal() (
     return $?
 )
 
+scgsync-internal() (
+    cd "$GIT_ROOT" || return 1
+
+    {
+        flock -x 3 || return 1
+        scp ~/.scalerc $BUILDVM_HOSTNAME:~/
+
+        git add .
+        git commit -m "temp"
+        commited=$?
+
+        git push -f $BUILDVM_HOSTNAME HEAD:laptop-working && \
+
+        if [ $commited -eq 0 ]; then
+            git reset --soft HEAD~ && \
+            git reset HEAD .
+        fi
+    } 3>/tmp/scgsync.lock
+)
+
+local_resize_fs()
+{
+    # requires root
+    pvcreate "/dev/$1"
+    vgextent VolGroup "/dev/$1"
+    lvresize -l +100%FREE --resizefs /dev/VolGroup/lv_root
+}
+
 scrsync-hard() (
-    cd "$GIT_ROOT" || exit 1
+    cd "$GIT_ROOT" || return 1
 
     scp ~/.scalerc $BUILDVM_HOSTNAME:~/
 
@@ -277,6 +318,7 @@ scrsync-hard() (
 
 # Wrapper around make that handles scale specific environment variables
 local_scmake() {
+    printenv
     # If were not in a subdirectory of the project root then run command from
     # project root
     if [ "x$BUILD_ROOT" != "x" ]; then
@@ -367,7 +409,7 @@ setup_debug() {
     set -x
     TEST_BEDS="$(testbeds)"
     scp -v ~/.scalerc root@${TEST_BEDS}:.
-    ssh -t root@${TEST_BEDS} "$SOURCE_FILES; local_setup_debug \"$2\" \"$3\""
+    ssh -t root@${TEST_BEDS} "local_setup_debug \"$2\" \"$3\""
 }
 
 local_copy_newest_objects() {
@@ -388,7 +430,7 @@ local_compactrun() {
     while ! [ -z "$1" ]; do
         (
             set -o pipefail
-            "$1" |& awk 'BEGIN { p[0]="|";p[1]="-" } { printf "\r"p[c % 2]; ++c; } /^\[/ { printf "\r" ; print $0 ; c=0 }' || exit 1
+            "$1" |& awk 'BEGIN { p[0]="|";p[1]="-" } { printf "\r"p[c % 2]; ++c; } /^\[/ { printf "\r" ; print $0 ; c=0 }' || return 1
         ) ||
             return 1
         shift
@@ -439,24 +481,40 @@ scunit() {
 
     for var in $(eval "$UNIT_TESTS"); do
         echo "$var blah"
-        run_unit "$var"
+        run_unit "$var" || return 1
     done
 }
 
+local_gen_gcov() {
+    find $SRC_ROOT -name "*$1*.cpp" -exec dirname {} \; | sort -u | grep -v $1unittest |grep -v onboxtest | grep -v mockobjects | grep -v gen-cpp | grep -v gen_srcs | parallel "cd {}; echo \"generating coverage for {}\"; gcov -o $(targetdir) *.cpp >/dev/null 2>&1 && mv *$1*.gcov /local/gcov 2>/dev/null"
+}
+
+pull_gcov() {
+    rsync -azh -e ssh $BUILDVM_HOSTNAME:/local/gcov/ ~/gcov
+}
+
 scunit-coverage() {
-    scmake &&
-        scmake runtest &&
-        maybe_run_remote local_save_report "runtest-coverage"
+    scmake && scmake pre-runtest && scmake runtest-internal
+
+    maybe_run_remote local_gen_gcov
+    pull_gcov
+    # scmake post-runtest
+    # maybe_run_remote local_save_report "runtest-coverage"
 }
 
 run_unit() {
     UNIT_TEST_NAME="$1"
+    scmake pre-runtest
     maybe_run_remote local_run_unit "$UNIT_TEST_NAME"
-    rm -rf "$UNIT_TEST_NAME-coverage"
-    maybe_run_remote local_save_report "$UNIT_TEST_NAME-coverage"
+    RET=$?
+    pull_gcov
+    return $RET
+    # rm -rf "$UNIT_TEST_NAME-coverage"
+    # maybe_run_remote local_save_report "$UNIT_TEST_NAME-coverage"
 }
 
 local_save_report() {
+    # gcov_cmd="gcov $(targetdir)/*.gcda"
     cd "$SRC_ROOT/generated/coverage/unittest" || return 1
     GIT_SHA=$(git rev-parse --short HEAD)
     DEST_DIR="$COV_DIR/revs/$1-$GIT_SHA/"
@@ -470,15 +528,16 @@ local_save_report() {
 }
 
 local_run_unit() {
+    # scmake pre-runtest
     UNIT_TEST_NAME="$1"
     UNIT_TEST_PATHS="find \"$SRC_ROOT\" -type f -wholename \"*/$(targetdir)/*\" -name \"*$UNIT_TEST_NAME*\" -name \"*UnitTest\""
-    local_scmake pre-runtest
     for var in $(eval "$UNIT_TEST_PATHS"); do
         if [ -f "$var" ]; then
-            $var || exit 1
+            $var || return 1
         fi
     done
-    local_scmake post-runtest
+    echo "SUCCESS"
+    local_gen_gcov "$@"
 }
 
 test_unit_determinism() {
@@ -492,7 +551,7 @@ test_unit_determinism() {
             local_scmake pre-runtest
             $UNIT_TEST_PATH && (
                 mkdir -p $RUNPATH
-                cd $UNIT_PATH || exit 1
+                cd $UNIT_PATH || return 1
                 gcov "$(find . -type f -name "*.gcda")"
                 mv ./*.gcov $RUNPATH
             )
@@ -501,7 +560,7 @@ test_unit_determinism() {
 }
 
 local_repo_rinse() (
-    cd $SRC_ROOT || exit 1
+    cd $SRC_ROOT || return 1
     git clean -xfdf
     git submodule foreach --recursive git clean -xfdf
     git reset --hard
@@ -532,13 +591,16 @@ PHAB_PROJECT="drsd"
 # scwip?
 scpush() {
     # arc diff HEAD~ --reviewers="#$PHAB_PROJECT" --plan-changes
-    git push origin HEAD:refs/for/$BRANCH
+    git push origin HEAD:refs/for/$BRANCH/build_type=opt
 }
 
 scplus1() {
     # arc diff HEAD~ --reviewers="#$PHAB_PROJECT"
-    git push origin HEAD:refs/for/$BRANCH/build_type=debug
-    changeid=$(git show -s | grep "Change-Id" | awk '{print $2}')
-    gerrit_revision=$(ssh -p 29418 gerrit.lab.local gerrit query --current-patch-set "$changeid" | grep -A2 currentPatchSet | grep "revision" | awk '{print $2}')
-    ssh -p 29418 gerrit.lab.local gerrit review --code-review +1 "$gerrit_revision"
+    git push origin HEAD:refs/for/$BRANCH/build_type=debug 2>&1 | tee /tmp/gerrit.log
+    # changeid=$(git show -s | grep "Change-Id" | awk '{print $2}')
+    for changeid in $(grep http /tmp/gerrit.log | awk '{print $2}' | awk -F'/' '{print $4}'); do
+        echo "$changeid"
+        gerrit_revision=$(ssh -p 29418 gerrit.lab.local gerrit query --current-patch-set "$changeid" | grep -A2 currentPatchSet | grep "revision" | awk '{print $2}')
+        ssh -p 29418 gerrit.lab.local gerrit review --code-review +1 "$gerrit_revision"
+    done
 }
