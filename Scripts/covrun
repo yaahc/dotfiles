@@ -1,64 +1,22 @@
 #! /bin/bash
 
-. /home/jlusby/.scalerc
+# shellcheck disable=SC1090
+. ~/.scalerc
 
-FILE_BASE=$(basename "$1")
+if [ "x" == "x$1" ]; then
+    FULL_PATH="$(find "$GIT_ROOT" -type f -name "*UnitTest.cpp" | sort -u | fzf --select-1 --exit-0 --multi)"
+else
+    FULL_PATH=$1
+fi
+
+FILE_BASE=$(basename "$FULL_PATH")
 without_ext=${FILE_BASE%.*}
 common=${without_ext%%UnitTest}
 
-should_rerun_unit() {
-    ssh -q -t buildvm "
-    UNIT_PATH=\$(find $SRC_ROOT -type f -name \"${common}UnitTest\" -wholename \"*/$(targetdir)/*\");
-    cd /local/gcov; 
-    for file in $common.cpp.gcov $common.h.gcov ${common}UnitTest.cpp.gcov; do 
-        if [ \"\$UNIT_PATH\" -nt \"\$file\" ]; then 
-            exit 0; 
-        fi
-    done;
-    exit 1"
-}
-
-MBUILDLOG="/tmp/covrun.log"
-
-function convertToPwd() {
-    local THEPWD="$HOME/git/scale-product"
-    {
-        cat <(cd "$THEPWD" && find "$THEPWD" | grep -E '(cpp|h)$') \
-            <(echo SWITCHOVER)
-        tee $MBUILDLOG
-    } | tee /tmp/lastbuild | gawk '
-    BEGIN { sw=0; FS="/"; }
-    /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
-    sw == 0 { m[$NF] = $0; }
-    sw == 1 { printed = 0 }
-    /:[0-9]+:/ && sw == 1 {
-    tmp=$0;
-    if (match($1, /\/([^\/]+)$/, r) != 0) $1 = r[1];
-    gsub(/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/, "", $1)
-    if ($1 in m) {
-        # print $tmp
-        # print $1
-        # print m[$1]
-        rgx="^[^:]*"$1
-        sub(rgx, m[$1], tmp);
-        print tmp;
-    } else {
-        print $0;
-    }
-    printed = 1;
-    }
-    sw == 1 && printed == 0 {
-        print $0;
-    }
-    '
-}
-
 {
     flock -x 3 || exit 1
-    # if should_rerun_unit; then
     scunit "$common" || exit 1
-    # fi
 
     echo "coverage report"
-    gcovcheck --vimgrep "$@"
+    gcovcheck --vimgrep "$FULL_PATH"
 } 3>/tmp/rscmake.lock | convertToPwd
