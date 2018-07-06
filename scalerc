@@ -180,7 +180,7 @@ local_save_report() {
 }
 
 function convertToPwd() {
-    local THEPWD="$HOME/git/scale-product"
+    local THEPWD="$GIT_ROOT"
     {
         cat <(cd "$THEPWD" && find "$THEPWD" | grep -E '(cpp|h)$') \
             <(echo SWITCHOVER)
