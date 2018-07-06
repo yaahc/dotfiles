@@ -12,6 +12,7 @@ SCQAD_DIR="$SRC_ROOT/daemons/scqad"
 TESTBEDS="mysql -B --disable-column-names -ureadonly -preadonly -h builddb.lab.local -e \"select testbed from claims where username = '$SCREWI_USER'\" re_ci 2> /dev/null | sed 's/\\>/-01.lab.local/g' | uniq"
 BRANCH="sb_drsd"
 PHAB_PROJECT="drsd"
+GIT_USER="jlusby"
 
 export SCREWI_USER="jlusby"
 export SRC_ROOT="/local/scale-product" # on buildvm

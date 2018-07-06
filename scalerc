@@ -179,14 +179,12 @@ local_save_report() {
     ln -sf "$DEST_DIR" "$COV_DIR/$1"
 }
 
-MBUILDLOG="/tmp/covrun.log"
-
 function convertToPwd() {
     local THEPWD="$HOME/git/scale-product"
     {
         cat <(cd "$THEPWD" && find "$THEPWD" | grep -E '(cpp|h)$') \
             <(echo SWITCHOVER)
-        tee $MBUILDLOG
+        tee "$MBUILDLOG"
     } | tee /tmp/lastbuild | gawk '
     BEGIN { sw=0; FS="/"; }
     /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}

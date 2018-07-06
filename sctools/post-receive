@@ -1,0 +1,14 @@
+#!/bin/bash
+while read oldrev newrev refname
+do
+    branch=$(git rev-parse --symbolic --abbrev-ref $refname)
+    if [ "laptop-working" == "$branch" ]; then
+        (
+        cd .. && \
+            unset GIT_DIR && \
+            git reset --hard laptop-working && \
+            git clean -df
+        )
+        echo "synced successfully"
+    fi
+done

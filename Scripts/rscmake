@@ -26,38 +26,6 @@ else
     MBUILDLOG=$BUILDLOG
 fi
 
-function convertToPwd() {
-    local THEPWD="$HOME/git/scale-product"
-    {
-        cat <(cd "$THEPWD" && find "$THEPWD" | grep -E '(cpp|h)$') \
-            <(echo SWITCHOVER)
-        tee $MBUILDLOG
-    } | tee /tmp/lastbuild | gawk '
-    BEGIN { sw=0; FS="/"; }
-    /SWITCHOVER/ {sw=1; FS=":"; printf("switchover\n");}
-    sw == 0 { m[$NF] = $0; }
-    sw == 1 { printed = 0 }
-    /:[0-9]+:/ && sw == 1 {
-    tmp=$0;
-    if (match($1, /\/([^\/]+)$/, r) != 0) $1 = r[1];
-    gsub(/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/, "", $1)
-    if ($1 in m) {
-        # print $tmp
-        # print $1
-        # print m[$1]
-        rgx="^[^:]*"$1
-        sub(rgx, m[$1], tmp);
-        print tmp;
-    } else {
-        print $0;
-    }
-    printed = 1;
-    }
-    sw == 1 && printed == 0 {
-        print $0;
-    }
-    '
-}
 cd "$DIRNAME" || exit 1
 
 if [ "$TARGET" == "all" ]; then
