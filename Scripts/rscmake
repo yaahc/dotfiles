@@ -33,12 +33,13 @@ if [ "$TARGET" == "all" ]; then
     {
         flock -x 3 || exit 1
         LAST_FILE=""
-        for file in $(git ls-files --exclude-standard --others --modified); do
+        for file in $(git ls-files --exclude-standard --others --modified | xargs realpath); do
             if [ "x$LAST_FILE" = "x" ]; then
                 LAST_FILE=$(dirname "$file")
             else
-                LAST_FILE=$(printf "%s\n%s\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
+                LAST_FILE=$(printf "%s\\n%s\\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
             fi
+            echo "$LAST_FILE"
         done
 
         if [ ! -f "$LAST_FILE" ]; then

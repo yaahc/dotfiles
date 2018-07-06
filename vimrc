@@ -319,7 +319,7 @@ let g:ale_sign_info = 'X'
 
 
 Plug 'tpope/vim-dispatch'
-nnoremap <leader>d :Make<CR>
+nnoremap <leader>d :Dispatch<CR>
 nnoremap <leader>c :Copen<CR>
 nnoremap <leader>q :cfirst<CR>
 
@@ -595,17 +595,16 @@ map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
 function! SetupEnvironment()
   let l:path = expand('%:p')
   if l:path =~# '/home/jlusby/git/scale-product'
-    compiler gcc
-    set makeprg=rscmake
+    let b:dispatch = 'rscmake'
   elseif l:path =~# '/home/jlusby/git/notjobless'
-    compiler gcc
-    set makeprg=./make.sh
-  elseif l:path =~# '/home/jlusby/git/carowo'
-    compiler gcc
-    set makeprg=make\ -C\ build/
+    let b:dispatch = './make.sh'
+  elseif !empty(glob('./CMakeLists.txt')) && !empty(glob('./build'))
+      let b:dispatch = 'make -C build/'
   endif
 endfunction
-autocmd! BufReadPost,BufNewFile * call SetupEnvironment()
+autocmd FileType cpp call SetupEnvironment()
+
+" autocmd! BufReadPost,BufNewFile * call SetupEnvironment()
 
 function! Formatonsave()
     let l:formatdiff = 1
@@ -649,6 +648,9 @@ imap <C-k> <C-R>=ExpandLspSnippet()<CR>
 
 nnoremap <leader>G :cexpr system('gcovcheck --vimgrep ' . shellescape(expand('%:p')))<CR>
 nnoremap <leader>C :Dispatch covrun %:p<CR>
+
+autocmd FileType rust let b:dispatch = 'cargo build'
+autocmd FileType go let b:dispatch = 'go build %'
 
 set cursorline
 colorscheme janecolors
