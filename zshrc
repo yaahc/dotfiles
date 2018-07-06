@@ -278,6 +278,7 @@ if [ -f ~/.aliasrc ]; then
 fi
 
 . "$HOME/.scalerc"
+. "$HOME/.scalerc_extras"
 
 # if [ -f $(which powerline-daemon) ]; then
 #     . /usr/share/powerline/zsh/powerline.zsh

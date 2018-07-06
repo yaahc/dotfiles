@@ -48,7 +48,7 @@ maybe_run_remote() {
         if is_subdir_of "$PWD" "$GIT_ROOT"; then
             LOCAL_BUILD_ROOT="$SRC_ROOT${PWD##$GIT_ROOT}"
         fi
-        scgsync-internal
+        scgsync
         run_buildvm "BUILD_ROOT=\"$LOCAL_BUILD_ROOT\" $*"
         ret=$?
         unset LOCAL_BUILD_ROOT
@@ -56,10 +56,6 @@ maybe_run_remote() {
     eval "$END_CMD"
     return $ret
 }
-
-scgsync() (
-    scgsync-internal
-)
 
 scgsync-internal() (
     cd "$GIT_ROOT" || return 1
@@ -78,6 +74,17 @@ scgsync-internal() (
                     git reset HEAD .
             fi
     } 3>/tmp/scgsync.lock
+)
+
+# safely run this
+scgsync() (
+    rm /tmp/scgsync.log
+    nohup bash -c "source ~/.scalerc; scgsync-internal" >/tmp/scgsync.log 2>&1 &
+    gsyncpid=$!
+    tail -f /tmp/scgsync.log &
+    tailpid=$!
+    wait $gsyncpid
+    kill $tailpid
 )
 
 scmake() {

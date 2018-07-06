@@ -39,7 +39,6 @@ if [ "$TARGET" == "all" ]; then
             else
                 LAST_FILE=$(printf "%s\\n%s\\n" "$LAST_FILE" "$file" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/')
             fi
-            echo "$LAST_FILE"
         done
 
         if [ ! -f "$LAST_FILE" ]; then
