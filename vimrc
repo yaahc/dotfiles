@@ -123,6 +123,12 @@ nnoremap vaT vatV
 nnoremap <leader>s :%s///gc<Left><Left><Left>
 nnoremap <leader>S :cdo s///gc<Left><Left><Left>
 
+" tmux mappings
+nnoremap <leader>sgb :silent exec "!tmux send-keys -t \\! 'br ' " . expand('%:t') . ':' . line('.') . " Enter"<CR>
+nnoremap <leader>sgr :silent exec "!tmux send-keys -t \\! 'run' Enter"<CR>
+nnoremap <leader>sgg :silent exec "!tmux send-keys -t \\! '' Enter"<Left><Left><Left><Left><Left><Left><Left><Left>
+nnoremap <leader>sgd :silent exec "!tmux send-keys -t \\! 'dis' Enter"<CR>
+
 
 if empty(glob('~/.vim/autoload/plug.vim'))
     silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -167,6 +173,7 @@ nnoremap <leader>g :Gstatus<CR>
 " Projectionist plugin to let me jump around code, not really in use yet
 " Plug 'tpope/vim-projectionist'
 
+
 Plug 'tpope/vim-speeddating'
 
 
@@ -206,7 +213,7 @@ nnoremap <leader>fh :History<CR>
 nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>f~ :Files ~/<CR>
 " nnoremap <leader>t :Tags<CR>
-nnoremap <leader>* :execute "Rg! ".expand("<cword>").""<CR>
+nnoremap <leader>* :execute "Rg! \\b".expand("<cword>")."\\b"<CR>
 nnoremap <leader>fA :Rg!<CR>
 nnoremap <leader>fa :Rg<CR>
 nnoremap <leader>fd :Rggg<CR>
@@ -273,19 +280,17 @@ nmap <silent> <leader>D <Plug>(pydocstring)
 
 
 Plug 'rust-lang/rust.vim'
-" let g:rustfmt_autosave = 1
-" let g:rustfmt_command = 'rustfmt +nightly'
 
 
 Plug 'cespare/vim-toml'
 
 
 if has('nvim')
-	Plug 'autozimu/LanguageClient-neovim', {
-	    \ 'branch': 'next',
-	    \ 'do': 'bash install.sh',
-	    \ }
-	let g:LanguageClient_loggingLevel = 'DEBUG'
+    Plug 'autozimu/LanguageClient-neovim', {
+                \ 'branch': 'next',
+                \ 'do': 'bash install.sh',
+                \ }
+    let g:LanguageClient_loggingLevel = 'DEBUG'
 
     highlight link ALEErrorSign error
     highlight link ALEWarningSign todo
@@ -296,12 +301,16 @@ if has('nvim')
 
 
     Plug 'ludovicchabant/vim-gutentags'
-    " let g:gutentags_modules=['ctags', 'cscope']
 endif
 
 
 Plug 'w0rp/ale'
-let g:ale_linters = { 'cpp' : ['rscmake', 'cppcheck', 'clangtidy', 'gcovcheck'], 'rust' : [] }
+let g:ale_linters = {
+            \ 'cpp' : ['rscmake', 'cppcheck', 'clangtidy', 'gcovcheck'],
+            \ 'rust' : [],
+            \ 'markdown' : ['alex', 'markdownlint', 'mdl', 'redpen', 'remark-lint', 'textlint', 'vale', 'write-good'],
+            \ }
+
 let g:ale_echo_msg_format = '%code: %%s %linter%'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -IGL'
 let g:ale_cpp_clangtidy_checks = []
@@ -309,13 +318,11 @@ let g:ale_fixers = {
             \ 'sh' : ['shfmt'],
             \ 'markdown': ['prettier'],
             \ 'python': ['add_blank_lines_for_python_control_statements', 'autopep8', 'isort', 'yapf'],
-            \ 'rust' : ['rustfmt'],
             \ }
 let g:ale_fix_on_save = 1
 let g:ale_proto_protoc_gen_lint_options=''
 let g:ale_sh_shfmt_options = '-i 4'
 let g:ale_sign_info = 'X'
-" let g:ale_cpp_gcovcheck_executable='covrun.sh'
 
 
 Plug 'tpope/vim-dispatch'
@@ -342,16 +349,6 @@ if has('python3')
 endif
 
 
-" Plug 'Shougo/neosnippet.vim'
-" Plug 'Shougo/neosnippet-snippets'
-" " Plugin key-mappings.
-" " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
-" imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-" smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-" xmap <C-k>     <Plug>(neosnippet_expand_target)
-" let g:neosnippet#enable_snipmate_compatibility = 1
-
-
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
@@ -360,7 +357,7 @@ let g:UltiSnipsListSnippets = '<c-u>'
 let g:UltiSnipsJumpForwardTrigger='<c-]>'
 let g:UltiSnipsJumpBackwardTrigger='<c-[>'
 " If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
+let g:UltiSnipsEditSplit='vertical'
 
 
 Plug 'jceb/vim-orgmode'
@@ -383,7 +380,7 @@ Plug 'Shougo/neoinclude.vim'
 let g:neoinclude#paths = {}
 let g:neoinclude#paths.cpp = '~/git/scale-product/daemons/scribed'
 if !exists('g:neoinclude#exts')
-  let g:neoinclude#exts = {}
+    let g:neoinclude#exts = {}
 endif
 let g:neoinclude#exts.cpp = ['', 'h', 'hpp', 'hxx']
 
@@ -399,12 +396,9 @@ Plug 'othree/es.next.syntax.vim'
 Plug 'gavocanov/vim-js-indent'
 Plug 'mxw/vim-jsx'
 
+Plug 'git+ssh://gerrit.lab.local:29418/scbuild', { 'do': './install.sh' }
 
-Plug 'm42e/vim-gcov-marker'
-let g:gcov_marker_covered    = ''
-let g:gcov_marker_uncovered  = 'X'
-let g:gcov_marker_path       = '/home/jlusby/gcov/'
-let g:gcov_marker_auto_lopen = 0
+Plug 'suan/vim-instant-markdown'
 
 call plug#end()
 
@@ -444,9 +438,9 @@ if has('python3')
 endif
 
 let g:LanguageClient_serverCommands = {
-    \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
-    \ }
-    " \ 'cpp': ['~/git/cquery/build/release/bin/cquery', '--log-file=/tmp/cq.log'],
+            \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+            \ }
+" \ 'cpp': ['~/git/cquery/build/release/bin/cquery', '--log-file=/tmp/cq.log'],
 
 let g:LanguageClient_loadSettings = 1
 let g:LanguageClient_settingsPath = '/home/jlusby/.dotfiles/nvim/settings.json'
@@ -459,53 +453,19 @@ nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
 nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 set completefunc=LanguageClient#complete
 
-" command! -bang -nargs=* Ag
-"             \ call fzf#vim#ag(<q-args>,
-"             \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-"             \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-"             \                 <bang>0)
-
-" command! -bang -nargs=* Rggg
-"             \ call fzf#vim#ag(<q-args>,
-"             \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
-"             \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
-"             \                 <bang>0)
-
-" command! -bang -nargs=* Rg
-"             \ call fzf#vim#ag(<q-args>,
-"             \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-"             \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-"             \                 <bang>0)
-
-" command! -bang -nargs=* Rg
-"             \ call fzf#vim#grep(
-"             \   'rg --column --line-number --no-heading --color=never -v '
-"             \ . <q-args>, 1,
-"             \   <bang>0 ? fzf#vim#with_preview('up:60%')
-"             \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-"             \   <bang>0)
-
-" command! -bang -nargs=* Rggg
-"             \ call fzf#vim#grep(
-"             \   'rg --column --line-number --no-heading --color=never -v '
-"             \ . <q-args>, 1,
-"             \                 <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
-"             \                         : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
-"             \   <bang>0)
-
 command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%', '?'),
-  \   <bang>0)
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
+            \   <bang>0 ? fzf#vim#with_preview('up:60%')
+            \           : fzf#vim#with_preview('right:50%', '?'),
+            \   <bang>0)
 
 command! -bang -nargs=* Rggg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
-  \           : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
-  \   <bang>0)
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
+            \   <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
+            \           : fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'right:50%', '?'),
+            \   <bang>0)
 
 
 " Likewise, Files command with preview window
@@ -593,14 +553,14 @@ map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
             \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 function! SetupEnvironment()
-  let l:path = expand('%:p')
-  if l:path =~# '/home/jlusby/git/scale-product'
-    let b:dispatch = 'rscmake'
-  elseif l:path =~# '/home/jlusby/git/notjobless'
-    let b:dispatch = './make.sh'
-  elseif !empty(glob('./CMakeLists.txt')) && !empty(glob('./build'))
-      let b:dispatch = 'make -C build/'
-  endif
+    let l:path = expand('%:p')
+    if l:path =~# $HOME.'/git/scale-product'
+        let b:dispatch = 'rscmake'
+    elseif l:path =~# $HOME.'/git/notjobless'
+        let b:dispatch = './make.sh'
+    elseif !empty(glob('./CMakeLists.txt')) && !empty(glob('./build'))
+        let b:dispatch = 'make -C build/'
+    endif
 endfunction
 autocmd FileType cpp call SetupEnvironment()
 
