@@ -22,7 +22,6 @@
 
 # Logs and databases #
 ######################
-*.log
 *.sql
 *.sqlite
 
@@ -60,3 +59,7 @@ spdk/
 cscope.out*
 ncscope.out.temp
 .*.rs.rustfmt
+.gdb_history
+
+# mergetool generated files #
+*.orig

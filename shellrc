@@ -37,9 +37,9 @@ export LESS_TERMCAP_us=$'\E[32m'
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
-if hash keychain >/dev/null 2>&1; then
-    eval "$(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa >/dev/null 2>&1)"
-fi
+# if hash keychain >/dev/null 2>&1; then
+#     eval "$(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa >/dev/null 2>&1)"
+# fi
 
 [ -n "$XTERM_VERSION" ] && transset-df .9 -a >/dev/null
 
@@ -61,3 +61,4 @@ fi
 export GOPATH="$HOME/go"
 export GOBIN="$GOPATH/bin"
 export PATH="$PATH:$GOBIN"
+export PATH="$PATH:$HOME/.local/bin"

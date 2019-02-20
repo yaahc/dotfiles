@@ -38,8 +38,7 @@ hi Title term=bold ctermfg=5 gui=bold guifg=DeepPink3
 hi Visual term=reverse cterm=reverse gui=reverse guifg=Grey80 guibg=fg
 hi WarningMsg term=standout ctermfg=1 gui=bold guifg=Red
 hi WildMenu term=standout ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
-hi Folded term=standout ctermfg=4 ctermbg=7 guifg=Black guibg=#e3c1a5
-hi FoldColumn term=standout ctermfg=4 ctermbg=7 guifg=DarkBlue guibg=Gray80
+hi Folded ctermfg=7 ctermbg=242 guifg=LightGrey guibg=DarkGrey
 hi DiffAdd term=bold ctermbg=4 guibg=White
 hi DiffChange term=bold ctermbg=5 guibg=#edb5cd
 hi DiffDelete term=bold cterm=bold ctermfg=4 ctermbg=6 gui=bold guifg=LightBlue guibg=#f6e8d0

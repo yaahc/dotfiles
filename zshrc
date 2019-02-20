@@ -1,7 +1,5 @@
 . $HOME/.shellrc
 
-fpath+=~/.zfunc
-
 PROFILE_STARTUP=true
 if [[ "$PROFILE_STARTUP" == true ]]; then
     # http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html
@@ -9,6 +7,8 @@ if [[ "$PROFILE_STARTUP" == true ]]; then
     exec 3>&2 2>$HOME/tmp/startlog.$$
     setopt xtrace prompt_subst
 fi
+
+fpath=(~/.zfunc /usr/local/share/zsh-completions $fpath)
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -71,8 +71,11 @@ DISABLE_AUTO_TITLE="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  zsh-autosuggestions
   git
-  arcanist
+  # arcanist
+  cargo
+  command-time
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -117,8 +120,6 @@ setopt share_history
 export KEYTIMEOUT=1
 
 bindkey -v
-#bindkey "^K" history-search-backward
-#bindkey "^J" history-search-forward
 bindkey '^R' history-incremental-search-backward
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
@@ -168,12 +169,8 @@ WHITE_BOLD=$fg_bold[white]
 BLUE_BOLD=$fg_bold[blue]
 RESET_COLOR=$reset_color
 
-local ret_status="%(?:%{$GREEN%}%c:%{$RED%}%c)"
-# # PROMPT='${ret_status}%{$fg[green]%} %{$fg[blue]%}$(git_prompt_info)%{$fg[blue]%}$(git_commits_ahead)$(git_commits_behind)%{$fg[green]%}>>%{$reset_color%}'
-PROMPT='${ret_status}%{$GREEN%} %{$BLUE%}$(git_prompt_info)%{$BLUE%}$(git_remote_status)%{$YELLOW%}$(git_prompt_status)%{$GREEN%}>>%{$reset_color%}'
-
-# ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[blue]%}["
-# ZSH_THEME_GIT_PROMPT_SUFFIX="%{$fg[blue]%}${git_commits_ahead}${git_commits_behind}]%{$reset_color%}"
+local ret_status="%(?:%{$GREEN%}:%{$RED%})"
+PROMPT='%{$BLUE%}$(git_prompt_info)%{$BLUE%}$(git_remote_status)%{$YELLOW%}$(git_prompt_status)%{$GREEN%}${ret_status} $ %{$reset_color%}'
 ZSH_THEME_GIT_PROMPT_PREFIX=""
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$YELLOW%} ✗"
@@ -183,16 +180,8 @@ ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE=" |+"
 ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE=" |-"
 ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE_COLOR="%{$YELLOW%}"
 ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE_COLOR="%{$YELLOW%}"
-# ZSH_THEME_GIT_PROMPT_UNTRACKED="u"
-# ZSH_THEME_GIT_PROMPT_ADDED="a"
-# ZSH_THEME_GIT_PROMPT_MODIFIED="m"
-# ZSH_THEME_GIT_PROMPT_RENAMED="r"
-# ZSH_THEME_GIT_PROMPT_DELETED="d"
 ZSH_THEME_GIT_PROMPT_STASHED="|stashed"
 ZSH_THEME_GIT_PROMPT_UNMERGED="|unmerged"
-# ZSH_THEME_GIT_PROMPT_AHEAD="+"
-# ZSH_THEME_GIT_PROMPT_BEHIND="-"
-# ZSH_THEME_GIT_PROMPT_DIVERGED="~"
 
 # git remote status
 ZSH_THEME_GIT_PROMPT_EQUAL_REMOTE="="
@@ -200,37 +189,6 @@ ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE="+"
 ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE="-"
 ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="+&&-"
 ZSH_THEME_GIT_PROMPT_REMOTE_STATUS_DETAILED="yes"
-
-# # Format for git_prompt_info()
-# ZSH_THEME_GIT_PROMPT_PREFIX=""
-# ZSH_THEME_GIT_PROMPT_SUFFIX=""
-
-# # Format for parse_git_dirty()
-# # ZSH_THEME_GIT_PROMPT_DIRTY=" %{$RED%}(*)"
-# # ZSH_THEME_GIT_PROMPT_CLEAN=""
-
-# # Format for git_prompt_status()
-# ZSH_THEME_GIT_PROMPT_UNMERGED=" %{$RED%}unmerged"
-# ZSH_THEME_GIT_PROMPT_DELETED=" %{$RED%}deleted"
-# ZSH_THEME_GIT_PROMPT_RENAMED=" %{$YELLOW%}renamed"
-# ZSH_THEME_GIT_PROMPT_MODIFIED=" %{$YELLOW%}modified"
-# ZSH_THEME_GIT_PROMPT_ADDED=" %{$GREEN%}added"
-# ZSH_THEME_GIT_PROMPT_UNTRACKED=" %{$WHITE%}untracked"
-
-# # Format for git_prompt_ahead()
-# ZSH_THEME_GIT_PROMPT_AHEAD="%{$RED%}+"
-# ZSH_THEME_GIT_PROMPT_BEHIND="%{$RED%}-"
-
-# # Format for git_prompt_long_sha() and git_prompt_short_sha()
-# ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$WHITE%}[%{$YELLOW%}"
-# ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$WHITE%}]"
-
-# # Prompt format
-# PROMPT='
-# %{$GREEN%}%n@%m%{$WHITE%}:%{$YELLOW%}%~%u$(parse_git_dirty)$(git_prompt_ahead)$(git_prompt_behind)%{$RESET_COLOR%}
-# %{$BLUE%}>%{$RESET_COLOR%} '
-# RPROMPT='%{$GREEN%}$(git_current_branch)$(git_prompt_short_sha)$(git_prompt_status)%{$RESET_COLOR%}'
-# PROMPT='%n@%m>>'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh || $("$FZF_DIR/install" && source ~/.fzf.zsh)
 
@@ -266,7 +224,6 @@ if [ -d $FZF_DIR ] || hash fzf; then
     bindkey '^P' fzf-vim-file-widget
 fi
 
-fpath=(/usr/local/share/zsh-completions $fpath)
 
 if [[ "$PROFILE_STARTUP" == true ]]; then
     unsetopt xtrace
@@ -285,13 +242,19 @@ if [ -f "$HOME/.scalerc_exports" ]; then
     . "$HOME/.scalerc_exports"
 fi
 
+. "$HOME/exercism/bin/shell/exercism_completion.zsh"
 
-# if [ -f $(which powerline-daemon) ]; then
-#     . /usr/share/powerline/zsh/powerline.zsh
-# fi
+# If command execution time above min. time, plugins will not output time.
+ZSH_COMMAND_TIME_MIN_SECONDS=5
 
-# if [ "$TERM" != "screen" ] && [ "$TERM" != "screen-256color" ]; then
-#     tmux attach -t Dev
-# fi
+# Message to display (set to "" for disable).
+ZSH_COMMAND_TIME_MSG="Execution time: %s sec \a"
 
-eval $(keychain --eval --quiet scale_computing2016_id_rsa.jane id_rsa id_ed25519 build_dsa build_rsa 2> /dev/null)
+# Message color.
+ZSH_COMMAND_TIME_COLOR="cyan"
+# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+# Base16 Shell
+BASE16_SHELL="$HOME/.config/base16-shell/"
+[ -n "$PS1" ] && \
+    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+        eval "$("$BASE16_SHELL/profile_helper.sh")"

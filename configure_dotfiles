@@ -1,15 +1,15 @@
 #! /bin/bash
 
-
 # set -o xtrace
 set -e
 
-MY_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+MY_DIR="$(
+    cd "$(dirname "$0")"
+    pwd -P
+)"
 OLD_FILES="$HOME/oldfiles"
 
-
-linkfile()
-{
+linkfile() {
     SRCFILE="$MY_DIR/$1"
     if [ "x" = "x$2" ]; then
         DESTFILE=".$1"
@@ -33,7 +33,6 @@ linkfile()
     ln -s "$SRCFILE" "$HOME/$DESTFILE"
 }
 
-
 # MAIN
 cd "$MY_DIR"
 
@@ -44,6 +43,7 @@ mkdir -p ~/tmp
 linkfile . .dotfiles
 
 linkfile gitconfig
+linkfile gitmessage
 linkfile git_template
 linkfile gitignore_global
 
@@ -75,7 +75,6 @@ linkfile Scripts Scripts
 linkfile tmux.conf
 linkfile ctags
 
-
 echo "Update package installation? [y/N]"
 read resp
 if [ "$resp" = "Y" ] || [ "$resp" = "y" ]; then
@@ -86,4 +85,3 @@ else
 fi
 
 exit 0
-

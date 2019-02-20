@@ -7,7 +7,7 @@ fi
 if [ -x /usr/bin/dircolors ]; then
     # GNU cli color config
     # if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
-    alias ls='ls --color=auto --group-directories-first'
+    alias ls='exa --group-directories-first'
     alias dir='dir --color=auto'
     alias grep='grep --color=auto'
 

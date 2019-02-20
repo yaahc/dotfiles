@@ -22,9 +22,15 @@
 	default = matching
 [rebase]
 	autosquash = true
+[commit]
+    template= ~/.gitmessage
 [merge]
-    tool = vimdiff
+	tool = vimdiff
 [mergetool]
-    prompt = false
+  prompt = true
 [mergetool "vimdiff"]
-    cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+  cmd = nvim -d $MERGED -c ':Gvdiff' -c 'wincmd J' -c 'wincmd t' -c 'wincmd l'
+[difftool]
+  prompt = false
+[diff]
+  tool = vimdiff

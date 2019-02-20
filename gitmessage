@@ -1,0 +1,43 @@
+
+# <type>: (If applied, this commit will...) <subject> (Max 50 char)
+# If applied, this commit will...
+
+# BODY
+# Why is this change needed?
+Prior to this change,
+
+# How does it address the issue?
+This change
+
+# FOOTER
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: Github issue #23
+
+
+# --- COMMIT END ---
+# Type can be
+#    feat     (new feature)
+#    fix      (bug fix)
+#    refactor (refactoring production code)
+#    style    (formatting, missing semi colons, etc; no code change)
+#    docs     (changes to documentation)
+#    test     (adding or refactoring tests; no production code change)
+#    chore    (updating grunt tasks etc; no production code change)
+#    build    (Changes that affect the build system or external dependencies)
+#    ci       (Changes to our CI configuration files and scripts)
+#    perf     (A code change that improves performance)
+# --------------------
+# Remember to
+#    Capitalize the subject line
+#    Use the imperative mood in the subject line
+#    Do not end the subject line with a period
+#    Separate subject from body with a blank line
+#    Use the body to explain what and why vs. how
+#    Can use multiple lines with "-" for bullet points in body
+# --------------------
+# All breaking changes have to be mentioned as a breaking change block in the
+# footer, which should start with the word BREAKING CHANGE: with a space or two
+# newlines. The rest of the commit message is then the description of the
+# change, justification and migration notes.
+# --------------------
+# https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commits
