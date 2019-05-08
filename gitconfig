@@ -1,36 +1,36 @@
 [user]
-	name = Jane Lusby
-	email = jlusby42@gmail.com
+    name = Jane Lusby
+    email = jlusby42@gmail.com
 [core]
-	excludesfile = /home/jlusby/.gitignore_global
-	editor = vim
+    excludesfile = /home/jlusby/.gitignore_global
+    editor = vim
 [color]
-	ui = true
+    ui = true
 [alias]
     lg1 = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
     lglocal = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --branches
     lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
     lg3 = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
     lg = !"git lglocal"
-	ctags = !.git/hooks/ctags
+    ctags = !.git/hooks/ctags
     cblame = shortlog -sne .
 [status]
-	displaycommentprefix = true
+    displaycommentprefix = true
 [init]
-	templatedir = ~/.git_template
+    templatedir = ~/.git_template
 [push]
-	default = matching
+    default = matching
 [rebase]
-	autosquash = true
+    autosquash = true
 [commit]
     template= ~/.gitmessage
 [merge]
-	tool = vimdiff
+    tool = vimdiff
 [mergetool]
-  prompt = true
+    prompt = true
 [mergetool "vimdiff"]
-  cmd = nvim -d $MERGED -c ':Gvdiff' -c 'wincmd J' -c 'wincmd t' -c 'wincmd l'
+    cmd = nvim -d $MERGED -c ':Gvdiff' -c 'wincmd J' -c 'wincmd t' -c 'wincmd l'
 [difftool]
-  prompt = false
+    prompt = false
 [diff]
-  tool = vimdiff
+    tool = vimdiff

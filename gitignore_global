@@ -63,3 +63,9 @@ ncscope.out.temp
 
 # mergetool generated files #
 *.orig
+tags.lock
+tags.temp
+.ccls-cache
+.clang-tidy
+
+node_modules/

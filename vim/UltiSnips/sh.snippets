@@ -1,0 +1,91 @@
+###########################################################################
+#                            TextMate Snippets                            #
+###########################################################################
+
+snippet prompt "prompt user for confirmation"
+read -p "Would you like to continue? (y/[n]) " -r
+REPLY=\${REPLY:-"n"}
+if [[ \$REPLY =~ ^[Yy]$ ]]; then
+	$0
+fi
+endsnippet
+
+snippet wfind "while read ... (done) < <(find ...)"
+while IFS= read -r -d '' ${1:file}; do
+	${0:# statements}
+done < <(find ${2:.} ${3:-name ${4:""}} -print0)
+endsnippet
+
+snippet finde "find ... -exec ... \;"
+find ${1:dir} ${2:-name "${3:pattern}"} -exec ${0:cmd} {} \;
+endsnippet
+
+snippet sci "shellcheck ignore"
+# shellcheck disable=${1:SC2029}$0
+endsnippet
+
+snippet caseopt "while-case style option parser"
+__ScriptVersion="0.1.0"
+__ScriptName=$(basename "\$0")
+
+function usage() {
+	echo "\
+\$__ScriptName \$__ScriptVersion
+Jane Lusby <jlusby@scalecomputing.com>
+${1:Description}
+
+USAGE:
+	\$__ScriptName [options] [--]
+
+FLAGS:
+	-h, --help          Display this message
+	-v, --version       Display script version
+
+OPTIONS:
+
+ARGS:
+"
+
+}
+
+#-----------------------------------------------------------------------
+#  Handle command line arguments
+#-----------------------------------------------------------------------
+__args=()
+while (("\$#")); do
+	case "\$1" in
+	-h | --help)
+		usage
+		exit 0
+		;;
+	-v | --version)
+		echo "\$__ScriptName -- Version \$__ScriptVersion"
+		exit 0
+		;;
+	--) # end argument parsing
+		shift
+		while (("\$#")); do
+			__args+=("\$1")
+			shift
+		done
+		break
+		;;
+	$2)
+		$0
+		shift
+		;;
+	--*= | -*) # unsupported flags
+		echo "Error: Unsupported flag \$1" >&2
+		exit 1
+		;;
+	*) # preserve positional arguments
+		__args+=("\$1")
+		shift
+		;;
+	esac
+done
+# set positional arguments in their proper place
+set -- \${__args[@]+"\${__args[@]}"}
+endsnippet
+
+# vim:ft=snippets:

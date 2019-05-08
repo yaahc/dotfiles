@@ -1,0 +1,74 @@
+#######################################################################
+#                            Rust Snippets                            #
+#######################################################################
+
+priority 1
+
+snippet fopt "structopt flag argument"
+/// ${5:Arg help text}
+#[structopt(${2:short = "${3:a}", }long = "${4:arg-name}")]
+${1:arg_name}: ${0:bool},
+endsnippet
+
+snippet cliskel "Skeleton cli application main"
+use env_logger::{Builder, Env};
+use log::error;
+use std::io;
+use structopt::{
+    clap::{AppSettings, Shell},
+    StructOpt,
+};
+
+#[derive(StructOpt, Debug)]
+#[structopt(raw(
+    global_settings = "&[AppSettings::ColoredHelp, AppSettings::VersionlessSubcommands, AppSettings::DisableHelpSubcommand]"
+))]
+struct Opt {
+    #[structopt(subcommand)]
+    cmd: Option<Command>,
+
+    /// Generates a completion file
+    ///
+    /// Examples
+    ///
+    /// $ sctest generate-completions zsh > ~/.zfunc/_sctest
+    /// $ sctest generate-completions fish > ~/.config/fish/completions/sctest.fish
+    /// $ sctest generate-completions bash > /etc/bash_completion.d/sctest.bash-completion
+    /// $ sctest generate-completions bash > $(brew --prefix)/etc/bash_completion.d/sctest.bash-completion
+    #[structopt(
+        long = "generate-completions",
+        raw(possible_values = "&Shell::variants()",)
+    )]
+    pub(crate) shell: Option<Shell>,
+}
+
+#[derive(StructOpt, Debug)]
+enum Command {
+    /// Check that all recipe files are validly formatted
+    ///
+    /// - Iterate through all recipe files.
+    /// - Parse them, verify that they contain a link field and that the link works with GET.
+    /// - Print a helpful error if the file is invalid somehow
+    #[structopt(name = "verify")]
+    Verify,
+}
+
+fn main() {
+    Builder::from_env(Env::default().default_filter_or("info")).init();
+
+    let args = Opt::from_args();
+
+    if let Some(shell) = args.shell {
+        Opt::clap().gen_completions_to("sctest", shell, &mut io::stdout());
+    } else if let Some(subcmd) = &args.cmd {
+        match subcmd {
+            Command::Verify => println!("hello!"),
+        }
+    } else {
+        error!("missing subcommand");
+        Opt::clap().print_help().unwrap();
+    }
+}
+endsnippet
+
+# vim:ft=snippets:

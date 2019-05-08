@@ -1,13 +1,23 @@
 #! /bin/sh
 
+pathmunge() {
+    if ! echo "$PATH" | grep -E -q "(^|:)$1($|:)"; then
+        if [ "$2" = "after" ]; then
+            PATH=$PATH:$1
+        else
+            PATH=$1:$PATH
+        fi
+    fi
+}
+
 export PROFILE_SOURCED="true"
 
 export HISTFILE=~/.history
 export HISTSIZE=10000
 
-export PATH="$HOME/.ccache/bin:$PATH"
-export PATH="$HOME/Scripts:$PATH"
-export PATH="$HOME/.vim/plugged/scbuild/bin:$PATH"
+pathmunge "$HOME/.ccache/bin"
+pathmunge "$HOME/git/scwut/jlusby"
+pathmunge "$HOME/.node_modules_global/bin"
 
 if hash nvim 2>/dev/null; then
     export VISUAL="nvim"
@@ -45,7 +55,6 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 FZF_DIR="$HOME/.fzf/bin/"
 if [ -d $FZF_DIR ] || hash fzf; then
-    export PATH=$PATH:$FZF_DIR
     export FZF_DEFAULT_OPTS="--reverse --height 40%"
     if hash rg 2>/dev/null; then
         export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden -g "!{.git,node_modules}/*" 2> /dev/null'
@@ -60,5 +69,9 @@ fi
 
 export GOPATH="$HOME/go"
 export GOBIN="$GOPATH/bin"
-export PATH="$PATH:$GOBIN"
-export PATH="$PATH:$HOME/.local/bin"
+
+pathmunge "$GOBIN"
+pathmunge "$HOME/.cargo/bin"
+pathmunge "$HOME/.local/bin"
+pathmunge "$HOME/Scripts"
+pathmunge "$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"

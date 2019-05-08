@@ -11,3 +11,5 @@ fi
 
 # User specific aliases and functions
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+[ -f ~/.scbuild.bash ] && source ~/.scbuild.bash
