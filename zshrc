@@ -1,3 +1,4 @@
+[[ $- == *i* ]] && fpath=(~/.scbuild/zsh_completions $fpath)
 . $HOME/.shellrc
 
 PROFILE_STARTUP=true
@@ -242,13 +243,15 @@ if [ -f "$HOME/.scalerc_exports" ]; then
     . "$HOME/.scalerc_exports"
 fi
 
-. "$HOME/exercism/bin/shell/exercism_completion.zsh"
+EXERCISM_P="$HOME/exercism/bin/shell/exercism_completion.zsh"
+[ -f $EXERCISM_P ] && source $EXERCISM_P
+
 
 # If command execution time above min. time, plugins will not output time.
 ZSH_COMMAND_TIME_MIN_SECONDS=5
 
 # Message to display (set to "" for disable).
-ZSH_COMMAND_TIME_MSG="Execution time: %s sec \a"
+ZSH_COMMAND_TIME_MSG="Execution time: %s sec "
 
 # Message color.
 ZSH_COMMAND_TIME_COLOR="cyan"
@@ -260,3 +263,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
         eval "$("$BASE16_SHELL/profile_helper.sh")"
 
 [ -f ~/.scbuild.zsh ] && source ~/.scbuild.zsh
+
+# [ -f /home/jlusby/.nix-profile/etc/profile.d/nix.sh ] && . /home/jlusby/.nix-profile/etc/profile.d/nix.sh
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"

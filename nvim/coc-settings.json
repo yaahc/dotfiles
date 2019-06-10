@@ -1,6 +1,6 @@
 {
     // format on save via coc
-    "coc.preferences.formatOnSaveFiletypes": ["rust"],
+    // "coc.preferences.formatOnSaveFiletypes": ["rust"],
     "rust.clippy_preference": "on",
     // "languageserver": {
     //     "ccls": {
