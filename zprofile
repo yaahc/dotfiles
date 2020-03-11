@@ -9,5 +9,3 @@
 #dropboxd &
 # Keep this at the bottom or killing it will prevent anything below it from being sourced
 # eval $(keychain --eval --quiet id_rsa ~/.ssh/id_rsa)
-
-export PATH="$HOME/.cargo/bin:$PATH"

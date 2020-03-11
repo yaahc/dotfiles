@@ -1,0 +1,8 @@
+#! /bin/bash
+
+(
+    cd ~/git/rust/cargo || exit 1
+    cargo build
+)
+
+~/git/rust/cargo/target/debug/cargo "$@"

@@ -13,3 +13,5 @@ fi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 [ -f ~/.scbuild.bash ] && source ~/.scbuild.bash
+
+source /home/jlusby/.config/broot/launcher/bash/br

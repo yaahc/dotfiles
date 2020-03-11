@@ -1,0 +1,5 @@
+#! /bin/bash
+
+(
+    cd ~/git/scbuild && cargo build
+) && ~/git/scbuild/target/debug/scdev "$@"

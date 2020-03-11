@@ -26,6 +26,7 @@ set nojoinspaces
 set nrformats=
 set splitright
 set switchbuf=useopen
+set nowrap
 
 if has('mouse')
     " Don't want the mouse to work in insert mode.
@@ -83,7 +84,20 @@ set nobackup
 set noswapfile
 
 " persistent macros {{{ 1
+"
+" === to make a new macro ===
+" qq to start recording
+" q to finish recording
+" setup new binding like
+" let @a = ''
+" place cursor on first '
+" then use the following command in normal mode
+" "qp
+" aka paste from register q after the current cursor
 let @f = 'viwt(dds(' " delete function and corresponding parens, depends on vim-surround
+let @h = '^xxxihlogstream(HLOG_INFO, "A");'
+let @a = 'ciWautoA€kb -> +;'
+let @i = 'ciWautoea = +lcs({^'
 
 " leader mappings {{{1
 " To show all commands that start with leader type :map <leader> " {{{2
@@ -111,6 +125,10 @@ let g:wkm_root = {
             \ '%': 'matching-bracket',
             \ }
 
+if has('nvim')
+    tnoremap <Esc><Esc> <C-\><C-n>
+endif
+
 " tabs & buffers {{{2
 nnoremap <C-Left> :bprevious<CR>
 nnoremap <C-Right> :bnext<CR>
@@ -123,11 +141,13 @@ nmap <silent> <leader>n :silent :nohlsearch<CR>
 " misc
 " keybinds to open last buffer {{{2
 nmap <leader>v :vs#<cr>
+nmap <silent> ]a :ALENext -wrap -error<cr>
+nmap <silent> [a :ALEPrevious -wrap -error<cr>
 
 " mapping to drop into substitute {{{2
 let g:wkm.s = {'name': '+substitute'}
-nnoremap <leader>ss :%s///gc<Left><Left><Left>
-nnoremap <leader>sa :cdo s///gc<Left><Left><Left>
+nnoremap <leader>ss :%s///g<Left><Left>
+nnoremap <leader>sa :cdo s///g<Left><Left>
 
 let g:wkm.z = {
             \ 'name': '+fold',
@@ -156,7 +176,13 @@ nnoremap <leader>zz zvzz
 nnoremap <leader>zo zMzO
 
 " search visual selection
-vnoremap // y/<C-R>"<CR>
+vnoremap // y/\V<C-R>"<CR>
+
+nnoremap <leader>R :!rg '<C-R>"' '%' > '<C-R>".rg.%:t'<CR>
+
+" mode switcher
+nnoremap <silent> <leader>mt :call DispatchSetupTest()<CR>:echo "Switched to test mode"<CR>
+nnoremap <silent> <leader>mc :call DispatchSetupCheck()<CR>:echo "Switched to check mode"<CR>
 
 
 nnoremap <leader>I :source ~/.vimrc<CR>:PlugUpdate<CR>
@@ -341,6 +367,7 @@ Plug 'majutsushi/tagbar' "{{{2
 Plug 'rust-lang/rust.vim' "{{{2
 Plug 'mattn/webapi-vim'
 let g:rustfmt_autosave = 1
+let g:rustfmt_options = '--edition 2018'
 
 let wkm['r'] = {
             \ 'name': '+rust',
@@ -356,6 +383,7 @@ Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
 " extensions
 Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'neoclide/coc-rust-analyzer', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc-sources', {'do': 'yarn install --frozen-lockfile'}
 
 
@@ -507,7 +535,7 @@ nnoremap <silent> <space>cp  :<C-u>CocListResume<CR>
 nnoremap <silent> <space>cC :<C-u>CocConfig<CR>
 
 if has('nvim')
-    Plug 'ludovicchabant/vim-gutentags'
+    " Plug 'ludovicchabant/vim-gutentags'
 
 
     "     " neovim language client {{{2
@@ -605,10 +633,11 @@ endif
 
 Plug 'w0rp/ale' "{{{2
 let g:ale_linters = {
-            \ 'rust':     ['rls'],
+            \ 'rust': [],
             \ 'cpp':      ['rscmake', 'cppcheck',     'clangtidy', 'gcovcheck'],
             \ 'go':       ['gobuild', 'gofmt',        'golint',    'gometalinter', 'gosimple',    'gotype',   'govet'],
             \ }
+            " \ 'rust':     ['cargo'],
 
 let g:ale_echo_msg_format = '%code: %%s %linter%'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -IGL'
@@ -624,7 +653,11 @@ let g:ale_sh_shfmt_options = '-i 4'
 let g:ale_sign_info = 'X'
 let g:ale_set_loclist = 1
 
-autocmd FileType rust call s:DisableRustAutoLinting()
+let g:ale_rust_cargo_check_all_targets = 1
+let g:ale_rust_cargo_use_clippy = executable('cargo-clippy')
+" let g:ale_rust_cargo_clippy_options = '--all-targets'
+
+" autocmd FileType rust call s:DisableRustAutoLinting()
 
 Plug 'tpope/vim-dispatch' "{{{2
 
@@ -833,11 +866,32 @@ function! DeleteHiddenBuffers() " {{{2
 endfunction
 nnoremap <leader>bD :call DeleteHiddenBuffers()<CR>
 
+function! DispatchSetupTest()
+    if &filetype == 'cpp'
+        let b:dispatch = 'covrun %:p'
+    elseif &filetype == 'rust'
+        let b:dispatch = 'cargo test'
+    endif
+endfunction
+
+
+function! DispatchSetupCheck()
+    if &filetype == 'cpp'
+        let b:dispatch = 'rscmake %:p'
+    elseif &filetype == 'rust'
+        let b:dispatch = 'cargo fix --clippy'
+    endif
+endfunction
+
+" augroup DispatchSetupGroup
+"     autocmd!
+"     au BufNewFile,BufRead * call DispatchSetupTest()
+" augroup END
 
 function! SetupCppEnvironment() " {{{2
     let l:path = expand('%:p')
     if l:path =~# $SC_GIT_ROOT
-        let b:dispatch = 'covrun %:p'
+        let b:dispatch = 'rscmake %:p'
         compiler rscmake
     elseif l:path =~# $HOME.'/git/notjobless'
         let b:dispatch = './make.sh'
@@ -851,8 +905,13 @@ endfunction
 
 
 function! SetupRustEnvironment() " {{{2
+    let l:path = getcwd()
+    if l:path =~# $HOME.'/git/rust/tracing'
+        let b:rust_recommended_style = 0
+        set textwidth=80
+    endif
     let b:dispatch = 'cargo test'
-    set makeprg=cargo\ clippy
+    set makeprg=cargo\ build
 endfunction
 
 

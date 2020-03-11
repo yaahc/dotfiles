@@ -24,3 +24,5 @@ alias open="xdg-open"
 #random Aliases
 alias pianobar="pianobar | tee ~/.piano_lines.out"
 alias update-altc='bfs ~/ -type d -nohidden > ~/.bfs.cache'
+
+alias cat="bat"

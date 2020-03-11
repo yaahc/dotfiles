@@ -1,9 +1,10 @@
 [user]
     name = Jane Lusby
-    email = jlusby42@gmail.com
+    email = jlusby@yaah.dev
 [core]
     excludesfile = /home/jlusby/.gitignore_global
     editor = vim
+    pager = delta --dark
 [color]
     ui = true
 [alias]
@@ -19,7 +20,7 @@
 [init]
     templatedir = ~/.git_template
 [push]
-    default = matching
+    default = simple
 [rebase]
     autosquash = true
 [commit]
@@ -34,3 +35,6 @@
     prompt = false
 [diff]
     tool = vimdiff
+[hub]
+    host = github.lab.local
+    protocol = git

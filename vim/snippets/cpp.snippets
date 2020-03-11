@@ -1,0 +1,15 @@
+extends c
+
+snippet log hlogstream message
+	hlogstruct(HLOG_${1:INFO}, "${2:your message}"$3);$0
+
+snippet switch switch case statement
+	switch (${1:var}) {
+		case$0
+	}
+
+snippet case case statement
+	case ${1:VARIANT}:
+	{
+		break;
+	}$0

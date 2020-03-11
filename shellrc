@@ -18,6 +18,7 @@ export HISTSIZE=10000
 pathmunge "$HOME/.ccache/bin"
 pathmunge "$HOME/git/scwut/jlusby"
 pathmunge "$HOME/.node_modules_global/bin"
+pathmunge "/snap/bin"
 
 if hash nvim 2>/dev/null; then
     export VISUAL="nvim"
@@ -55,16 +56,30 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 FZF_DIR="$HOME/.fzf/bin/"
 if [ -d $FZF_DIR ] || hash fzf; then
-    export FZF_DEFAULT_OPTS="--reverse --height 40%"
+    # export FZF_DEFAULT_OPTS="--reverse --height 40%"
+    export FZF_DEFAULT_OPTS="--height 40% --reverse --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
     if hash rg 2>/dev/null; then
         export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden -g "!{.git,node_modules}/*" 2> /dev/null'
     fi
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    # If current selection is a text file shows its content,
+    # if it's a directory shows its content, the rest is ignored
+    export FZF_CTRL_T_OPTS="--select-1 --exit-0 --no-height --preview-window wrap --preview '
+    if [[ -f {} ]]; then
+        file --mime {} | grep -q \"text\/.*;\" && bat --color \"always\" {} || (tput setaf 1; file --mime {})
+    elif [[ -d {} ]]; then
+        exa --long --color=always {}
+    else;
+        tput setaf 1; echo Something went wrong!
+    fi'"
+
     export FZF_CTRL_T_OPTS="--select-1 --exit-0"
     if hash bfs 2>/dev/null; then
         export FZF_ALT_C_COMMAND="bfs . -type d -nohidden 2> /dev/null"
     fi
-    export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+
+    # export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+    export FZF_ALT_C_OPTS="--preview 'exa --tree --color=always {} | head -200'"
 fi
 
 export GOPATH="$HOME/go"
@@ -74,4 +89,16 @@ pathmunge "$GOBIN"
 pathmunge "$HOME/.cargo/bin"
 pathmunge "$HOME/.local/bin"
 pathmunge "$HOME/Scripts"
-pathmunge "$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
+
+export RUSTC_WRAPPER=sccache
+export SCCACHE_CACHE_SIZE="100G"
+# export RUSTFLAGS="-C link-arg=-fuse-ld=lld"
+# export WORKSPACE_RUSTC=clippy-driver
+
+export BAT_CONFIG_PATH="$HOME/.batrc"
+
+# Nix package manager config
+if [ -e /home/jlusby/.nix-profile/etc/profile.d/nix.sh ]; then
+    . /home/jlusby/.nix-profile/etc/profile.d/nix.sh
+fi # added by Nix installer
+export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive

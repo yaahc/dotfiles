@@ -40,6 +40,7 @@ Thumbs.db
 ##############
 *.swp
 tags
+*.tags
 
 # Scale unittest files #
 ########################
@@ -54,6 +55,7 @@ compile_commands.json
 .projections.json
 spdk/
 .clang
+.idea
 
 .mypy_cache/
 cscope.out*

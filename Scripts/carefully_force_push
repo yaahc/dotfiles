@@ -1,0 +1,2 @@
+#! /bin/bash
+git push --force origin HEAD:sb_drsd_debug
