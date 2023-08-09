@@ -12,6 +12,12 @@ fi
 # User specific aliases and functions
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-[ -f ~/.scbuild.bash ] && source ~/.scbuild.bash
+# Base16 Shell
+BASE16_SHELL="$HOME/.config/base16-shell/"
+[ -n "$PS1" ] && \
+    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+        source "$BASE16_SHELL/profile_helper.sh"
 
-source /home/jlusby/.config/broot/launcher/bash/br
+alias vim=nvim
+base16_default-dark
+. "$HOME/.cargo/env"

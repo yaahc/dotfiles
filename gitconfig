@@ -5,6 +5,7 @@
     excludesfile = /home/jlusby/.gitignore_global
     editor = vim
     pager = delta --dark
+    hooksPath = ~/.git_template/hooks/
 [color]
     ui = true
 [alias]
@@ -17,8 +18,6 @@
     cblame = shortlog -sne .
 [status]
     displaycommentprefix = true
-[init]
-    templatedir = ~/.git_template
 [push]
     default = simple
 [rebase]

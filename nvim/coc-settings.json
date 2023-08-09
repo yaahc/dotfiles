@@ -1,24 +1,5 @@
 {
-    // format on save via coc
-    // "coc.preferences.formatOnSaveFiletypes": ["rust"],
-    "rust.clippy_preference": "on",
-    // "languageserver": {
-    //     "ccls": {
-    //         "command": "ccls",
-    //         "filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
-    //         "rootPatterns": [".ccls", "compile_commands.json", ".vim/", ".git/", ".hg/"],
-    //         "initializationOptions": {
-    //             "cache": {
-    //                 "directory": ".ccls-cache"
-    //             }
-    //         }
-    //     }
-    // }
-    // "languageserver": {
-    //     "rust": {
-    //         "command": "ra_lsp_server",
-    //         "filetypes": ["rust"],
-    //         "rootPatterns": ["Cargo.toml"]
-    //     }
-    // }
+    "coc.preferences.formatOnSaveFiletypes": ["rust"],
+    // "rust-analyzer.cargo.features": "all",
+    "rust.clippy_preference": "on"
 }
