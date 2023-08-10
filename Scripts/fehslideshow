@@ -1,2 +1,0 @@
-#! /bin/zsh
-feh -Fz -Z -D 10 -r $*

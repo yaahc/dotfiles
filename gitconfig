@@ -1,9 +1,9 @@
 [user]
-    name = Jane Lusby
+    name = Jane Losare-Lusby
     email = jlusby@yaah.dev
 [core]
     excludesfile = /home/jlusby/.gitignore_global
-    editor = vim
+    editor = nvim
     pager = delta --dark
     hooksPath = ~/.git_template/hooks/
 [color]
