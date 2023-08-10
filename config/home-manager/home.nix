@@ -17,9 +17,10 @@
   home.stateVersion = "23.05"; # Please read the comment before changing.
 
   home.packages = [
-  	neovim
-	ripgrep
-	git
-	discord
+        pkgs.neovim
+        pkgs.ripgrep
+        pkgs.git
+        pkgs.discord
+	pkgs.rcm
   ];
 }
