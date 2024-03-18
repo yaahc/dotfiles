@@ -10,6 +10,8 @@ pathmunge() {
     fi
 }
 
+export SSH_AUTH_SOCK=~/.1password/agent.sock
+
 export PROFILE_SOURCED="true"
 
 export HISTFILE=~/.history

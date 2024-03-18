@@ -27,6 +27,7 @@ set nrformats=
 set splitright
 set switchbuf=useopen
 set nowrap
+xnoremap p pgvy
 
 if has('mouse')
     " Don't want the mouse to work in insert mode.
@@ -185,7 +186,7 @@ nnoremap <silent> <leader>mt :call DispatchSetupTest()<CR>:echo "Switched to tes
 nnoremap <silent> <leader>mc :call DispatchSetupCheck()<CR>:echo "Switched to check mode"<CR>
 
 
-nnoremap <leader>I :source ~/.vimrc<CR>:PlugUpdate<CR>
+nnoremap <leader>I :source ~/.vim/vimrc<CR>:PlugUpdate<CR>
 " vim plug {{{1
 " vim plug autoloader {{{2
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -363,11 +364,16 @@ augroup END
 
 Plug 'majutsushi/tagbar' "{{{2
 
+Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'mattn/webapi-vim'
 
 Plug 'rust-lang/rust.vim' "{{{2
-Plug 'mattn/webapi-vim'
-let g:rustfmt_autosave = 1
-let g:rustfmt_options = '--edition 2018'
+" let g:rustfmt_autosave = 1
+Plug 'vim-autoformat/vim-autoformat'
+augroup autoformat
+    au BufWrite *.rs :Autoformat
+augroup END
 
 let wkm['r'] = {
             \ 'name': '+rust',
@@ -375,7 +381,7 @@ let wkm['r'] = {
             \ }
 
 
-Plug 'cespare/vim-toml'
+Plug 'cespare/vim-toml', {'branch': 'main'}
 
 
 " Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
@@ -408,32 +414,32 @@ set signcolumn=yes
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config
 inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
+            \ coc#pum#visible() ? coc#pum#next(1) :
+            \ CheckBackspace() ? "\<Tab>" :
+            \ coc#refresh()
 inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 " <C-g>u breaks current undo, please make your own choice
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+            \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
 " Use <c-space> to trigger completion
 if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
+    inoremap <silent><expr> <c-space> coc#refresh()
 else
-  inoremap <silent><expr> <c-@> coc#refresh()
+    inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
-" Use `[g` and `]g` to navigate diagnostics
+" Use `[q` and `]q` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> [q <Plug>(coc-diagnostic-prev)
+nmap <silent> ]q <Plug>(coc-diagnostic-next)
 
 " GoTo code navigation
 nmap <silent> gd <Plug>(coc-definition)
@@ -445,11 +451,11 @@ nmap <silent> gr <Plug>(coc-references)
 nnoremap <silent> K :call ShowDocumentation()<CR>
 
 function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
+    if CocAction('hasProvider', 'hover')
+        call CocActionAsync('doHover')
+    else
+        call feedkeys('K', 'in')
+    endif
 endfunction
 
 " Highlight the symbol and its references when holding the cursor
@@ -463,11 +469,11 @@ xmap <leader>cf  <Plug>(coc-format-selected)
 nmap <leader>cf  <Plug>(coc-format-selected)
 
 augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s)
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+    autocmd!
+    " Setup formatexpr specified filetype(s)
+    autocmd FileType typescript,json,rust setl formatexpr=CocAction('formatSelected')
+    " Update signature help on jump placeholder
+    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
 " Applying code actions to the selected code block
@@ -492,12 +498,12 @@ nmap <leader>cl  <Plug>(coc-codelens-action)
 
 " Remap <C-f> and <C-b> to scroll float windows/popups
 if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 endif
 
 " Use CTRL-S for selections ranges
@@ -555,7 +561,7 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 "             \ pumvisible() ? "\<C-n>" :
 "             \ <SID>check_back_space() ? "\<TAB>" :
 "             \ coc#refresh()
-" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>" 
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " function! s:check_back_space() abort
 "     let col = col('.') - 1
@@ -690,7 +696,7 @@ let g:ale_linters = {
             \ 'cpp':      ['rscmake', 'cppcheck',     'clangtidy', 'gcovcheck'],
             \ 'go':       ['gobuild', 'gofmt',        'golint',    'gometalinter', 'gosimple',    'gotype',   'govet'],
             \ }
-            " \ 'rust':     ['cargo'],
+" \ 'rust':     ['cargo'],
 
 let g:ale_echo_msg_format = '%code: %%s %linter%'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -IGL'
@@ -821,6 +827,8 @@ Plug 'rhysd/vim-clang-format'
 
 
 Plug 'pprovost/vim-ps1'
+
+Plug '~/git/truffle.vim'
 
 call plug#end() " insert above here {{{2
 

@@ -20,4 +20,3 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 
 alias vim=nvim
 base16_default-dark
-. "$HOME/.cargo/env"
