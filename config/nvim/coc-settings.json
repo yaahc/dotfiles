@@ -1,5 +1,4 @@
 {
     "coc.preferences.formatOnSaveFiletypes": ["rust"],
-    // "rust-analyzer.cargo.features": "all",
     "rust.clippy_preference": "on"
 }

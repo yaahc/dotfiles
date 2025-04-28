@@ -344,7 +344,7 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 let g:airline_solarized_bg='dark'
 let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
-let g:airline#extensions#gutentags#enabled = 1
+" let g:airline#extensions#gutentags#enabled = 1
 
 
 Plug 'octol/vim-cpp-enhanced-highlight' "{{{2
@@ -364,7 +364,7 @@ augroup END
 
 Plug 'majutsushi/tagbar' "{{{2
 
-Plug 'ludovicchabant/vim-gutentags'
+" Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'mattn/webapi-vim'
 

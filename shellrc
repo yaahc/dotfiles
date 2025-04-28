@@ -92,7 +92,7 @@ pathmunge "$HOME/.cargo/bin"
 pathmunge "$HOME/.local/bin"
 pathmunge "$HOME/Scripts"
 
-export RUSTC_WRAPPER=sccache
+# export RUSTC_WRAPPER=sccache
 export SCCACHE_CACHE_SIZE="100G"
 # export RUSTFLAGS="-C link-arg=-fuse-ld=lld"
 # export WORKSPACE_RUSTC=clippy-driver

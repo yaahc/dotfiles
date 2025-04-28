@@ -135,3 +135,7 @@ precmd() {
 export SC_CLAIMS=$(cat ~/.claims)
 
 eval "$(starship init zsh)"
+
+. "$HOME/.atuin/bin/env"
+
+eval "$(atuin init zsh)"
