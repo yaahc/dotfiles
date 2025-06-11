@@ -5,6 +5,7 @@ email = "jlusby42@gmail.com"
 [ui]
 default-command = ["log", "--reversed", "--no-pager"]
 diff-editor = "diffedit3"
+merge-editor = "meld"
 
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]

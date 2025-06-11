@@ -224,9 +224,6 @@ if has('autocmd')
     augroup END
 endif
 
-" easy navigation keybinds
-Plug 'tpope/vim-unimpaired' "{{{2
-
 
 " Git interface I massively underuse, mostly only use Gblame, GStatus is super
 " epic and i know i should use it
@@ -373,7 +370,8 @@ Plug 'rust-lang/rust.vim' "{{{2
 " let g:rustfmt_autosave = 1
 Plug 'vim-autoformat/vim-autoformat'
 augroup autoformat
-    au BufWrite *.rs :Autoformat
+    au!
+    au BufWrite *.rs,*.c :Autoformat
 augroup END
 
 let wkm['r'] = {
@@ -391,7 +389,10 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " extensions
 Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
 " Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
-Plug 'fannheyward/coc-rust-analyzer', {'do': 'yarn install --frozen-lockfile'}
+" I don't think downloading the plugin in this case does anything since I'm
+" just gonna install it via coc itself but whatever, I don't want to have to
+" remember to do this manually on each new pc
+Plug 'fannheyward/coc-rust-analyzer', {'do': ':CocInstall coc-rust-analyzer'}
 Plug 'neoclide/coc-sources', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'MunifTanjim/nui.nvim'
@@ -528,7 +529,7 @@ command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.org
 " Add (Neo)Vim's native statusline support
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " " Mappings for CoCList
 " " Show all diagnostics
@@ -698,7 +699,7 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 Plug 'w0rp/ale' "{{{2
 let g:ale_linters = {
             \ 'rust': [],
-            \ 'cpp':      ['rscmake', 'cppcheck',     'clangtidy', 'gcovcheck'],
+            \ 'cpp':      [ 'cppcheck',     'clangtidy', 'gcovcheck'],
             \ 'go':       ['gobuild', 'gofmt',        'golint',    'gometalinter', 'gosimple',    'gotype',   'govet'],
             \ }
 " \ 'rust':     ['cargo'],
@@ -733,6 +734,8 @@ let g:wkm.a = {
 
 nnoremap <leader>ac :Copen<CR>
 nnoremap <leader>aq :cfirst<CR>
+" cnext = ]q
+" cprev = [q
 nnoremap <leader>aC :Dispatch covrun %:p<CR>
 
 
@@ -834,6 +837,14 @@ Plug 'rhysd/vim-clang-format'
 Plug 'pprovost/vim-ps1'
 
 Plug '~/git/truffle.vim'
+
+" easy navigation keybinds
+Plug 'tpope/vim-unimpaired' "{{{2
+
+Plug 'ruanyl/vim-gh-line'
+" use <leader>gh to open link, xdg-open doesn't work for some reason so trace
+" is needed to create a clickable link
+let g:gh_trace = 1
 
 call plug#end() " insert above here {{{2
 
@@ -945,9 +956,7 @@ endfunction
 
 
 function! DispatchSetupCheck()
-    if &filetype == 'cpp'
-        let b:dispatch = 'rscmake %:p'
-    elseif &filetype == 'rust'
+    if &filetype == 'rust'
         let b:dispatch = 'cargo fix --clippy'
     endif
 endfunction
@@ -959,10 +968,7 @@ endfunction
 
 function! SetupCppEnvironment() " {{{2
     let l:path = expand('%:p')
-    if l:path =~# $SC_GIT_ROOT
-        let b:dispatch = 'rscmake %:p'
-        compiler rscmake
-    elseif l:path =~# $HOME.'/git/notjobless'
+    if l:path =~# $HOME.'/git/notjobless'
         let b:dispatch = './make.sh'
     elseif !empty(glob('./CMakeLists.txt')) && !empty(glob('./build'))
         if empty(glob('./compile_commands.json'))
@@ -975,6 +981,8 @@ endfunction
 
 function! SetupRustEnvironment() " {{{2
     let l:path = getcwd()
+    let b:dispatch = 'cargo test'
+    set makeprg=cargo\ build
     if l:path =~# $HOME.'/git/rust/tracing'
         let b:rust_recommended_style = 0
         set textwidth=80

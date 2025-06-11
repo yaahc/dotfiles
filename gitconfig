@@ -2,9 +2,8 @@
     name = Jane Losare-Lusby
     email = jlusby42@gmail.com
 [core]
-    excludesfile = /home/jlusby/.gitignore_global
     editor = nvim
-    pager = delta --dark
+    #  pager = delta --dark
     hooksPath = ~/.git_template/hooks/
 [color]
     ui = true
@@ -37,3 +36,5 @@
 [hub]
     host = github.lab.local
     protocol = git
+[init]
+	defaultBranch = main

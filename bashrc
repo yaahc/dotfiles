@@ -1,4 +1,5 @@
 # .bashrc
+. /home/yaahc/.nix-profile/etc/profile.d/nix.sh
 
 if [ -f "$HOME/.shellrc" ]; then
     . "$HOME/.shellrc"
@@ -8,10 +9,14 @@ if [ -f "$HOME/.aliasrc" ]; then
     . "$HOME/.aliasrc"
 fi
 
+
 # Source global definitions
 if [ -f /etc/bash.bashrc ]; then
     . /etc/bash.bashrc
 fi
+
+# User specific aliases and functions
+[ -f ~/.aliasrc ] && source ~/.aliasrc
 
 # User specific aliases and functions
 [ -f "$HOME/.fzf.bash" ] && source "$HOME/.fzf.bash"
@@ -22,6 +27,9 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
         source "$BASE16_SHELL/profile_helper.sh"
+if [ -f base16_default-dark ]; then
+    base16_default-dark
+fi
 
 if hash base16_default-dark 2>/dev/null; then
     base16_default-dark
