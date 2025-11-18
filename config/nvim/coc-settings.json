@@ -1,4 +1,5 @@
 {
     "coc.preferences.formatOnSaveFiletypes": ["rust"],
-    "rust.clippy_preference": "on"
+    "rust.clippy_preference": "on",
+    "snippets.ultisnips.pythonPrompt": false
 }

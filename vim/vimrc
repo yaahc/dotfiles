@@ -245,6 +245,7 @@ let g:wkm.G = {
             \ 'p' : ['Git push'               , 'fugitive-push']              ,
             \ 'y' : ['Goyo'                   , 'goyo-mode']                  ,
             \ }
+Plug 'tpope/vim-rhubarb'
 
 
 " Projectionist plugin to let me jump around code, not really in use yet
@@ -393,6 +394,10 @@ Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
 Plug 'fannheyward/coc-rust-analyzer', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc-sources', {'do': 'yarn install --frozen-lockfile'}
 
+Plug 'MunifTanjim/nui.nvim'
+Plug 'julienvincent/hunk.nvim'
+" how the fk do i configure this i don't wanna setup lua :sob:
+
 " May need for Vim (not Neovim) since coc.nvim calculates byte offset by count
 " utf-8 byte sequence
 set encoding=utf-8
@@ -471,7 +476,7 @@ nmap <leader>cf  <Plug>(coc-format-selected)
 augroup mygroup
     autocmd!
     " Setup formatexpr specified filetype(s)
-    autocmd FileType typescript,json,rust setl formatexpr=CocAction('formatSelected')
+    " autocmd FileType typescript,json,rust setl formatexpr=CocAction('formatSelected')
     " Update signature help on jump placeholder
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
@@ -973,9 +978,14 @@ function! SetupRustEnvironment() " {{{2
     if l:path =~# $HOME.'/git/rust/tracing'
         let b:rust_recommended_style = 0
         set textwidth=80
+    elseif l:path =~# $HOME.'/git/rust-lang/rust'
+        set textwidth=100
+        let b:dispatch = 'x test'
+        set makeprg=x\ build
+    else
+        let b:dispatch = 'cargo test'
+        set makeprg=cargo\ build
     endif
-    let b:dispatch = 'cargo test'
-    set makeprg=cargo\ build
 endfunction
 
 
