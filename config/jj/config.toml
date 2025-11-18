@@ -7,8 +7,31 @@ default-command = ["log", "--reversed", "--no-pager"]
 diff-editor = "diffedit3"
 merge-editor = "meld"
 
+[git]
+# Prevent pushing work in progress or anything explicitly labeled "private"
+private-commits = "description(glob:'wip:*') | description(glob:'private:*') | subject(exact:megamerge) | subject(exact:staging)"
+
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
+
+# Make fetch happen and rebase local changes on updated trunk
+# usage: jj gretchen
+gretchen = ["util", "exec", "--", "bash", "-c", """
+set -euo pipefail
+jj git fetch
+jj rebase -b 'mine() & mutable()' -d T --skip-emptied
+jj rebase -s M -d 'roots(bookmarks() & mine() & mutable())' --skip-emptied
+jj edit M+
+""", ""]
+
+# Split commit based on evolog. Usage: jj evosplit <commit_id>
+# where <commit_id> is the commit_id you want to restore the original commit to
+evosplit = ["util", "exec", "--", "bash", "-c", """
+set -euo pipefail
+jj new -A @
+jj restore --from ${1} --into @- --restore-descendants
+jj describe
+""", ""]
 
 # [revsets]
 # log = '@ | ancestors(trunk()..(visible_heads() & mine()), 2) | trunk()'
@@ -41,3 +64,6 @@ concat(
   diff.git(),
 )
 '''
+
+[gg.ui]
+recent-workspaces = ["/home/jlusby/git/rust-lang/rust"]
