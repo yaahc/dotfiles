@@ -1,0 +1,42 @@
+[user]
+name = "Jane Losare-Lusby"
+email = "jlusby42@gmail.com"
+
+[ui]
+default-command = ["log", "--reversed", "--no-pager"]
+diff-editor = "diffedit3"
+
+[aliases]
+tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
+
+# [revsets]
+# log = '@ | ancestors(trunk()..(visible_heads() & mine()), 2) | trunk()'
+
+[revset-aliases]
+T = "trunk()"
+M = '''
+latest(
+    mine()
+    & mutable()
+    & fork_point(trunk() | @)::
+    & (
+        merges()
+        | subject(exact:"megamerge")
+    ),
+    1
+)
+'''
+"closest_bookmark(to)" = "heads(::to & bookmarks())"
+
+[templates]
+draft_commit_description = '''
+concat(
+  coalesce(description, builtin_draft_commit_description, "\n"),
+  surround(
+    "\nJJ: This commit contains the following changes:\n", "",
+    indent("JJ:     ", diff.stat(72)),
+  ),
+  "\nJJ: ignore-rest\n",
+  diff.git(),
+)
+'''
