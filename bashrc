@@ -54,3 +54,5 @@ export PATH="$PATH:/home/jlusby/.influxdb/"
 
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
+
+source <(COMPLETE=bash jj)
