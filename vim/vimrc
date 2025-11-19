@@ -140,8 +140,9 @@ nmap <silent> <leader>L :set list!<CR>
 nmap <silent> <leader>n :silent :nohlsearch<CR>
 
 " misc
+nmap <leader>v :vs<cr>
 " keybinds to open last buffer {{{2
-nmap <leader>v :vs#<cr>
+nmap <leader>vl :vs#<cr>
 nmap <silent> ]a :ALENext -wrap -error<cr>
 nmap <silent> [a :ALEPrevious -wrap -error<cr>
 
