@@ -37,10 +37,7 @@ fi
 
 alias vim=nvim
 
-. "$HOME/.atuin/bin/env"
-
 [[ -f "$HOME/.bash-preexec.sh" ]] && source "$HOME/.bash-preexec.sh"
-eval "$(atuin init bash)"
 eval "$(starship init bash)"
 
 export NVM_DIR="$HOME/.config/nvm"
@@ -52,3 +49,8 @@ export NVM_DIR="$HOME/.config/nvm"
 export PATH="$PATH:/home/jlusby/.influxdb/"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+. "$HOME/.atuin/bin/env"
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"

@@ -9,5 +9,6 @@ fi
 
 if [ -e /home/jlusby/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jlusby/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
-. "$HOME/.atuin/bin/env"
 . "$HOME/.cargo/env"
+
+. "$HOME/.atuin/bin/env"
