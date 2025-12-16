@@ -180,7 +180,9 @@ nnoremap <leader>zo zMzO
 " search visual selection
 vnoremap // y/\V<C-R>"<CR>
 
-nnoremap <leader>R :!rg '<C-R>"' '%' > '<C-R>".rg.%:t'<CR>
+" I legit can't remember how these work
+" I know it writes search results to a file
+" nnoremap <leader>R :!rg '<C-R>"' '%' > '<C-R>".rg.%:t'<CR>
 
 " mode switcher
 nnoremap <silent> <leader>mt :call DispatchSetupTest()<CR>:echo "Switched to test mode"<CR>
@@ -282,6 +284,8 @@ let g:wkm.f = {
 
 nnoremap <C-p> :Files<CR>
 nnoremap <leader>* :execute "Rgg! \\b".expand("<cword>")."\\b"<CR>
+" search for the current search pattern with word boundaries on both ends
+nnoremap <leader>/ :Rg! \b<C-R>/\b<CR>
 nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fp :Files<CR>
 nnoremap <leader>f~ :Files ~/<CR>
@@ -382,7 +386,7 @@ Plug 'rust-lang/rust.vim' "{{{2
 Plug 'vim-autoformat/vim-autoformat'
 augroup autoformat
     au!
-    au BufWrite *.rs,*.c :Autoformat
+    " au BufWrite *.rs,*.c :Autoformat
 augroup END
 
 let wkm['r'] = {
@@ -890,6 +894,7 @@ command! -bang -nargs=* Rgg
             \           : fzf#vim#with_preview('right:50%', '?'),
             \   <bang>0)
 
+" doesn't include filenames in the search pattern
 command! -bang -nargs=* Rggg
             \ call fzf#vim#grep(
             \   'rg --column --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
