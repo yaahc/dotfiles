@@ -298,6 +298,16 @@ nnoremap <leader>fs :Snippets<CR>
 
 
 Plug 'dbakker/vim-projectroot' "{{{2
+let g:rootmarkers = [
+            \ '.projectroot',
+            \ '.jj',
+            \ '.git',
+            \ '.hg',
+            \ '.svn',
+            \ '.bzr',
+            \ '_darcs',
+            \ 'build.xml',
+            \ ]
 
 
 Plug 'junegunn/vader.vim' "{{{2
