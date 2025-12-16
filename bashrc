@@ -1,5 +1,7 @@
 # .bashrc
-. /home/yaahc/.nix-profile/etc/profile.d/nix.sh
+if [ -f /home/yaahc/.nix-profile/etc/profile.d/nix.sh ]; then
+    . /home/yaahc/.nix-profile/etc/profile.d/nix.sh
+fi
 
 if [ -f "$HOME/.shellrc" ]; then
     . "$HOME/.shellrc"
