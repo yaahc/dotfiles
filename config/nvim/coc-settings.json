@@ -1,6 +1,6 @@
 {
     "rust.clippy_preference": "on",
-    // "coc.preferences.formatOnSaveFiletypes": ["rust"],
+    "coc.preferences.formatOnSaveFiletypes": ["rust"],
     // "rust-analyzer.cargo.features": "all",
     "snippets.ultisnips.pythonPrompt": false
 }

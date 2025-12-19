@@ -386,7 +386,7 @@ Plug 'rust-lang/rust.vim' "{{{2
 Plug 'vim-autoformat/vim-autoformat'
 augroup autoformat
     au!
-    " au BufWrite *.rs,*.c :Autoformat
+    au BufWrite *.rs,*.c :Autoformat
 augroup END
 
 let wkm['r'] = {
