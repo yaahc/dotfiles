@@ -6,6 +6,8 @@ email = "jlusby42@gmail.com"
 default-command = ["log", "--reversed", "--no-pager"]
 diff-editor = "diffedit3"
 merge-editor = "meld"
+pager = "delta"
+diff-formatter = ":git"
 
 [git]
 # Prevent pushing work in progress or anything explicitly labeled "private"
