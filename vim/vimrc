@@ -59,7 +59,7 @@ if &t_Co > 2 || has('gui_running')
 endif
 set winwidth=87
 set winminwidth=20
-set clipboard^=unnamedplus
+set clipboard^=unnamed,unnamedplus
 
 " folding
 set foldlevelstart=99
@@ -131,6 +131,11 @@ if has('nvim')
 endif
 
 " tabs & buffers {{{2
+" works on mac
+nnoremap <M-Left> :bprevious<CR>
+nnoremap <M-Right> :bnext<CR>
+" works on linux / pc
+" WHY DOES MAC SUCK SO MUCH!?
 nnoremap <C-Left> :bprevious<CR>
 nnoremap <C-Right> :bnext<CR>
 
