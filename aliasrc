@@ -4,19 +4,7 @@ if [ -n "$VISUAL" ]; then
     alias vim='$VISUAL'
 fi
 
-if [ -x /usr/bin/dircolors ]; then
-    # GNU cli color config
-    # if test -r ~/.dircolors; then eval "$(dircolors -b ~/.dircolors)"; else eval "$(dircolors -b)"; fi
-    alias ls='eza --group-directories-first'
-    alias dir='dir --color=auto'
-    alias grep='grep --color=auto'
-
-    export LESS="-R"
-else
-    alias ls="/usr/local/bin/gls --color -h --group-directories-first"
-    export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-    export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
-fi
+alias ls='eza --group-directories-first'
 
 # some more ls aliases
 alias open="xdg-open"
