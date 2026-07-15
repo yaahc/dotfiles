@@ -2,5 +2,6 @@
     "rust.clippy_preference": "on",
     "coc.preferences.formatOnSaveFiletypes": ["rust"],
     // "rust-analyzer.cargo.features": "all",
+    "rust-analyzer.check.overrideCommand": ["cargo", "clippy", "--all-targets", "--", "--no-deps"],
     "snippets.ultisnips.pythonPrompt": false
 }

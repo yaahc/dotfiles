@@ -3,7 +3,7 @@ name = "Jane Losare-Lusby"
 email = "jlusby42@gmail.com"
 
 [ui]
-default-command = ["log", "--reversed", "--no-pager"]
+default-command = ["log"]
 diff-editor = "diffedit3"
 merge-editor = "meld"
 pager = "delta"
@@ -11,7 +11,7 @@ diff-formatter = ":git"
 
 [git]
 # Prevent pushing work in progress or anything explicitly labeled "private"
-private-commits = "description(glob:'wip:*') | description(glob:'private:*') | subject(exact:megamerge) | subject(exact:staging)"
+private-commits = "description(glob:'WIP:*') | description(glob:'TODO:*') | subject(exact:staging)"
 
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
@@ -21,9 +21,9 @@ tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
 gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
-jj rebase -b 'mine() & mutable()' -d T --skip-emptied
-jj rebase -s M -d 'roots(bookmarks() & mine() & mutable())' --skip-emptied
-jj edit M+
+jj rebase -r 'mine() & mutable()' -d T --skip-emptied
+jj rebase -s S -d 'roots(bookmarks() & mutable())' --skip-emptied
+jj edit S
 """, ""]
 
 # Split commit based on evolog. Usage: jj evosplit <commit_id>
@@ -35,23 +35,12 @@ jj restore --from ${1} --into @- --restore-descendants
 jj describe
 """, ""]
 
-# [revsets]
-# log = '@ | ancestors(trunk()..(visible_heads() & mine()), 2) | trunk()'
+[revsets]
+log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | roots(immutable_heads()..)- | trunk()'
 
 [revset-aliases]
 T = "trunk()"
-M = '''
-latest(
-    mine()
-    & mutable()
-    & fork_point(trunk() | @)::
-    & (
-        merges()
-        | subject(exact:"megamerge")
-    ),
-    1
-)
-'''
+S = "latest(mine() & mutable() & subject(exact:\"staging\"), 1)"
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
 
 [templates]
@@ -69,3 +58,11 @@ concat(
 
 [gg.ui]
 recent-workspaces = ["/home/jlusby/git/rust-lang/rust"]
+
+# Scanner specific configs
+[[--scope]]
+--when.repositories = ["~/git/scanner"]
+[--scope.user]
+email = "jlusby@scanner.dev"
+[--scope.templates]
+git_push_bookmark = '"jane/push-" ++ change_id.short()'

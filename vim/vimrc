@@ -63,7 +63,7 @@ set clipboard^=unnamed,unnamedplus
 
 " folding
 set foldlevelstart=99
-set foldmethod=syntax
+set foldmethod=expr
 set viewoptions=cursor,folds,slash,unix
 
 
@@ -96,9 +96,6 @@ set noswapfile
 " "qp
 " aka paste from register q after the current cursor
 let @f = 'viwt(dds(' " delete function and corresponding parens, depends on vim-surround
-let @h = '^xxxihlogstream(HLOG_INFO, "A");'
-let @a = 'ciWautoA€kb -> +;'
-let @i = 'ciWautoea = +lcs({^'
 
 " leader mappings {{{1
 " To show all commands that start with leader type :map <leader> " {{{2
@@ -413,6 +410,7 @@ Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
 " just gonna install it via coc itself but whatever, I don't want to have to
 " remember to do this manually on each new pc
 Plug 'fannheyward/coc-rust-analyzer', {'do': ':CocInstall coc-rust-analyzer'}
+Plug 'neoclide/coc-tsserver', {'do': ':CocInstall coc-tsserver'}
 Plug 'neoclide/coc-sources', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'MunifTanjim/nui.nvim'
@@ -802,6 +800,9 @@ Plug 'gavocanov/vim-js-indent'
 Plug 'mxw/vim-jsx'
 Plug 'othree/javascript-libraries-syntax.vim'
 
+" TypeScript
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
 
 " Plug 'git+ssh://gerrit.lab.local:29418/scbuild', { 'do': './install.sh --update-rc' } " {{{2
 
@@ -966,6 +967,7 @@ function! DeleteHiddenBuffers() " {{{2
     echo 'Closed '.l:closed.' hidden buffers'
 endfunction
 nnoremap <leader>bD :call DeleteHiddenBuffers()<CR>
+nnoremap <leader>bd :bd<CR>
 
 function! DispatchSetupTest()
     if &filetype == 'cpp'
@@ -1064,14 +1066,13 @@ function! s:DisableRustAutoLinting() " {{{2
 endfunction
 
 " {{{3
-command! TmuxGdbBreak silent exec "!tmux send-keys -t \\! 'br ' " . expand('%:t') . ':' . line('.') . ' Enter'
+command! TmuxGdbBreak silent exec "!tmux send-keys -t \\! 'b ' " . expand('%') . ':' . line('.') . ' Enter' | redraw!
 command! TmuxGdbRun silent exec "!tmux send-keys -t \\! 'run' Enter"
 command! TmuxGdbDisable silent exec "!tmux send-keys -t \\! 'dis' Enter"
 function! TmuxGdbInput()
     let l:cmd = input('Enter gdb command: ')
     silent exec "!tmux send-keys -t \\! '".l:cmd."' Enter"
 endfunction " }}}3
-
 
 function! FoldNonSearch() " {{{2
     let l:l = line('.')
