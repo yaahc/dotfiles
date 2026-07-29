@@ -11,7 +11,11 @@ diff-formatter = ":git"
 
 [git]
 # Prevent pushing work in progress or anything explicitly labeled "private"
-private-commits = "description(glob:'WIP:*') | description(glob:'TODO:*') | subject(exact:staging)"
+private-commits = "description(glob:'LOCAL:*') | description(glob:'WIP:*') | description(glob:'TODO:*') | subject(exact:staging)"
+
+[fix.tools.rustfmt]
+command = ["rustfmt", "--emit", "stdout", "--edition", "2024"]
+patterns = ["glob:'**/*.rs'"]
 
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
