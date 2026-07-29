@@ -14,6 +14,17 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.lsp.config("rust_analyzer", {
+  settings = {
+    --  https://rust-analyzer.github.io/book/configuration.html#diagnostics.disabled
+    ["rust-analyzer"] = {
+      diagnostics = {
+        disabled = { "inactive_code" },
+      },
+    },
+  },
+})
+
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
