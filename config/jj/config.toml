@@ -53,6 +53,7 @@ S = "staging()"
 'local()' = 'mine() & mutable()'
 L = 'local()'
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
+"mine()" = "author_email(exact-i:\"jlusby42@gmail.com\") | author_email(exact-i:\"jlusby@scanner.dev\")"
 
 [templates]
 draft_commit_description = '''
