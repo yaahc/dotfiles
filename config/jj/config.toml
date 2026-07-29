@@ -28,14 +28,13 @@ jj squash --into ${1} -k
 jj desc ${1}
 """, ""]
 
-# Make fetch happen and rebase local changes on updated trunk
+# Make fetch happen and rebase staging on updated trunk
 # usage: jj gretchen
 gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
-jj rebase -r 'mine() & mutable()' -d T --skip-emptied
-jj rebase -s S -d 'heads(bookmarks() & mutable())' --skip-emptied
-jj edit S
+jj rebase -r 'local()' -d 'trunk()' --skip-emptied
+jj rebase -s 'staging()' -d 'trunk()' -d 'parents(staging())' --skip-emptied --simplify-parents
 """, ""]
 
 # Split commit based on evolog. Usage: jj evosplit <commit_id>
@@ -47,13 +46,12 @@ jj restore --from ${1} --into @- --restore-descendants
 jj describe
 """, ""]
 
-[revsets]
-log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | trunk()'
-# log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | roots(immutable_heads()..)- | trunk()'
-
 [revset-aliases]
+'staging()' = "exactly(mine() & mutable() & subject(exact:\"staging\"), 1)"
 T = "trunk()"
-S = "latest(mine() & mutable() & subject(exact:\"staging\"), 1)"
+S = "staging()"
+'local()' = 'mine() & mutable()'
+L = 'local()'
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
 
 [templates]
