@@ -37,8 +37,7 @@ jj desc ${1}
 gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
-jj rebase -r 'local()' -d 'trunk()' --skip-emptied
-jj rebase -s 'staging()' -d 'trunk()' -d 'parents(staging())' --skip-emptied --simplify-parents
+jj rebase -r 'local()' -d 'trunk()' --skip-emptied --simplify-parents
 """, ""]
 
 # Split commit based on evolog. Usage: jj evosplit <commit_id>
@@ -49,6 +48,26 @@ jj new -A @
 jj restore --from ${1} --into @- --restore-descendants
 jj describe
 """, ""]
+t = ["trunk"]
+trunk = ["log", "-r", "latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
+landed = ["util", "exec", "--", "bash", "-c", """
+set -euo pipefail
+branch='trunk()'
+nth_fetch=1
+for argument in "$@"; do
+  if [[ $argument =~ ^[0-9]+$ ]]; then
+    nth_fetch=$argument
+  else
+    branch=$argument
+  fi
+done
+op=$(jj op log --no-graph -T 'if(self.description().starts_with("fetch"), self.id().short() ++ "\n")' | sed -n "${nth_fetch}p")
+if [[ -z $op ]]; then
+  echo "fewer than ${nth_fetch} fetches in the operation log" >&2
+  exit 1
+fi
+jj log -r "landed(${branch}, ${op}-)"
+""", ""]
 
 [revset-aliases]
 'staging()' = "exactly(mine() & mutable() & subject(exact:\"staging\"), 1)"
@@ -57,6 +76,7 @@ S = "staging()"
 'local()' = 'mine() & mutable()'
 L = 'local()'
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
+"landed(branch, op)" = "::branch ~ ::at_operation(op, branch)"
 "mine()" = "author_email(exact-i:\"jlusby42@gmail.com\") | author_email(exact-i:\"jlusby@scanner.dev\")"
 
 [templates]
