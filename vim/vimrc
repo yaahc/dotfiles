@@ -61,10 +61,10 @@ set winwidth=87
 set winminwidth=20
 set clipboard^=unnamed,unnamedplus
 
-" folding
-set foldlevelstart=99
-set foldmethod=expr
-set viewoptions=cursor,folds,slash,unix
+" " folding
+" set foldlevelstart=99
+" set foldmethod=expr
+" set viewoptions=cursor,folds,slash,unix
 
 
 " Indentation {{{2

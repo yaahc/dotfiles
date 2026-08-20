@@ -15,6 +15,18 @@ private-commits = "description(glob:'WIP:*') | description(glob:'TODO:*') | subj
 
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
+cool-squash = ["util", "exec", "--", "jj-squash"]
+move = ["util", "exec", "--", "jj-move"]
+
+# insert current changes after bookmark and advance bookmark
+# usage: jj move-after <bookmark>
+move-after = ["util", "exec", "--", "bash", "-c", """
+set -euo pipefail
+jj new --no-edit -A ${1}
+jj bookmark advance ${1} -t ${1}+
+jj squash --into ${1} -k
+jj desc ${1}
+""", ""]
 
 # Make fetch happen and rebase local changes on updated trunk
 # usage: jj gretchen
@@ -22,7 +34,7 @@ gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
 jj rebase -r 'mine() & mutable()' -d T --skip-emptied
-jj rebase -s S -d 'roots(bookmarks() & mutable())' --skip-emptied
+jj rebase -s S -d 'heads(bookmarks() & mutable())' --skip-emptied
 jj edit S
 """, ""]
 
@@ -36,7 +48,8 @@ jj describe
 """, ""]
 
 [revsets]
-log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | roots(immutable_heads()..)- | trunk()'
+log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | trunk()'
+# log = 'present(@) | ancestors(immutable_heads().. & mine(), 2) | roots(immutable_heads()..)- | trunk()'
 
 [revset-aliases]
 T = "trunk()"

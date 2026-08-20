@@ -1,0 +1,69 @@
+#!/usr/bin/env fish
+
+function jj-move
+    set -f jj_move_help "Move fileset changes across revisions
+
+$(set_color -o yellow)Usage: $(set_color normal)$(set_color -o green)jj-move$(set_color normal)$(set_color green) [FILESETS]... [OPTIONS]
+
+$(set_color -o yellow)Arguments:
+$(set_color normal)$(set_color green)  [FILESETS]...  $(set_color normal)The fileset changes in the revision to move [default: all]
+
+$(set_color -o yellow)Options:
+  $(set_color -o green)-f, --from $(set_color normal)$(set_color green)<REVSET>             $(set_color normal)The revision to take fileset changes from [default: @]
+  $(set_color -o green)-t, --into $(set_color normal)$(set_color green)<REVSET>             $(set_color normal)The revision to move fileset changes into [default: @]
+  $(set_color -o green)-i, --interactive               $(set_color normal)Interactively choose which hunks to move
+      $(set_color -o green)--tool $(set_color normal)$(set_color green)<NAME>               $(set_color normal)Specify diff editor to be used (implies --interactive)
+  $(set_color -o green)-h, --help                      $(set_color normal)Print this help message
+
+$(set_color -o yellow)Global Options:
+  $(set_color -o green)-R, --repository $(set_color normal)$(set_color green)<REPOSITORY>   $(set_color normal)Path to repository to operate on
+      $(set_color -o green)--ignore-working-copy       $(set_color normal)Don't snapshot the working copy, and don't update it
+      $(set_color -o green)--ignore-immutable          $(set_color normal)Allow rewriting immutable commits
+      $(set_color -o green)--at-op $(set_color normal)$(set_color green)<OPERATION>         $(set_color normal)Operation to load the repo at
+      $(set_color -o green)--debug                     $(set_color normal)Enable debug logging
+      $(set_color -o green)--color $(set_color normal)$(set_color green)<WHEN>              $(set_color normal)When to colorize output [values: always, never, debug, auto]
+      $(set_color -o green)--quiet                     $(set_color normal)Silence non-primary command output
+      $(set_color -o green)--no-pager                  $(set_color normal)Disable the pager
+      $(set_color -o green)--config $(set_color normal)$(set_color green)<NAME=VALUE>       $(set_color normal)Additional configuration options
+      $(set_color -o green)--config-file $(set_color normal)$(set_color green)<PATH>        $(set_color normal)Additional configuration files"
+
+    argparse --strict-longopts 'f/from=' 't/into=' 'i/interactive' 'tool=' 'h/help' \
+             'R/repository=' 'ignore-working-copy' 'ignore-immutable' 'at-operation=' \
+             'debug' 'color=' 'quiet' 'no-pager' 'config=' 'config-file=' \
+             -- $argv
+    or return
+
+    if set -q _flag_help
+        echo $jj_move_help
+        return
+    end
+
+    # options
+    if set -q _flag_interactive; set -f args $args "--interactive"; end
+    if set -q _flag_tool; set -f args $args "--tool" "\"$_flag_tool\""; end
+
+    # global options
+    if set -q _flag_repository; set -f args $args "--repository" "\"$_flag_repository\""; end
+    if set -q _flag_ignore_working_copy; set -f args $args "--ignore-working-copy"; end
+    if set -q _flag_ignore_immutable; set -f args $args "--ignore-immutable"; end
+    if set -q _flag_repository; set -f args $args "--repository" "\"$_flag_repository\""; end
+    if set -q _flag_debug; set -f args $args "--debug"; end
+    if set -q _flag_color; set -f args $args "--color" "\"$_flag_color\""; end
+    if set -q _flag_quiet; set -f args $args "--quiet"; end
+    if set -q _flag_no_pager; set -f args $args "--no-pager"; end
+    if set -q _flag_config; set -f args $args "--config" "\"$_flag_config\""; end
+    if set -q _flag_config_file; set -f args $args "--config-file" "\"$_flag_config_file\""; end
+
+    if set -q _flag_into
+        set -f args "--into" $_flag_into $args
+    end
+
+    if set -q _flag_from
+        set -f args "--from" $_flag_from $args
+    end
+
+    echo "jj squash $argv --keep-emptied $args"
+    jj squash $argv --keep-emptied $args
+end
+
+jj-move $argv

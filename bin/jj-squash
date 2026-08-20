@@ -1,0 +1,96 @@
+#!/usr/bin/env fish
+
+function jj-squash
+    set -f jj_squash_help "Squash multiple revisions into one revision
+
+$(set_color -o yellow)Usage: $(set_color normal)$(set_color -o green)jj-squash$(set_color normal)$(set_color green) [REVSETS]... [OPTIONS]
+
+$(set_color -o yellow)Arguments:
+$(set_color normal)$(set_color green)  [REVSETS]...$(set_color normal)  The revision(s) to squash [default: @]
+
+$(set_color -o yellow)Options:
+  $(set_color -o green)-t, --into $(set_color normal)$(set_color green)<REVSET>             $(set_color normal)The revision to squash into [default: @]
+  $(set_color -o green)-B, --before $(set_color normal)$(set_color green)<REVSETS>          $(set_color normal)The revision(s) to insert the new commit before [contrasts --into, --after, --onto]
+  $(set_color -o green)-A, --after $(set_color normal)$(set_color green)<REVSETS>           $(set_color normal)The revision(s) to insert the new commit after [contrasts --into, --before, --onto]
+  $(set_color -o green)-o, --onto $(set_color normal)$(set_color green)<REVSET>             $(set_color normal)The revision(s) to use as parent for the new commit [contrasts --into, --before, --after]
+  $(set_color -o green)-m, --message $(set_color normal)$(set_color green)<MESSAGE>         $(set_color normal)The change description to use [contrasts --interactive]
+  $(set_color -o green)-u, --use-destination-message   $(set_color normal)Use the description of the destination revision and
+                                  discard the description of the source revision(s)
+      $(set_color -o green)--editor                    $(set_color normal)Open an editor to edit the revision description
+  $(set_color -o green)-i, --interactive               $(set_color normal)Interactively choose which hunks to squash
+      $(set_color -o green)--tool                      $(set_color normal)Specify diff editor to be used [implies --interactive]
+  $(set_color -o green)-h, --help                      $(set_color normal)Print this help message
+
+$(set_color -o yellow)Global Options:
+  $(set_color -o green)-R, --repository$(set_color normal) $(set_color green)<REPOSITORY>   $(set_color normal)Path to repository to operate on
+      $(set_color -o green)--ignore-working-copy       $(set_color normal)Don't snapshot the working copy, and don't update it
+      $(set_color -o green)--ignore-immutable          $(set_color normal)Allow rewriting immutable commits
+      $(set_color -o green)--at-op $(set_color normal)$(set_color green)<OPERATION>         $(set_color normal)Operation to load the repo at
+      $(set_color -o green)--debug                     $(set_color normal)Enable debug logging
+      $(set_color -o green)--color $(set_color normal)$(set_color green)<WHEN>              $(set_color normal)When to colorize output [values: always, never, debug, auto]
+      $(set_color -o green)--quiet                     $(set_color normal)Silence non-primary command output
+      $(set_color -o green)--no-pager                  $(set_color normal)Disable the pager
+      $(set_color -o green)--config $(set_color normal)$(set_color green)<NAME=VALUE>       $(set_color normal)Additional configuration options
+      $(set_color -o green)--config-file $(set_color normal)$(set_color green)<PATH>        $(set_color normal)Additional configuration files"
+
+    argparse -x t,B,A,o 't/into=' 'B/before=' 'A/after=' 'o/onto=' \
+                        'm/message=' 'u/use-destination-message' 'editor' 'i/interactive' 'tool=' 'h/help' \
+                        'R/repository=' 'ignore-working-copy' 'ignore-immutable' 'at-operation=' \
+                        'debug' 'color=' 'quiet' 'no-pager' 'config=' 'config-file=' \
+                        -- $argv
+    or return
+
+    if set -q _flag_help
+        echo $jj_squash_help
+        return
+    end
+
+    # options
+    if set -q _flag_message; set -f args $args "--message" "\"$_flag_message\""; end
+    if set -q _flag_use_destination_message; set -f args $args "--use-destination-message"; end
+    if set -q _flag_editor; set -f args $args "--editor"; end
+    if set -q _flag_interactive; set -f args $args "--interactive"; end
+    if set -q _flag_tool; set -f args $args "--tool" "\"$_flag_tool\""; end
+
+    # global options
+    if set -q _flag_repository; set -f args $args "--repository" "\"$_flag_repository\""; end
+    if set -q _flag_ignore_working_copy; set -f args $args "--ignore-working-copy"; end
+    if set -q _flag_ignore_immutable; set -f args $args "--ignore-immutable"; end
+    if set -q _flag_repository; set -f args $args "--repository" "\"$_flag_repository\""; end
+    if set -q _flag_debug; set -f args $args "--debug"; end
+    if set -q _flag_color; set -f args $args "--color" "\"$_flag_color\""; end
+    if set -q _flag_quiet; set -f args $args "--quiet"; end
+    if set -q _flag_no_pager; set -f args $args "--no-pager"; end
+    if set -q _flag_config; set -f args $args "--config" "\"$_flag_config\""; end
+    if set -q _flag_config_file; set -f args $args "--config-file" "\"$_flag_config_file\""; end
+
+    if test -n "$argv"
+        set -f revsets $argv
+    else
+        set -f revsets "@"
+    end
+
+    # mutually exclusive options
+    if set -q _flag_into
+        set -f args "--into" $flag_into $args
+        echo "jj squash --from $revsets $args"
+        jj squash --from $revsets --into $_flag_into $args
+    else if set -q _flag_before
+        set -f args "--before" $flag_before $args
+        echo "jj squash --from $revsets $args"
+        jj squash --from $revsets --before $_flag_before $args
+    else if set -q _flag_after
+        set -f args "--after" $flag_after $args
+        echo "jj squash --from $revsets $args"
+        jj squash --from $revsets --after $_flag_after $args
+    else if set -q _flag_onto
+        set -f args "--onto" $flag_onto $args
+        echo "jj squash --from $revsets $args"
+        jj squash --from $revsets --onto $flag_onto $args
+    else # squash into parent
+        echo "jj squash --revision $revsets $args"
+        jj squash --revision $revsets $args
+    end
+end
+
+jj-squash $argv
