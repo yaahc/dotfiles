@@ -38,6 +38,7 @@ gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
 jj rebase -r 'local()' -d 'trunk()' --skip-emptied --simplify-parents
+jj git push -b 'glob:jane/stash/*'
 """, ""]
 
 # Split commit based on evolog. Usage: jj evosplit <commit_id>
@@ -78,6 +79,12 @@ L = 'local()'
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
 "landed(branch, op)" = "::branch ~ ::at_operation(op, branch)"
 "mine()" = "author_email(exact-i:\"jlusby42@gmail.com\") | author_email(exact-i:\"jlusby@scanner.dev\")"
+"stash_heads()" = 'bookmarks(glob:"jane/stash/*")'
+"stashed()" = '::stash_heads() ~ ::(@ | trunk() | (bookmarks() ~ stash_heads()))'
+"immutable_heads()" = 'trunk() | tags() | (untracked_remote_bookmarks() ~ remote_bookmarks(glob:"jane/stash/*")) | untracked_remote_tags()'
+
+[revsets]
+log = 'builtin_log() ~ stashed()'
 
 [templates]
 draft_commit_description = '''
