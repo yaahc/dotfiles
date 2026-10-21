@@ -54,3 +54,8 @@ local function open_cargo_toml_with_fallback()
 end
 
 vim.keymap.set("n", "<leader>ct", open_cargo_toml_with_fallback, { desc = "Open Crate Cargo.toml" })
+
+vim.keymap.set({ "i", "n", "s" }, "<esc>", function()
+  LazyVim.cmp.actions.snippet_stop()
+  return "<esc>"
+end, { expr = true, desc = "Escape and Stop Snippet" })
