@@ -1,4 +1,16 @@
 return {
-  -- Disable the default "trouble.nvim" plugin
-  { "nvim-mini/mini.pairs", enabled = false },
+  {
+    "nvim-mini/mini.pairs",
+    opts = {
+      mappings = {
+        ["("] = false,
+        ["["] = false,
+        [")"] = false,
+        ["]"] = false,
+        ['"'] = false,
+        ["'"] = false,
+        ["`"] = false,
+      },
+    },
+  },
 }
