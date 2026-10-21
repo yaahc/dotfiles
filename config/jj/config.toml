@@ -20,7 +20,7 @@ merge-editor = "meld"
 
 'wip()' = 'description(glob:"WIP:*") | description(glob:"TODO:*")'
 'local()' = 'description(glob:"LOCAL:*") | staging()'
-'staging()' = 'exactly(in_flight() & subject(exact:"staging"), 1)'
+'staging()' = 'in_flight() & subject(exact:"staging")'
 'in_flight()' = 'mine() & mutable()'
 
 'landed(branch, op)' = '::branch ~ ::at_operation(op, branch)'
@@ -29,6 +29,9 @@ merge-editor = "meld"
 T = 'trunk()'
 S = 'staging()'
 L = 'in_flight()'
+
+[revsets]
+log-graph-prioritize = 'coalesce(staging(), @)'
 
 
 # ─── Git ──────────────────────────────────────────────────────────────────────
@@ -63,12 +66,34 @@ concat(
 )
 '''
 
+[template-aliases]
+'format_short_commit_header(commit)' = '''
+separate(" ",
+  format_short_change_id_with_change_offset(commit),
+  format_short_signature(commit.author()),
+  label("created", format_timestamp(commit.author().timestamp())),
+  format_timestamp(commit.committer().timestamp()),
+  commit.bookmarks(),
+  commit.tags(),
+  commit.working_copies(),
+  format_short_commit_id(commit.commit_id()),
+  format_commit_labels(commit),
+  if(config("ui.show-cryptographic-signatures").as_boolean(),
+    format_short_cryptographic_signature(commit.signature())
+  ),
+)
+'''
+
+[colors]
+"created timestamp" = "green"
+"working_copy created timestamp" = "bright green"
+
 
 # ─── Aliases ──────────────────────────────────────────────────────────────────
 
 [aliases]
 t = ["trunk"]
-trunk = ["log", "--revision","latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
+trunk = ["log", "--revision", "latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
 
 # Insert current changes after bookmark and advance bookmark
 # usage: jj move-after <bookmark>
@@ -82,8 +107,9 @@ move-after = ["util", "exec", "--", "bash", "-c", '''
 
 # Make fetch happen and rebase staging on updated trunk
 # usage: jj gretchen
-gretchen = ["util", "exec", "--", "bash", "-c", '''
-  set -euo pipefail
+
+
+gretchen = [ "util", "exec", "--", "bash", "-c", '''set -euo pipefail
   jj git fetch
   jj rebase --revision 'in_flight()' --onto 'trunk()' --skip-emptied --simplify-parents
 ''', ""]
@@ -98,14 +124,7 @@ evosplit = ["util", "exec", "--", "bash", "-c", '''
   jj describe
 ''', ""]
 
-landed = [
-  "util",
-  "exec",
-  "--",
-  "bash",
-  "-c",
-  '''
-  set -euo pipefail
+landed = [ "util", "exec", "--", "bash", "-c", '''set -euo pipefail
   branch='trunk()'
   nth_fetch=1
   for argument in "$@"; do
@@ -121,9 +140,7 @@ landed = [
     exit 1
   fi
   jj log --revision "landed(${branch}, ${op}-)"
-''',
-  "",
-]
+''', ""]
 
 
 # ─── Scanner ──────────────────────────────────────────────────────────────────
