@@ -285,7 +285,7 @@
 # arguments = "--rebase --autostash"
 
 # Whether to perform a `git fetch` instead of `git pull`
-# fetch_only = false
+fetch_only = true
 
 # When a repo is not on its default branch, fetch the default branch (advancing
 # its local ref) instead of failing. The remote and default branch are detected
@@ -416,6 +416,7 @@
 [containers]
 # Specify the containers to ignore while updating (Wildcard supported)
 # ignored_containers = ["ghcr.io/rancher-sandbox/rancher-desktop/rdx-proxy:latest", "docker.io*"]
+ignored_containers = ["localstack-ec2/*", "log-storage-2-localstack*"]
 # Specify the runtime to use for containers (default: "docker", allowed values: "docker", "podman")
 # runtime = "podman"
 
