@@ -4,8 +4,6 @@ if status --is-interactive
     source "$BASE16_SHELL/profile_helper.fish"
     base16-default-dark
 
-    fnm env --use-on-cd --shell fish | source
-
     # exports
     set --export LOCALSTACK_AUTH_TOKEN ls-mAbuLegu-9647-jUyU-2041-BAQiloLA465b
     set --export EDITOR nvim
