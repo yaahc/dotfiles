@@ -37,8 +37,7 @@ jj desc ${1}
 gretchen = ["util", "exec", "--", "bash", "-c", """
 set -euo pipefail
 jj git fetch
-jj rebase -r 'local()' -d 'trunk()' --skip-emptied --simplify-parents
-jj git push -b 'glob:jane/stash/*'
+jj rebase -r 'local() ~ stashed()' -d 'trunk()' --skip-emptied --simplify-parents
 """, ""]
 
 # Split commit based on evolog. Usage: jj evosplit <commit_id>
@@ -81,10 +80,10 @@ L = 'local()'
 "mine()" = "author_email(exact-i:\"jlusby42@gmail.com\") | author_email(exact-i:\"jlusby@scanner.dev\")"
 "stash_heads()" = 'bookmarks(glob:"jane/stash/*")'
 "stashed()" = '::stash_heads() ~ ::(@ | trunk() | (bookmarks() ~ stash_heads()))'
-"immutable_heads()" = 'trunk() | tags() | (untracked_remote_bookmarks() ~ remote_bookmarks(glob:"jane/stash/*")) | untracked_remote_tags()'
+"conflicted_stash_heads()" = 'stash_heads() & (::stash_heads() & conflicts())::'
 
 [revsets]
-log = 'builtin_log() ~ stashed()'
+log = 'builtin_log() ~ (stashed() ~ ::conflicted_stash_heads())'
 
 [templates]
 draft_commit_description = '''
