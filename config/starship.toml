@@ -1,1 +1,39 @@
+format = """
+$username\
+$hostname\
+$directory\
+$vcs\
+$python\
+$pulumi\
+${custom.aws_production}\
+$aws\
+$cmd_duration\
+$line_break\
+$jobs\
+$character"""
+
+[vcs]
+order = ["jj", "git"]
+
+[jj_bookmark]
+format = 'on [$symbol$bookmark(@$remote)]($style)[$diverged](dimmed purple)( [\(+$overflow_count\)](dimmed)) '
+diverged_symbol = "⇕"
+
+[pulumi]
+format = 'via [$symbol$stack]($style) '
+
+[custom.aws_production]
+when = '''
+case "$AWS_PROFILE" in
+  "" | localstack | default | dev | internal | dev-* | *.dev-* | internal-* | *.internal-*) exit 1 ;;
+esac
+'''
+shell = ["sh"]
+format = "[⚠ PROD]($style) "
+style = "bold white bg:red"
+
+[aws]
+force_display = true
+format = '(on [$symbol$profile( \($region\))( \[$duration\])]($style) )'
+
 [cmd_duration]
