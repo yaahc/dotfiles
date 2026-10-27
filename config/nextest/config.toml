@@ -1,0 +1,8 @@
+[experimental]
+record = true
+
+[record]
+enabled = true
+
+[ui]
+show-progress = "counter"
