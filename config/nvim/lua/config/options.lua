@@ -9,3 +9,11 @@ vim.g.root_spec = {
   "lsp",
   "cwd",
 }
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("rust_textwidth", { clear = true }),
+  pattern = "rust",
+  callback = function()
+    vim.opt_local.textwidth = 80
+  end,
+})
