@@ -55,6 +55,14 @@ end
 
 vim.keymap.set("n", "<leader>ct", open_cargo_toml_with_fallback, { desc = "Open Crate Cargo.toml" })
 
+local function cancel_rust_analyzer_flycheck()
+  for _, rust_analyzer in ipairs(vim.lsp.get_clients({ name = "rust-analyzer" })) do
+    rust_analyzer:notify("rust-analyzer/cancelFlycheck")
+  end
+end
+
+vim.keymap.set("n", "<leader>cx", cancel_rust_analyzer_flycheck, { desc = "Cancel Rust Flycheck" })
+
 vim.keymap.set({ "i", "n", "s" }, "<esc>", function()
   LazyVim.cmp.actions.snippet_stop()
   return "<esc>"
