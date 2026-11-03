@@ -1,0 +1,8 @@
+[net]
+git-fetch-with-cli = true
+
+[build]
+rustc-wrapper = "/Users/jlusby/.cargo/bin/sccache"
+
+[env]
+SCCACHE_CACHE_SIZE = "50G"
