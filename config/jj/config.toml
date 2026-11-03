@@ -26,23 +26,16 @@ merge-editor = "meld"
 'landed(branch, op)' = '::branch ~ ::at_operation(op, branch)'
 'closest_bookmark(to)' = 'heads(::to & bookmarks())'
 
-'stashed()' = '::stash_heads() ~ ::(@ | trunk() | (bookmarks() ~ stash_heads()))'
-'stash_heads()' = 'bookmarks(glob:"stash/*")'
-'conflicted_stash_heads()' = 'stash_heads() & (::stash_heads() & conflicts())::'
-
 T = 'trunk()'
 S = 'staging()'
 L = 'in_flight()'
-
-[revsets]
-log = 'present(@) | ancestors(immutable_heads().. ~ stashed(), 2) | trunk()'
 
 
 # ─── Git ──────────────────────────────────────────────────────────────────────
 
 [git]
 # Prevent pushing work in progress or anything explicitly labeled "private"
-private-commits = 'local() | wip() | stashed()'
+private-commits = 'local() | wip()'
 
 
 # ─── Tools ────────────────────────────────────────────────────────────────────
@@ -75,15 +68,15 @@ concat(
 
 [aliases]
 t = ["trunk"]
-trunk = ["log", "-r", "latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
+trunk = ["log", "--revision","latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
 
 # Insert current changes after bookmark and advance bookmark
 # usage: jj move-after <bookmark>
 move-after = ["util", "exec", "--", "bash", "-c", '''
   set -euo pipefail
-  jj new --no-edit -A ${1}
-  jj bookmark advance ${1} -t ${1}+
-  jj squash --into ${1} -k
+  jj new --no-edit --insert-after ${1}
+  jj bookmark advance ${1} --to ${1}+
+  jj squash --into ${1} --keep-emptied
   jj desc ${1}
 ''', ""]
 
@@ -92,7 +85,7 @@ move-after = ["util", "exec", "--", "bash", "-c", '''
 gretchen = ["util", "exec", "--", "bash", "-c", '''
   set -euo pipefail
   jj git fetch
-  jj rebase -r 'in_flight()' -d 'trunk()' --skip-emptied --simplify-parents
+  jj rebase --revision 'in_flight()' --onto 'trunk()' --skip-emptied --simplify-parents
 ''', ""]
 
 # Split commit based on evolog
@@ -100,7 +93,7 @@ gretchen = ["util", "exec", "--", "bash", "-c", '''
 # where <commit_id> is the commit_id you want to restore the original commit to
 evosplit = ["util", "exec", "--", "bash", "-c", '''
   set -euo pipefail
-  jj new -A @
+  jj new --insert-after @
   jj restore --from ${1} --into @- --restore-descendants
   jj describe
 ''', ""]
@@ -122,12 +115,12 @@ landed = [
       branch=$argument
     fi
   done
-  op=$(jj op log --no-graph -T 'if(self.description().starts_with("fetch"), self.id().short() ++ "\n")' | sed -n "${nth_fetch}p")
+  op=$(jj op log --no-graph --template 'if(self.description().starts_with("fetch"), self.id().short() ++ "\n")' | sed -n "${nth_fetch}p")
   if [[ -z $op ]]; then
     echo "fewer than ${nth_fetch} fetches in the operation log" >&2
     exit 1
   fi
-  jj log -r "landed(${branch}, ${op}-)"
+  jj log --revision "landed(${branch}, ${op}-)"
 ''',
   "",
 ]
