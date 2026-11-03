@@ -4,86 +4,58 @@ email = "jlusby42@gmail.com"
 
 [ui]
 default-command = ["log"]
-diff-editor = "diffedit3"
-merge-editor = "meld"
 pager = "delta"
 diff-formatter = ":git"
+diff-editor = "diffedit3"
+merge-editor = "meld"
+
+
+# ─── Revsets ──────────────────────────────────────────────────────────────────
+
+[revset-aliases]
+'mine()' = '''
+    author_email(exact-i:"jlusby42@gmail.com")
+  | author_email(exact-i:"jlusby@scanner.dev")
+'''
+
+'wip()' = 'description(glob:"WIP:*") | description(glob:"TODO:*")'
+'local()' = 'description(glob:"LOCAL:*") | staging()'
+'staging()' = 'exactly(in_flight() & subject(exact:"staging"), 1)'
+'in_flight()' = 'mine() & mutable()'
+
+'landed(branch, op)' = '::branch ~ ::at_operation(op, branch)'
+'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+
+'stashed()' = '::stash_heads() ~ ::(@ | trunk() | (bookmarks() ~ stash_heads()))'
+'stash_heads()' = 'bookmarks(glob:"stash/*")'
+'conflicted_stash_heads()' = 'stash_heads() & (::stash_heads() & conflicts())::'
+
+T = 'trunk()'
+S = 'staging()'
+L = 'in_flight()'
+
+[revsets]
+log = 'present(@) | ancestors(immutable_heads().. ~ stashed(), 2) | trunk()'
+
+
+# ─── Git ──────────────────────────────────────────────────────────────────────
 
 [git]
 # Prevent pushing work in progress or anything explicitly labeled "private"
-private-commits = "description(glob:'LOCAL:*') | description(glob:'WIP:*') | description(glob:'TODO:*') | subject(exact:staging)"
+private-commits = 'local() | wip() | stashed()'
+
+
+# ─── Tools ────────────────────────────────────────────────────────────────────
 
 [fix.tools.rustfmt]
 command = ["rustfmt", "--emit", "stdout", "--edition", "2024"]
 patterns = ["glob:'**/*.rs'"]
 
-[aliases]
-tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@"]
-cool-squash = ["util", "exec", "--", "jj-squash"]
-move = ["util", "exec", "--", "jj-move"]
+[gg.ui]
+recent-workspaces = ["/home/jlusby/git/rust-lang/rust"]
 
-# insert current changes after bookmark and advance bookmark
-# usage: jj move-after <bookmark>
-move-after = ["util", "exec", "--", "bash", "-c", """
-set -euo pipefail
-jj new --no-edit -A ${1}
-jj bookmark advance ${1} -t ${1}+
-jj squash --into ${1} -k
-jj desc ${1}
-""", ""]
 
-# Make fetch happen and rebase staging on updated trunk
-# usage: jj gretchen
-gretchen = ["util", "exec", "--", "bash", "-c", """
-set -euo pipefail
-jj git fetch
-jj rebase -r 'local() ~ stashed()' -d 'trunk()' --skip-emptied --simplify-parents
-""", ""]
-
-# Split commit based on evolog. Usage: jj evosplit <commit_id>
-# where <commit_id> is the commit_id you want to restore the original commit to
-evosplit = ["util", "exec", "--", "bash", "-c", """
-set -euo pipefail
-jj new -A @
-jj restore --from ${1} --into @- --restore-descendants
-jj describe
-""", ""]
-t = ["trunk"]
-trunk = ["log", "-r", "latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
-landed = ["util", "exec", "--", "bash", "-c", """
-set -euo pipefail
-branch='trunk()'
-nth_fetch=1
-for argument in "$@"; do
-  if [[ $argument =~ ^[0-9]+$ ]]; then
-    nth_fetch=$argument
-  else
-    branch=$argument
-  fi
-done
-op=$(jj op log --no-graph -T 'if(self.description().starts_with("fetch"), self.id().short() ++ "\n")' | sed -n "${nth_fetch}p")
-if [[ -z $op ]]; then
-  echo "fewer than ${nth_fetch} fetches in the operation log" >&2
-  exit 1
-fi
-jj log -r "landed(${branch}, ${op}-)"
-""", ""]
-
-[revset-aliases]
-'staging()' = "exactly(mine() & mutable() & subject(exact:\"staging\"), 1)"
-T = "trunk()"
-S = "staging()"
-'local()' = 'mine() & mutable()'
-L = 'local()'
-"closest_bookmark(to)" = "heads(::to & bookmarks())"
-"landed(branch, op)" = "::branch ~ ::at_operation(op, branch)"
-"mine()" = "author_email(exact-i:\"jlusby42@gmail.com\") | author_email(exact-i:\"jlusby@scanner.dev\")"
-"stash_heads()" = 'bookmarks(glob:"jane/stash/*")'
-"stashed()" = '::stash_heads() ~ ::(@ | trunk() | (bookmarks() ~ stash_heads()))'
-"conflicted_stash_heads()" = 'stash_heads() & (::stash_heads() & conflicts())::'
-
-[revsets]
-log = 'builtin_log() ~ (stashed() ~ ::conflicted_stash_heads())'
+# ─── Templates ────────────────────────────────────────────────────────────────
 
 [templates]
 draft_commit_description = '''
@@ -98,13 +70,76 @@ concat(
 )
 '''
 
-[gg.ui]
-recent-workspaces = ["/home/jlusby/git/rust-lang/rust"]
 
-# Scanner specific configs
+# ─── Aliases ──────────────────────────────────────────────────────────────────
+
+[aliases]
+t = ["trunk"]
+trunk = ["log", "-r", "latest(::trunk() ~ builtin_log(), 8) | builtin_log()"]
+
+# Insert current changes after bookmark and advance bookmark
+# usage: jj move-after <bookmark>
+move-after = ["util", "exec", "--", "bash", "-c", '''
+  set -euo pipefail
+  jj new --no-edit -A ${1}
+  jj bookmark advance ${1} -t ${1}+
+  jj squash --into ${1} -k
+  jj desc ${1}
+''', ""]
+
+# Make fetch happen and rebase staging on updated trunk
+# usage: jj gretchen
+gretchen = ["util", "exec", "--", "bash", "-c", '''
+  set -euo pipefail
+  jj git fetch
+  jj rebase -r 'in_flight()' -d 'trunk()' --skip-emptied --simplify-parents
+''', ""]
+
+# Split commit based on evolog
+# usage: jj evosplit <commit_id>
+# where <commit_id> is the commit_id you want to restore the original commit to
+evosplit = ["util", "exec", "--", "bash", "-c", '''
+  set -euo pipefail
+  jj new -A @
+  jj restore --from ${1} --into @- --restore-descendants
+  jj describe
+''', ""]
+
+landed = [
+  "util",
+  "exec",
+  "--",
+  "bash",
+  "-c",
+  '''
+  set -euo pipefail
+  branch='trunk()'
+  nth_fetch=1
+  for argument in "$@"; do
+    if [[ $argument =~ ^[0-9]+$ ]]; then
+      nth_fetch=$argument
+    else
+      branch=$argument
+    fi
+  done
+  op=$(jj op log --no-graph -T 'if(self.description().starts_with("fetch"), self.id().short() ++ "\n")' | sed -n "${nth_fetch}p")
+  if [[ -z $op ]]; then
+    echo "fewer than ${nth_fetch} fetches in the operation log" >&2
+    exit 1
+  fi
+  jj log -r "landed(${branch}, ${op}-)"
+''',
+  "",
+]
+
+
+# ─── Scanner ──────────────────────────────────────────────────────────────────
+
 [[--scope]]
 --when.repositories = ["~/git/scanner"]
+
 [--scope.user]
 email = "jlusby@scanner.dev"
+
 [--scope.templates]
 git_push_bookmark = '"jane/push-" ++ change_id.short()'
