@@ -63,6 +63,19 @@ end
 
 vim.keymap.set("n", "<leader>cx", cancel_rust_analyzer_flycheck, { desc = "Cancel Rust Flycheck" })
 
+vim.keymap.set("n", "<leader>ght", function()
+  require("gitsigns").diffthis("origin/develop")
+end, { desc = "Diff This vs Trunk" })
+
+local function toggle_inline_trunk_changes()
+  local gitsigns = require("gitsigns")
+  local show_inline_trunk_changes = not require("gitsigns.config").config.show_deleted
+  gitsigns.toggle_deleted(show_inline_trunk_changes)
+  gitsigns.toggle_word_diff(show_inline_trunk_changes)
+end
+
+vim.keymap.set("n", "<leader>ghi", toggle_inline_trunk_changes, { desc = "Toggle Inline Trunk Changes" })
+
 vim.keymap.set({ "i", "n", "s" }, "<esc>", function()
   LazyVim.cmp.actions.snippet_stop()
   return "<esc>"

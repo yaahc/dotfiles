@@ -12,6 +12,7 @@ return {
       set_current_line_blame_color()
     end,
     opts = {
+      base = "origin/develop",
       current_line_blame = true,
       current_line_blame_opts = {
         virt_text_pos = "eol",
